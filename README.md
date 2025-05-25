@@ -1,4 +1,4 @@
-<img src="assets/TamGen-RL.png" width=100%> 
+<img src="assets/TamGen-logo.png" width=100%> 
 
 
 # TamGen-RL (Extension of NeuThera)
