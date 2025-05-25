@@ -1,7 +1,7 @@
 *.gz
 *.zip
-*.tsv
-*.csv
+# *.tsv
+# *.csv
 /gdg
 /env
 .env
@@ -17,7 +17,6 @@ lib
 /gpt_model/checkpoint_best.pt
 /checkpoints
 /database/PDBlib/*
-/database/PdbCCD/*
 /database/SplitPdb/*
 /databsae/PdbSws/*
 /database/UniProtFastaCache/*
@@ -29,10 +28,7 @@ TamGen_Demo_Data/*.bin
 TamGen_Demo_Data/*.idx
 TamGen_Demo_Data/src/*
 
-.gradio
-
-!data/drugbank_all_drugbank_vocabulary.csv.zip
-!data/pdb_chain_ensembl.csv.gz
-!data/pdbaa.gz
-
 build/*
+
+!.gitkeep
+*.DS_Store
