@@ -1,7 +1,7 @@
 <img src="assets/TamGen-RL.png" width=100%> 
 
 
-# TamGen
+# TamGen-RL (Extension of NeuThera)
 
 **This is a research-focused fork of TamGen**, extended with a novel closed-loop latent space optimization pipeline for target-aware molecule generation. The new framework supports feedback-driven compound generation and integrates docking, reward modeling, and latent space navigation (Centroid Shift and SGDS).
 
