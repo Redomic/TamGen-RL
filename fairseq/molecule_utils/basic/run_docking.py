@@ -7,6 +7,7 @@ import logging
 import tempfile
 from pathlib import Path
 from typing import Optional, MutableMapping, Tuple
+import uuid
 
 from .smiles_utils import smi2pdb
 from .. import config
@@ -93,55 +94,59 @@ def docking(
     except ValueError as e:
         logging.warning(e)
         return None
-    with tempfile.NamedTemporaryFile(suffix='.pdb') as f_tmp_ligand:
-        f_tmp_ligand.write(ligand_pdb_str.encode('utf-8'))
-        f_tmp_ligand.seek(0)
-        affinity = None
-        if box_center is not None:
-            if box_size is None:
-                box_size = (20., 20., 20.)
-            candidate_affinities = []
-            logging.info(f'Run docking of {receptor_filename} at center {box_center}.')
-            
+
+    ligand_dir = Path("debug_docking_failures")
+    ligand_dir.mkdir(exist_ok=True)
+    ligand_path = ligand_dir / f"{pdb_id}_{uuid.uuid4().hex[:8]}.pdb"
+    ligand_path.write_text(ligand_pdb_str)
+    logging.info(f"🧪 Saved ligand PDB to: {ligand_path}")
+
+    affinity = None
+    if box_center is not None:
+        if box_size is None:
+            box_size = (20., 20., 20.)
+        candidate_affinities = []
+        logging.info(f'Run docking of {receptor_filename} at center {box_center}.')
+        
+        try:
+            affinity = smina.query_box(
+                receptor_path=receptor_filename,
+                ligand_path=ligand_path,
+                center=box_center,
+                box=box_size,
+                output_complex_path=output_complex_path,
+            )
+        except SminaError as e:
+            logging.warning(
+                'Failed to run on target=%s, ligand=%s, center=%s, size=%s.',
+                receptor_filename, ligand_path, box_center, box_size)
+            logging.warning('Error: %s', e)
+        logging.debug(
+            f'Affinity of box (center={box_center}, size={box_size}): {affinity}'
+        )
+        candidate_affinities.append(affinity)
+    else:
+        autobox_filenames = split_result.ligand_filenames.copy()
+        if not autobox_filenames:
+            logging.warning('No autobox ligands found. Try to run without autobox.')
+            autobox_filenames.append(None)
+        candidate_affinities = []
+        logging.info(f'Run docking of {receptor_filename} on {len(autobox_filenames)} candidates.')
+        for autobox_filename in autobox_filenames:
             try:
-                affinity = smina.query_box(
+                affinity = smina.query(
                     receptor_path=receptor_filename,
-                    ligand_path=Path(f_tmp_ligand.name),
-                    center=box_center,
-                    box=box_size,
+                    ligand_path=ligand_path,
+                    autobox_ligand_path=autobox_filename,
                     output_complex_path=output_complex_path,
                 )
             except SminaError as e:
-                logging.warning(
-                    'Failed to run on target=%s, ligand=%s, center=%s, size=%s.',
-                    receptor_filename, f_tmp_ligand.name, box_center, box_size)
+                logging.warning('Failed to run on target=%s, ligand=%s, autobox=%s.',
+                                receptor_filename, ligand_path, autobox_filename)
                 logging.warning('Error: %s', e)
-            logging.debug(
-                f'Affinity of box (center={box_center}, size={box_size}): {affinity}'
-            )
+                continue
+            logging.debug(f'Affinity of autobox {autobox_filename}: {affinity}')
             candidate_affinities.append(affinity)
-        else:
-            autobox_filenames = split_result.ligand_filenames.copy()
-            if not autobox_filenames:
-                logging.warning('No autobox ligands found. Try to run without autobox.')
-                autobox_filenames.append(None)
-            candidate_affinities = []
-            logging.info(f'Run docking of {receptor_filename} on {len(autobox_filenames)} candidates.')
-            for autobox_filename in autobox_filenames:
-                try:
-                    affinity = smina.query(
-                        receptor_path=receptor_filename,
-                        ligand_path=Path(f_tmp_ligand.name),
-                        autobox_ligand_path=autobox_filename,
-                        output_complex_path=output_complex_path,
-                    )
-                except SminaError as e:
-                    logging.warning('Failed to run on target=%s, ligand=%s, autobox=%s.',
-                                    receptor_filename, f_tmp_ligand.name, autobox_filename)
-                    logging.warning('Error: %s', e)
-                    continue
-                logging.debug(f'Affinity of autobox {autobox_filename}: {affinity}')
-                candidate_affinities.append(affinity)
     if not candidate_affinities:
         logging.warning(f'Do not get any affinity scores on {pdb_id}.')
         return None

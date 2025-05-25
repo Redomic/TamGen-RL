@@ -4,6 +4,10 @@
 import torch
 import os
 from glob import glob
+import argparse
+from torch.serialization import safe_globals
+from fairseq.meters import AverageMeter, StopwatchMeter, TimeMeter
+from fairseq.data import Dictionary
 
 from fairseq import bleu, checkpoint_utils, options, progress_bar, tasks, utils
 from fairseq.meters import StopwatchMeter, TimeMeter
@@ -67,6 +71,7 @@ def filter_generated_cmpd(smi):
     s = Chem.MolToSmiles(m)
     return s, m
 
+
 class TamGenDemo:
     def __init__(
             self, 
@@ -86,7 +91,11 @@ class TamGenDemo:
             "--use-src-coord", 
         ]  
         if use_conditional:
+            self.use_conditional = True
             input_args.append("--gen-vae")
+        else:
+            self.use_conditional = False
+        self.use_conditional = use_conditional
         parser = options.get_generation_parser()
         args = options.parse_args_and_arch(parser, input_args)
 
@@ -120,14 +129,21 @@ class TamGenDemo:
         for name in OVERRIDES:
             overrides[name] = getattr(args, name, None)
 
-        # Load ensemble
+        # Load ensemble (wrapped with safe unpickling)
         print('| loading model(s) from {}'.format(args.path))
-        self.models, _model_args = checkpoint_utils.load_model_ensemble(
-            args.path.split(':'),
-            arg_overrides=overrides,
-            task=self.task,
-        )
-        # Optimize ensemble for generation
+        with safe_globals([
+            argparse.Namespace,
+            AverageMeter,
+            StopwatchMeter,
+            TimeMeter,
+            Dictionary,
+        ]):
+            self.models, _model_args = checkpoint_utils.load_model_ensemble(
+                args.path.split(':'),
+                arg_overrides=overrides,
+                task=self.task,
+            )
+
         for model in self.models:
             model.make_generation_fast_(
                 beamable_mm_beam_size=None if args.no_beamable_mm else args.beam,
@@ -152,7 +168,6 @@ class TamGenDemo:
         else:
             dataset = subset
             self.args.gen_subset = subset
-        # Load dataset (possibly sharded)
         self.task.load_dataset(dataset)
         self.itr = self.task.get_batch_iterator(
             dataset=self.task.dataset(dataset),
@@ -166,11 +181,11 @@ class TamGenDemo:
             num_workers=self.args.num_workers,
         ).next_epoch_itr(shuffle=False)
 
-    def sample(self, m_sample=50, use_cuda=True, toolcompound=None, customer_filter_fn=None,maxseed=101):
+    def sample(self, m_sample=50, use_cuda=True, toolcompound=None, customer_filter_fn=None, maxseed=101):
         if toolcompound is not None:
             toolcompound = Chem.MolFromSmiles(toolcompound)
         results_set = {}
-        for seed in tqdm(range(1,maxseed),total=maxseed):
+        for seed in tqdm(range(1, maxseed), total=maxseed):
             if len(results_set) > m_sample:
                 break
             torch.manual_seed(seed)
@@ -182,10 +197,28 @@ class TamGenDemo:
                         continue
 
                     prefix_tokens = None
-                  
                     hypos = self.task.inference_step(self.generator, self.models, sample, prefix_tokens)
+                    # Extract and log latent vectors for visualization
+                    for model in self.models:
+                        if hasattr(model, 'encoder'):
+                            encoder_out = model.encoder.forward(
+                                sample['net_input']['src_tokens'],
+                                sample['net_input']['src_lengths'],
+                                src_coord=sample['net_input'].get('src_coord', None),
+                                tgt_tokens=sample.get('target', None),
+                                tgt_coord=sample['net_input'].get('tgt_coord', None),
+                            )
+
+                            if 'latent_mean' in encoder_out and encoder_out['latent_mean'] is not None:
+                                z = encoder_out['latent_mean']
+                                z_np = z.detach().cpu().numpy()
+                                os.makedirs("latent_logs", exist_ok=True)
+                                with open("latent_logs/latent_vectors.tsv", "a") as f:
+                                    for zi in z_np:
+                                        f.write("\t".join([f"{x:.5f}" for x in zi.flatten()]) + "\n")
+
                     num_generated_tokens = sum(len(h[0]['tokens']) for h in hypos)
-   
+
                     for i, sample_id in enumerate(sample['id'].tolist()):
                         has_target = sample['target'] is not None
                         src_tokens = utils.strip_pad(sample['net_input']['src_tokens'][i, :], self.tgt_dict.pad())
@@ -193,7 +226,6 @@ class TamGenDemo:
                         if has_target:
                             target_tokens = utils.strip_pad(sample['target'][i, :], self.tgt_dict.pad()).int().cpu()
 
-                       
                         src_str = self.src_dict.string(src_tokens, self.args.remove_bpe)
                         target_str = self.tgt_dict.string(target_tokens, self.args.remove_bpe, escape_unk=True)
                      
@@ -201,7 +233,6 @@ class TamGenDemo:
                             tmps = target_str.strip().replace(" ", "")
                             toolcompound = Chem.MolFromSmiles(tmps)
 
-                        # Process top predictions
                         for j, hypo in enumerate(hypos[i][:self.args.nbest]):
                             hypo_tokens, hypo_str, alignment = utils.post_process_prediction(
                                 hypo_tokens=hypo['tokens'].int().cpu(),
@@ -212,17 +243,18 @@ class TamGenDemo:
                                 remove_bpe=self.args.remove_bpe,
                             )
 
-                            curr_ret= filter_generated_cmpd(hypo_str.strip().replace(" ", ""))
+                            curr_ret = filter_generated_cmpd(hypo_str.strip().replace(" ", ""))
                             if curr_ret is None:
                                 continue
                             if customer_filter_fn is not None:
                                 if not customer_filter_fn(*curr_ret):
                                     continue
-                            
                             results_set[curr_ret[0]] = curr_ret[1]
         
-        return results_set, toolcompound
-                            
-            
+        os.makedirs("latent_logs", exist_ok=True)
+        with open("latent_logs/generated_smiles.txt", "w") as f:
+            for smi in results_set.keys():
+                f.write(f"{smi}\n")
+        
 
-              
+        return results_set, toolcompound

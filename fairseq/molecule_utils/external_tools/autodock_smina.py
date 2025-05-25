@@ -62,6 +62,7 @@ class AutoDockSmina:
         return not bool(ret_code)
 
     def _do_query(self, cmd):
+        logging.info("Running Smina command: %s", " ".join(cmd))
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         with timing(f'AutoDock-smina query'):
@@ -69,6 +70,8 @@ class AutoDockSmina:
             ret_code = process.wait()
 
         if ret_code:
+            logging.error("Smina execution failed. Command: %s", " ".join(cmd))
+            logging.error("Smina stderr:\n%s", stderr.decode("utf-8"))
             raise SminaError(f'AutoDock-smina failed\nstderr:\n{stderr.decode("utf-8")}\n')
 
         output = stdout.decode('utf-8')
