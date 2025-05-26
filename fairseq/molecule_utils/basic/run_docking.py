@@ -4,6 +4,8 @@
 """Run docking on given target-ligand pair."""
 
 import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("📡 run_docking.py loaded and logging is working")
 import tempfile
 from pathlib import Path
 from typing import Optional, MutableMapping, Tuple
@@ -95,11 +97,11 @@ def docking(
         logging.warning(e)
         return None
 
-    ligand_dir = Path("debug_docking_failures")
-    ligand_dir.mkdir(exist_ok=True)
+    ligand_dir = Path("/workspace/workspace/TamGen/debug_docking_failures")
+    ligand_dir.mkdir(parents=True, exist_ok=True)
     ligand_path = ligand_dir / f"{pdb_id}_{uuid.uuid4().hex[:8]}.pdb"
     ligand_path.write_text(ligand_pdb_str)
-    logging.info(f"🧪 Saved ligand PDB to: {ligand_path}")
+    logging.info(f"🧪 Saved ligand PDB to: {ligand_path} (SMILES: {ligand_smiles})")
 
     affinity = None
     if box_center is not None:

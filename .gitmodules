@@ -1,0 +1,3 @@
+[submodule "gnina"]
+	path = gnina
+	url = https://github.com/gnina/gnina.git

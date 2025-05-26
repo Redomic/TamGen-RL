@@ -21,8 +21,6 @@ def setup_registry(
     REGISTRY_CLASS_NAMES = set()
 
     # maintain a registry of all registries
-    if registry_name in REGISTRIES:
-        return  # registry already exists
     REGISTRIES[registry_name] = {
         'registry': REGISTRY,
         'default': default,

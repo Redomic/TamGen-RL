@@ -212,10 +212,17 @@ class TamGenDemo:
                             if 'latent_mean' in encoder_out and encoder_out['latent_mean'] is not None:
                                 z = encoder_out['latent_mean']
                                 z_np = z.detach().cpu().numpy()
+                                print("🔥 Logging latent vectors, shape before reduction:", z_np.shape)
+                                if z_np.ndim == 3:
+                                    z_np = z_np.mean(axis=1)  # Reduce fragment dimension
+                                    print("✅ Reduced latent vector shape:", z_np.shape)
+                                assert z_np.ndim == 2, f"Expected 2D array, got {z_np.shape}"
                                 os.makedirs("latent_logs", exist_ok=True)
                                 with open("latent_logs/latent_vectors.tsv", "a") as f:
                                     for zi in z_np:
-                                        f.write("\t".join([f"{x:.5f}" for x in zi.flatten()]) + "\n")
+                                        zi = zi.flatten()
+                                        f.write("\t".join(f"{float(x):.5f}" for x in zi.flatten()) + "\n")
+                                        f.flush()
 
                     num_generated_tokens = sum(len(h[0]['tokens']) for h in hypos)
 

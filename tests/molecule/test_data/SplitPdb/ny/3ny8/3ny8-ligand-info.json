@@ -1,0 +1,65 @@
+[
+    {
+        "ligand_id": 0,
+        "pdb_id": "3ny8",
+        "ccd_id": "CLR",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1201,
+        "insertion_code": " "
+    },
+    {
+        "ligand_id": 1,
+        "pdb_id": "3ny8",
+        "ccd_id": "CLR",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1202,
+        "insertion_code": " "
+    },
+    {
+        "ligand_id": 2,
+        "pdb_id": "3ny8",
+        "ccd_id": "JRZ",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1203,
+        "insertion_code": " "
+    },
+    {
+        "ligand_id": 3,
+        "pdb_id": "3ny8",
+        "ccd_id": "OLA",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1204,
+        "insertion_code": " "
+    },
+    {
+        "ligand_id": 4,
+        "pdb_id": "3ny8",
+        "ccd_id": "OLC",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1205,
+        "insertion_code": " "
+    },
+    {
+        "ligand_id": 5,
+        "pdb_id": "3ny8",
+        "ccd_id": "OLC",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1206,
+        "insertion_code": " "
+    },
+    {
+        "ligand_id": 6,
+        "pdb_id": "3ny8",
+        "ccd_id": "PGE",
+        "model_id": 0,
+        "chain_id": "A",
+        "res_id": 1207,
+        "insertion_code": " "
+    }
+]
