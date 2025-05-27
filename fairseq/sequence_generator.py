@@ -143,8 +143,8 @@ class SequenceGenerator(object):
                 model.max_decoder_positions() - 1,
             )
 
-        # compute the encoder output for each beam
-        encoder_outs = model.forward_encoder(encoder_input)
+        # compute the encoder output for each beam, allow override for warm-start decoding
+        encoder_outs = sample.get("encoder_outs_override", model.forward_encoder(encoder_input))
         new_order = torch.arange(bsz).view(-1, 1).repeat(1, beam_size).view(-1)
         new_order = new_order.to(src_tokens.device).long()
         encoder_outs = model.reorder_encoder_out(encoder_outs, new_order)

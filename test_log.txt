@@ -12,9 +12,9 @@ gnina is based on smina and AutoDock Vina.
 Please cite appropriately.
 
 Commandline: /workspace/workspace/TamGen/gnina/build/bin/gnina --receptor tests/molecule/test_data/SplitPdb/ny/3ny8/3ny8-no-ligand.pdb --ligand tests/molecule/test_data/SplitPdb/ny/3ny8/3ny8-ligand0.pdb --autobox_ligand tests/molecule/test_data/SplitPdb/ny/3ny8/3ny8-ligand0.pdb --exhaustiveness 1 --num_modes 1 --out test_out.sdf --log test_log.txt
-Using random seed: -1002039930
+Using random seed: -1206929926
 
 mode |  affinity  |  intramol  |    CNN     |   CNN
      | (kcal/mol) | (kcal/mol) | pose score | affinity
 -----+------------+------------+------------+----------
-    1       -7.21       -0.45       0.4342      6.264
+    1       -7.99       -0.35       0.6235      6.539

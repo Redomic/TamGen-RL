@@ -4,7 +4,6 @@ from rdkit import Chem
 from rdkit.Chem import QED
 from rdkit.Chem import Descriptors
 import math
-from fairseq.molecule_utils.basic.run_docking import docking
 
 # SAS calculator setup
 try:
@@ -13,13 +12,27 @@ try:
 except ImportError:
     raise ImportError("RDKit must be installed with SAS score dependencies")
 
-def compute_qed(mol):
+def compute_qed(mol, device='cpu'):
+    """
+    Compute QED (Quantitative Estimation of Drug-likeness) for a molecule.
+    Always runs on CPU by default. The 'device' argument is for future compatibility
+    if torch-based or GPU-accelerated computation is added.
+    Currently processes a single molecule at a time; batch support may be added in future.
+    """
+    # NOTE: All RDKit operations are CPU-based. If torch is used in future, use the 'device' argument.
     try:
         return QED.qed(mol)
     except Exception:
         return 0.0
 
-def compute_sas(mol):
+def compute_sas(mol, device='cpu'):
+    """
+    Compute SAS (Synthetic Accessibility Score) for a molecule.
+    Always runs on CPU by default. The 'device' argument is for future compatibility
+    if torch-based or GPU-accelerated computation is added.
+    Currently processes a single molecule at a time; batch support may be added in future.
+    """
+    # NOTE: All RDKit operations are CPU-based. If torch is used in future, use the 'device' argument.
     try:
         from rdkit.Chem import rdMolDescriptors
         sa_score = rdMolDescriptors.CalcSyntheticAccessibilityScore(mol)
@@ -27,12 +40,20 @@ def compute_sas(mol):
     except Exception:
         return 10.0  # high = bad
 
-def compute_reward(mol, docking_score, lambda_sas, lambda_logp, lambda_mw):
+def compute_reward(mol, docking_score, lambda_sas, lambda_logp, lambda_mw, device='cpu'):
+    """
+    Compute the overall reward for a molecule, combining QED, SAS, logP, MW, and docking score.
+    All calculations are performed on CPU by default. The 'device' argument is for future compatibility
+    with torch-based or GPU-accelerated reward models.
+    Currently processes a single molecule at a time; batch support may be added in future.
+    To add torch support, ensure all tensors are placed on the specified device.
+    """
+    # NOTE: All RDKit operations are CPU-based. If torch is used in future, use the 'device' argument.
     if mol is None:
         return -10.0, {}
 
-    qed = compute_qed(mol)
-    sas = compute_sas(mol)
+    qed = compute_qed(mol, device=device)
+    sas = compute_sas(mol, device=device)
     logp = Crippen.MolLogP(mol)
     mw = Descriptors.MolWt(mol)
     hbd = Lipinski.NumHDonors(mol)
@@ -55,12 +76,7 @@ def compute_reward(mol, docking_score, lambda_sas, lambda_logp, lambda_mw):
     if lipinski_violations > 2:
         penalty += 1.0
 
-    if docking_score is None:
-        raise ValueError("Docking score must be provided for reward computation.")
-
     docking_bonus = 0.0
-    if docking_score is not None:
-        docking_bonus = min(1.0, -docking_score / 10.0)  # Assumes docking score is negative
 
     reward = (
         qed

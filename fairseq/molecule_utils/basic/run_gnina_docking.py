@@ -65,41 +65,18 @@ def docking(
         logging.warning(f"⚠️ Cannot find target file of {pdb_id}, skipping.")
         return None
 
-    # Batch docking logic for a single ligand (for API compatibility, use batch code for one ligand)
-    import hashlib
-    ligand_dir = Path("debug_docking_failures")
-    ligand_dir.mkdir(parents=True, exist_ok=True)
-    smiles_list = [ligand_smiles]
-    ligand_pdb_list = []
-    smi_to_hash = {}
-    successful_conversion = True
-    for smi in smiles_list:
-        ligand_hash = hashlib.sha256(smi.encode()).hexdigest()[:10]
-        smi_to_hash[ligand_hash] = smi
-        try:
-            ligand_pdb_str = smi2pdb(smi, compute_coord=True, optimize=None)
-        except ValueError as e:
-            logging.warning(f"⚠️ Ligand conversion failed: {e}")
-            successful_conversion = False
-            break
-        ligand_pdb_list.append((ligand_hash, ligand_pdb_str))
-    if not successful_conversion:
+    import uuid
+    try:
+        ligand_pdb_str = smi2pdb(ligand_smiles, compute_coord=True, optimize='UFF')
+    except ValueError as e:
+        logging.warning(f"⚠️ Ligand conversion failed: {e}")
         return None
 
-    # Save ligand PDBs and batch file
-    for ligand_hash, ligand_pdb_str in ligand_pdb_list:
-        ligand_path = ligand_dir / f"{pdb_id}_{ligand_hash}.pdb"
-        if not ligand_path.exists():
-            ligand_path.write_text(ligand_pdb_str)
-            logging.info(f"🧪 Saved ligand PDB to: {ligand_path} (SMILES: {smi_to_hash[ligand_hash]})")
-        else:
-            logging.info(f"🧪 Using cached ligand PDB: {ligand_path}")
-
-    multi_ligand_path = ligand_dir / f"{pdb_id}_batch.pdb"
-    # Only cache the multi-ligand PDB if all SMILES were converted
-    with open(multi_ligand_path, "w") as f:
-        for ligand_hash, ligand_pdb_str in ligand_pdb_list:
-            f.write(ligand_pdb_str)
+    ligand_dir = Path("debug_docking_failures")
+    ligand_dir.mkdir(parents=True, exist_ok=True)
+    ligand_path = ligand_dir / f"{pdb_id}_{uuid.uuid4().hex[:8]}.pdb"
+    ligand_path.write_text(ligand_pdb_str)
+    logging.info(f"🧪 Saved ligand PDB to: {ligand_path} (SMILES: {ligand_smiles})")
 
     autobox_filenames = split_result.ligand_filenames.copy()
     if not autobox_filenames:
@@ -108,30 +85,25 @@ def docking(
 
     logging.info(f"🚀 Running GNINA batch docking on {len(autobox_filenames)} autobox candidates.")
     candidate_affinities = []
-    # For each autobox ligand, run batch docking
+    # For each autobox ligand, run docking
     for autobox_filename in autobox_filenames:
         gnina.exhaustiveness = 1
         gnina.num_modes = 1
         gnina.cnn_scoring = "cnnscore_only"
         gnina.device = 0
         try:
-            affinity_dict = gnina.batch_query(
+            affinity = gnina.query(
                 receptor_path=receptor_filename,
-                ligand_path=multi_ligand_path,
+                ligand_path=ligand_path,
                 autobox_ligand_path=autobox_filename,
+                output_complex_path=output_complex_path or Path('/dev/null'),
             )
         except GNINAError as e:
             logging.warning(
-                f"❌ GNINA batch failed for target={receptor_filename}, multi_ligand={multi_ligand_path}, autobox={autobox_filename}.\n{e}"
+                f"❌ GNINA batch failed for target={receptor_filename}, ligand={ligand_path}, autobox={autobox_filename}.\n{e}"
             )
             continue
-        # Map results back to SMILES using hash
-        docking_scores = [
-            affinity_dict.get(hashlib.sha256(s.encode()).hexdigest()[:10], None) for s in smiles_list
-        ]
-        # For single ligand, just append its score if successful
-        if docking_scores[0] is not None:
-            candidate_affinities.append(docking_scores[0])
+        candidate_affinities.append(affinity)
 
     if not candidate_affinities:
         logging.warning(f"⚠️ No successful docking scores for {pdb_id}")
@@ -140,5 +112,4 @@ def docking(
     affinity = min(candidate_affinities)
     if docking_result_cache is not None:
         docking_result_cache[(pdb_id, ligand_smiles, box_center)] = affinity
-
     return affinity
