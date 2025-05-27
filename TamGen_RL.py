@@ -6,6 +6,7 @@ from rdkit import Chem
 import torch
 from tqdm import tqdm
 
+from TamGen_Demo import TamGenDemo
 from fairseq import progress_bar, utils
 
 from utils import prepare_pdb_data, prepare_pdb_data_center, filter_generated_cmpd
@@ -17,7 +18,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-class TamGenRL:
+class TamGenRL(TamGenDemo):
     def sample(
         self,
         m_sample=100,
@@ -207,17 +208,20 @@ class TamGenRL:
         dummy_src = torch.ones((batch_size, 5), dtype=torch.long, device=device)
         dummy_len = torch.full((batch_size,), 5, dtype=torch.long, device=device)
 
+        causal_mask = torch.tril(torch.ones((max_len, max_len), dtype=torch.bool, device=device))
+
         encoder_out = {
-            "encoder_out": None,
-            "encoder_padding_mask": None,
+            "encoder_out": z_tensor.transpose(0, 1),  # shape (T, B, D)
+            "encoder_padding_mask": torch.zeros(batch_size, 1, dtype=torch.bool, device=device),
             "latent_mean": z_tensor,
-            "latent_logstd": None,
+            "latent_logstd": torch.zeros_like(z_tensor),
         }
 
         sample = {
             "net_input": {
                 "src_tokens": dummy_src,
                 "src_lengths": dummy_len,
+                # "mask": causal_mask
             },
             "encoder_outs_override": [encoder_out],
         }

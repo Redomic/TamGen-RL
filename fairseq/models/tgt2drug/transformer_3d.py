@@ -455,7 +455,7 @@ class Transformer3DEncoder(FairseqEncoder):
         else:
             x = x.transpose(0, 1)
             for layer in self.layers:
-                x = layer(x, encoder_padding_mask)
+                x = layer(x, None, encoder_padding_mask)
 
         if self.layer_norm:
             x = self.layer_norm(x)
@@ -569,6 +569,25 @@ class TransformerDecoderFromPretrained(TransformerDecoder):
                 dropout=args.attention_dropout,
                 encoder_decoder_attention=True,
             )
+
+    def forward(self, prev_output_tokens, encoder_out=None, features_only=False,
+                alignment_layer=None, alignment_heads=None, src_lengths=None,
+                return_all_hiddens=False, **unused):
+        # Always use a causal mask internally for autoregressive decoding
+        tgt_len = prev_output_tokens.size(1)
+        mask = torch.tril(torch.ones((tgt_len, tgt_len), dtype=torch.bool, device=prev_output_tokens.device))
+
+        return super().forward(
+            prev_output_tokens,
+            encoder_out=encoder_out,
+            features_only=features_only,
+            alignment_layer=alignment_layer,
+            alignment_heads=alignment_heads,
+            src_lengths=src_lengths,
+            return_all_hiddens=return_all_hiddens,
+            mask=mask,
+            **unused,
+        )
 
 @register_model_architecture('transformer_3d', 'transformer_3d')
 def base_architecture(args):
