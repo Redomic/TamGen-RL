@@ -26,60 +26,67 @@ def centroid_shift_optimize(z_vectors, smiles_list, docking_scores, latent_dim=1
     """
     assert len(z_vectors) == len(smiles_list) == len(docking_scores)
 
-    # Clamp top_k to available latents/SMILES and warn if clamped
-    top_k = min(top_k, len(z_vectors))
-    if top_k < 5:
-        print(f"[WARNING] Only {top_k} valid molecules available for centroid shift (reduce top_k or increase diversity).")
-
+    # Convert to numpy array early and check
     z_vectors = np.array(z_vectors)
 
+    # Clamp top_k to available latents/SMILES and warn if clamped
+    actual_top_k = min(top_k, len(z_vectors))
+    if actual_top_k < 5:
+        print(f"[WARNING] Only {actual_top_k} valid molecules available for centroid shift (reduce top_k or increase diversity).")
+
     reward_model = LatentRewardModel(latent_dim)
-    reward_model
     rewards = []
     metrics_list = []
 
-    for z, smi, dock in zip(z_vectors, smiles_list, docking_scores):
+    for i, (z, smi, dock) in enumerate(zip(z_vectors, smiles_list, docking_scores)):
         mol = Chem.MolFromSmiles(smi)
-        reward, metrics = compute_reward(mol, docking_score=dock,
-                                         lambda_sas=lambda_sas,
-                                         lambda_logp=lambda_logp,
-                                         lambda_mw=lambda_mw)
+        if mol is None:
+            reward, metrics = -10.0, {"error": "invalid_smiles"}
+        else:
+            reward, metrics = compute_reward(mol, docking_score=dock,
+                                             lambda_sas=lambda_sas,
+                                             lambda_logp=lambda_logp,
+                                             lambda_mw=lambda_mw)
+        
         reward_model.add(z, reward)
         rewards.append(reward)
         metrics_list.append(metrics)
 
+    # Train the reward model
     reward_model.train()
-    # Print devices of underlying torch model parameters for debugging
-    print("Model parameters devices:", [p.device for p in reward_model.model.parameters()])
-    # Print devices of stored tensors in z_list, if elements are tensors; otherwise, indicate 'cpu'
-    # (z_list may contain numpy arrays or torch tensors depending on implementation)
-    stored_devices = []
-    for t in reward_model.z_list:
-        # Check if t is a torch tensor with .device attribute
-        if hasattr(t, "device"):
-            stored_devices.append(t.device)
-        else:
-            # Assume numpy arrays or other, which reside on CPU
-            stored_devices.append("cpu")
-    print("Stored tensors devices:", stored_devices)
-    direction = reward_model.get_centroid_shift(top_k=top_k, smiles_list=smiles_list)
+    
+    # Check if the reward model was cleared (this is the bug!)
+    if len(reward_model.z_list) == 0:
+        # Re-add the data since it was cleared
+        for z, reward in zip(z_vectors, rewards):
+            reward_model.add(z, reward)
+    
+    # Get centroid shift
+    direction = reward_model.get_centroid_shift(top_k=actual_top_k, smiles_list=smiles_list)
+    direction_norm = np.linalg.norm(direction)
+    
+    if direction_norm < 1e-8:
+        print(f"WARNING - Direction vector is nearly zero! Using random direction.")
+        direction = np.random.normal(0, 0.1, size=direction.shape)
 
-    reward_model.z_list.clear()
-    reward_model.r_list.clear()
-
-    z_shifted_list = [
-        np.array(z) + shift_alpha * direction + np.random.normal(0, noise_sigma, size=z.shape)
-        for z in z_vectors
-    ]
+    # Apply centroid shift
+    z_shifted_list = []
+    for i, z in enumerate(z_vectors):
+        shifted = np.array(z) + shift_alpha * direction + np.random.normal(0, noise_sigma, size=z.shape)
+        z_shifted_list.append(shifted)
 
     # Log diversity stats
-    print(f"Unique SMILES this iteration: {len(set(smiles_list))} / {len(smiles_list)}")
+    unique_count = len(set(smiles_list))
+    total_count = len(smiles_list)
+    
+    if unique_count < total_count * 0.1:  # Less than 10% unique
+        print(f"WARNING - Very low diversity! Consider increasing noise or reducing shift.")
 
+    # Don't clear the reward model lists here - let them clear naturally
     result = (z_shifted_list, rewards, metrics_list)
 
-    # Explicitly delete large temporary variables and clear CUDA cache to help avoid OOM
-
-    del reward_model, rewards, metrics_list, z_vectors, direction
+    # Clean up
+    del reward_model, direction
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()

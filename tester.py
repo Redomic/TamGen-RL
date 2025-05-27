@@ -19,16 +19,16 @@ demo.reload_data(subset="gen_" + pdb_id.lower())
 
 # === Run Closed-Loop Optimization ===
 final_smiles = demo.sample(
-    m_sample=500000,         # Number of molecules per iteration
-    num_iter=5,           # Number of closed-loop optimization steps
-    latent_dim=256,       # Latent space dimensionality (set to your model's config)
-    alpha=0.5,            # Centroid shift parameter
-    top_k=50,             # How many top molecules to use for shifting
-    lambda_sas=0.3,       # Reward hyperparameters
+    m_sample=50000,      # Tiny
+    num_iter=20,      # Just 2 iterations  
+    latent_dim=256,
+    alpha=0.4,
+    top_k=10,
+    lambda_sas=0.3,
     lambda_logp=0.1,
     lambda_mw=0.1,
-    maxseed=20,           # Number of random seeds (first iteration)
-    use_cuda=True
+    maxseed=10,       # Just 2 seeds
+    use_cuda=torch.cuda.is_available()
 )
 
 # === Save or Analyze Results ===

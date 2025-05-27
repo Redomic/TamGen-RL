@@ -23,7 +23,7 @@ class LatentRewardModel:
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         ).to(self.device)
-        print(f"[DEBUG] Model created on device: {next(self.model.parameters()).device}")
+        # print(f"[DEBUG] Model created on device: {next(self.model.parameters()).device}")
         self.loss_fn = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
 
@@ -39,7 +39,7 @@ class LatentRewardModel:
         # Always create tensors on CPU
         z_tensor = torch.tensor(np.stack(self.z_list), dtype=torch.float32, device=self.device)
         r_tensor = torch.tensor(self.r_list, dtype=torch.float32, device=self.device).unsqueeze(-1)
-        print(f"[DEBUG] z_tensor device: {z_tensor.device}, r_tensor device: {r_tensor.device}")
+        # print(f"[DEBUG] z_tensor device: {z_tensor.device}, r_tensor device: {r_tensor.device}")
 
         for _ in range(epochs):
             pred = self.model(z_tensor)
@@ -50,7 +50,7 @@ class LatentRewardModel:
         # Clear data after training to avoid unbounded memory growth
         self.z_list.clear()
         self.r_list.clear()
-        print("[DEBUG] Cleared z_list and r_list after training.")
+        # print("[DEBUG] Cleared z_list and r_list after training.")
 
     def predict(self, z):
         self.model.eval()
@@ -59,7 +59,7 @@ class LatentRewardModel:
             z_tensor = torch.tensor(z, dtype=torch.float32, device=self.device)
             if len(z_tensor.shape) == 1:
                 z_tensor = z_tensor.unsqueeze(0)
-            print(f"[DEBUG] Predict z_tensor device: {z_tensor.device}")
+            # print(f"[DEBUG] Predict z_tensor device: {z_tensor.device}")
             return self.model(z_tensor).squeeze().cpu().numpy()
 
     def top_k_z(self, k=50, smiles_list=None):
