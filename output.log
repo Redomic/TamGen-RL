@@ -1,283 +1,24 @@
-📄 Preparing PDB: 3ny8
-3ny8 is downloaded
-Namespace(no_progress_bar=False, log_interval=1000, log_format=None, tensorboard_logdir='', tbmf_wrapper=False, seed=1, cpu=False, fp16=False, memory_efficient_fp16=False, fp16_init_scale=128, fp16_scale_window=None, fp16_scale_tolerance=0.0, min_loss_scale=0.0001, threshold_loss_scale=None, user_dir=None, criterion='cross_entropy', tokenizer=None, bpe=None, optimizer='nag', lr_scheduler='fixed', task='translation_coord', num_workers=1, skip_invalid_size_inputs_valid_test=False, max_tokens=1024, max_sentences=None, required_batch_size_multiple=8, dataset_impl=None, gen_subset='gen_8fln', num_shards=1, shard_id=0, path='checkpoints/crossdocked_model/checkpoint_best.pt', remove_bpe=None, quiet=False, model_overrides='{}', results_path=None, beam=20, nbest=20, max_len_a=0, max_len_b=200, min_len=1, match_source_len=False, no_early_stop=False, unnormalized=False, no_beamable_mm=False, lenpen=1, unkpen=0, replace_unk=None, sacrebleu=False, score_reference=False, prefix_size=0, prefix_string=None, tag_prefix_token=False, no_repeat_ngram_size=0, sampling=False, sampling_topk=-1, sampling_topp=-1.0, temperature=1.0, diverse_beam_groups=-1, diverse_beam_strength=0.5, print_alignment=False, scorer='bleu', codegen_pov_replace_unk=True, dump_hyp=None, momentum=0.99, weight_decay=0.0, force_anneal=None, lr_shrink=0.1, warmup_updates=0, data='TamGen_Demo_Data', source_lang='tg', target_lang='m1', lazy_load=False, raw_text=False, left_pad_source='True', left_pad_target='False', max_source_positions=1024, max_target_positions=1024, upsample_primary=1, coord_mode='raw', use_src_coord=True, use_tgt_coord=False, shuffle_input=False, vae=False, sample_beta=1.0, hint=False, hint_rate=0.5, gen_coord_noise=False, gen_rot=False, gen_vae=True, remove_prefix_fragment=False)
+Namespace(no_progress_bar=False, log_interval=1000, log_format=None, tensorboard_logdir='', tbmf_wrapper=False, seed=1, cpu=False, fp16=False, memory_efficient_fp16=False, fp16_init_scale=128, fp16_scale_window=None, fp16_scale_tolerance=0.0, min_loss_scale=0.0001, threshold_loss_scale=None, user_dir=None, criterion='cross_entropy', tokenizer=None, bpe=None, optimizer='nag', lr_scheduler='fixed', task='translation_coord', num_workers=1, skip_invalid_size_inputs_valid_test=False, max_tokens=1024, max_sentences=None, required_batch_size_multiple=8, dataset_impl=None, gen_subset='gen_8fln', num_shards=1, shard_id=0, path='checkpoints/crossdock_pdb_A10/checkpoint_best.pt', remove_bpe=None, quiet=False, model_overrides='{}', results_path=None, beam=20, nbest=20, max_len_a=0, max_len_b=200, min_len=1, match_source_len=False, no_early_stop=False, unnormalized=False, no_beamable_mm=False, lenpen=1, unkpen=0, replace_unk=None, sacrebleu=False, score_reference=False, prefix_size=0, prefix_string=None, tag_prefix_token=False, no_repeat_ngram_size=0, sampling=False, sampling_topk=-1, sampling_topp=-1.0, temperature=1.0, diverse_beam_groups=-1, diverse_beam_strength=0.5, print_alignment=False, scorer='bleu', codegen_pov_replace_unk=True, dump_hyp=None, momentum=0.99, weight_decay=0.0, force_anneal=None, lr_shrink=0.1, warmup_updates=0, data='./TamGen_Demo_Data', source_lang='tg', target_lang='m1', lazy_load=False, raw_text=False, left_pad_source='True', left_pad_target='False', max_source_positions=1024, max_target_positions=1024, upsample_primary=1, coord_mode='raw', use_src_coord=True, use_tgt_coord=False, shuffle_input=False, vae=False, sample_beta=1.0, hint=False, hint_rate=0.5, gen_coord_noise=False, gen_rot=False, gen_vae=True, remove_prefix_fragment=False)
 | [tg] dictionary: 25 types
 | [m1] dictionary: 962 types
-| loading model(s) from checkpoints/crossdocked_model/checkpoint_best.pt
-checkpoints/crossdocked_model/checkpoint_best.pt
-gpt_model/checkpoint_best.pt
-| loaded 5 examples from: TamGen_Demo_Data/gen_3ny8.tg-m1.tg
-| loaded 5 examples from: TamGen_Demo_Data/gen_3ny8.tg-m1.m1
-| TamGen_Demo_Data gen_3ny8 tg-m1 5 examples
-| loaded 5 examples from: TamGen_Demo_Data/gen_3ny8.tg-m1.tg.coord
-⚙️  Starting closed-loop optimization...
+| loading model(s) from checkpoints/crossdock_pdb_A10/checkpoint_best.pt
+checkpoints/crossdock_pdb_A10/checkpoint_best.pt
+Traceback (most recent call last):
+  File "/workspace/workspace/TamGen/tester.py", line 13, in <module>
+    worker = TamGenDemo(
+  File "/workspace/workspace/TamGen/TamGen_OG.py", line 125, in __init__
+    self.models, _model_args = checkpoint_utils.load_model_ensemble(
+  File "/workspace/workspace/TamGen/fairseq/checkpoint_utils.py", line 160, in load_model_ensemble
+    ensemble, args, _task = load_model_ensemble_and_task(filenames, arg_overrides, task)
+  File "/workspace/workspace/TamGen/fairseq/checkpoint_utils.py", line 171, in load_model_ensemble_and_task
+    state = load_checkpoint_to_cpu(filename, arg_overrides)
+  File "/workspace/workspace/TamGen/fairseq/checkpoint_utils.py", line 140, in load_checkpoint_to_cpu
+    state = torch.load(
+  File "/root/miniconda3/envs/TamGen/lib/python3.9/site-packages/torch/serialization.py", line 1529, in load
+    raise pickle.UnpicklingError(_get_wo_message(str(e))) from None
+_pickle.UnpicklingError: Weights only load failed. This file can still be loaded, to do so you have two options, [1mdo those steps only if you trust the source of the checkpoint[0m. 
+	(1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+	(2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+	WeightsUnpickler error: Unsupported global: GLOBAL argparse.Namespace was not an allowed global by default. Please use `torch.serialization.add_safe_globals([argparse.Namespace])` or the `torch.serialization.safe_globals([argparse.Namespace])` context manager to allowlist this global if you trust this class/function.
 
-🚀 Iteration 1/20
-  0%|          | 0/10 [00:00<?, ?it/s]📦 Stored protein input with shape: torch.Size([5, 78])
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [5, 20], which does not match the required output shape [4, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [5, 20], which does not match the required output shape [4, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [5, 40], which does not match the required output shape [4, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [4, 20], which does not match the required output shape [3, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [4, 20], which does not match the required output shape [3, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [4, 40], which does not match the required output shape [3, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [3, 20], which does not match the required output shape [2, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [3, 20], which does not match the required output shape [2, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [3, 40], which does not match the required output shape [2, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [2, 20], which does not match the required output shape [1, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [2, 20], which does not match the required output shape [1, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [2, 40], which does not match the required output shape [1, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
- 10%|█         | 1/10 [00:03<00:32,  3.66s/it]/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [1, 40], which does not match the required output shape [5, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
- 20%|██        | 2/10 [00:06<00:23,  2.94s/it] 30%|███       | 3/10 [00:08<00:18,  2.67s/it] 40%|████      | 4/10 [00:10<00:15,  2.59s/it] 50%|█████     | 5/10 [00:13<00:12,  2.51s/it] 60%|██████    | 6/10 [00:15<00:09,  2.48s/it] 70%|███████   | 7/10 [00:18<00:07,  2.45s/it] 80%|████████  | 8/10 [00:20<00:04,  2.43s/it]/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [3, 20], which does not match the required output shape [1, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [3, 20], which does not match the required output shape [1, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [3, 40], which does not match the required output shape [1, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
- 90%|█████████ | 9/10 [00:22<00:02,  2.41s/it] 90%|█████████ | 9/10 [00:22<00:02,  2.54s/it]
-Total valid SMILES and latents after all seeds: 45
-Unique SMILES this iteration: 5 / 45
-📊 Optimizing latent space...
-[WARNING] Only 5 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 1 complete.
-
-🚀 Iteration 2/20
-🔄 Generating from 45 shifted latent vectors...
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [1, 40], which does not match the required output shape [4, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [4, 20], which does not match the required output shape [1, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [4, 20], which does not match the required output shape [1, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [4, 40], which does not match the required output shape [1, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:456: UserWarning: An output with one or more elements was resized since it had shape [4, 20], which does not match the required output shape [2, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/sequence_generator.py:466: UserWarning: An output with one or more elements was resized since it had shape [4, 20], which does not match the required output shape [2, 20]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.gather(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [4, 40], which does not match the required output shape [2, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [2, 40], which does not match the required output shape [4, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-/workspace/workspace/TamGen/fairseq/search.py:71: UserWarning: An output with one or more elements was resized since it had shape [3, 40], which does not match the required output shape [4, 40]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /pytorch/aten/src/ATen/native/Resize.cpp:31.)
-  torch.topk(
-Unique SMILES this iteration: 10 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 2 complete.
-
-🚀 Iteration 3/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 7 / 45
-📊 Optimizing latent space...
-[WARNING] Only 7 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 3 complete.
-
-🚀 Iteration 4/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 8 / 45
-📊 Optimizing latent space...
-[WARNING] Only 8 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 4 complete.
-
-🚀 Iteration 5/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 10 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 5 complete.
-
-🚀 Iteration 6/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 9 / 45
-📊 Optimizing latent space...
-[WARNING] Only 9 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 6 complete.
-
-🚀 Iteration 7/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 12 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 7 complete.
-
-🚀 Iteration 8/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 15 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 8 complete.
-
-🚀 Iteration 9/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 13 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 9 complete.
-
-🚀 Iteration 10/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 7 / 45
-📊 Optimizing latent space...
-[WARNING] Only 7 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 10 complete.
-
-🚀 Iteration 11/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 8 / 45
-📊 Optimizing latent space...
-[WARNING] Only 8 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 11 complete.
-
-🚀 Iteration 12/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 13 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 12 complete.
-
-🚀 Iteration 13/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 8 / 45
-📊 Optimizing latent space...
-[WARNING] Only 8 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 13 complete.
-
-🚀 Iteration 14/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 10 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 14 complete.
-
-🚀 Iteration 15/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 10 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 15 complete.
-
-🚀 Iteration 16/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 8 / 45
-📊 Optimizing latent space...
-[WARNING] Only 8 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 16 complete.
-
-🚀 Iteration 17/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 7 / 45
-📊 Optimizing latent space...
-[WARNING] Only 7 unique SMILES in top_k_z.
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 17 complete.
-
-🚀 Iteration 18/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 11 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 18 complete.
-
-🚀 Iteration 19/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 10 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 19 complete.
-
-🚀 Iteration 20/20
-🔄 Generating from 45 shifted latent vectors...
-Unique SMILES this iteration: 11 / 45
-📊 Optimizing latent space...
-   ✔ Optimization complete.
-💾 Saving latent vectors and rewards...
-✅ Iteration 20 complete.
-
-🎉 Feedback loop finished. Ready for SGDS optimization.
-
-Final set of SMILES (45 molecules):
-CCc1[nH]c(=N)[nH]c(=N)c1C#C[C@H](C)c1cc(OC)cc(-c2ccncc2)c1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccoc2)cc1
-C[C@@H](C(=O)N1CCOCC1)N1CC[C@H](NS(=O)(=O)c2cc3cc(Cl)ccc3s2)C1=O
-COc1cc2c(cc1O)CC[C@@H]1[C@@H]2CC[C@]2(C)[C@@H](OS(N)(O)O)CC[C@@H]12
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-C[C@@H](C(=O)N1CCOCC1)N1CC[C@H](NS(=O)(=O)c2cc3cc(Cl)ccc3s2)C1=O
-N=C(O)Nc1sc(-c2ccc(Cl)cc2)cc1C(O)=N[C@H]1CCCNC1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-C[C@@H](C(=O)N1CCOCC1)N1CC[C@H](NS(=O)(=O)c2cc3cc(Cl)ccc3s2)C1=O
-C[C@@H](C(=O)N1CCOCC1)N1CC[C@H](NS(=O)(=O)c2cc3cc(Cl)ccc3s2)C1=O
-COc1cc2c(cc1O)CC[C@@H]1[C@@H]2CC[C@]2(C)[C@@H](OS(N)(O)O)CC[C@@H]12
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccoc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-O=S(=O)(c1ccc(-c2ccccc2)cc1)N(CCO)CC(O)=NO
-CCc1[nH]c(=N)[nH]c(=N)c1C#C[C@H](C)c1cc(OC)cc(-c2ccncc2)c1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccoc2)cc1
-COc1cc2c(cc1OC)=C1N=NC(c3ccc(-c4ccc(O)cc4)cc3)=C1C=2
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccoc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-C[C@@H](C(=O)N1CCOCC1)N1CC[C@H](NS(=O)(=O)c2cc3ccc(Cl)cc3s2)C1=O
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-COc1cc2c(cc1OC)=C1N=NC(c3ccc(-c4ccc(O)cc4)cc3)=C1C=2
-CC(C)n1c(/C=C/[C@@H](O)C[C@@H](O)CC(=O)O)c(-c2ccc(F)cc2)c2ccccc21
-C[C@@H](C(=O)N1CCOCC1)N1CC[C@H](NS(=O)(=O)c2cc3cc(Cl)ccc3s2)C1=O
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CCc1[nH]c(=N)[nH]c(=N)c1C#C[C@H](C)c1cc(OC)cc(-c2ccncc2)c1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-COc1cc2c(cc1OC)=C1N=NC(c3ccc(-c4ccc(O)cc4)cc3)=C1C=2
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccccc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccoc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
-CC(C)N(Cc1ccccc1OCCCCCC(=O)O)C(=O)c1ccc(-c2ccoc2)cc1
-CC(C)ON(CC(O)=NO)S(=O)(=O)c1ccc(-c2ccccc2)cc1
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.
