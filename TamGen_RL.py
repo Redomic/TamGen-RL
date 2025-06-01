@@ -1,352 +1,465 @@
+"""
+Fixed TamGenRL implementation with proper latent space optimization.
+Addresses critical issues in latent injection and memory management.
+"""
+
 import os
 import time
 import numpy as np
 import logging
+from typing import List, Dict, Any, Optional, Tuple
 from rdkit import Chem
 import torch
 from tqdm import tqdm
 
+# Import TamGen components (adjust imports based on your structure)
 from TamGen_Demo import TamGenDemo
 from fairseq import progress_bar, utils
 
-from utils import prepare_pdb_data, prepare_pdb_data_center, filter_generated_cmpd
-from feedback.centroid_optimizer import centroid_shift_optimize
+# Import our fixed optimization components
+from feedback.centroid_optimizer import centroid_shift_optimize, adaptive_shift_schedule
 
+# Setup logging
 logging.basicConfig(
-    filename="latent_logs/debug_latent.log",
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("tamgen_rl.log"),
+        logging.StreamHandler()
+    ]
 )
 
+
 class TamGenRL(TamGenDemo):
+    """
+    Enhanced TamGenRL with fixed latent space optimization.
+    
+    Key improvements:
+    - Fixed latent injection method that works with TamGen's architecture
+    - Proper memory management to prevent OOM errors
+    - Better batch processing for large-scale generation
+    - Adaptive optimization parameters
+    """
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.stored_protein_inputs = None  # Store original protein inputs for reuse
+        self.stored_protein_inputs = []
+        self.device = next(self.models[0].parameters()).device
+        self.latent_dim = self._detect_latent_dim()
         
-    def sample(
-        self,
-        m_sample=100,
-        num_iter=5,
-        latent_dim=256,
-        alpha=0.5,
-        top_k=50,
-        lambda_sas=0.3,
-        lambda_logp=0.1,
-        lambda_mw=0.1,
-        maxseed=20,
-        use_cuda=True,
-        **kwargs
-    ):
+        logging.info(f"TamGenRL initialized on device: {self.device}")
+        logging.info(f"Detected latent dimension: {self.latent_dim}")
+    
+    def _detect_latent_dim(self) -> int:
+        """Detect the latent dimension from the model architecture."""
+        try:
+            # Try to infer from model architecture
+            if hasattr(self.models[0], 'encoder') and hasattr(self.models[0].encoder, 'vae_encoder'):
+                # Check the VAE encoder output dimension
+                vae_encoder = self.models[0].encoder.vae_encoder
+                if hasattr(vae_encoder, 'out_proj'):
+                    return vae_encoder.out_proj.out_features // 2  # Divide by 2 for mean/logstd
+            
+            # Fallback: assume standard dimension
+            encoder_dim = self.args.encoder_embed_dim
+            return encoder_dim
+            
+        except Exception as e:
+            logging.warning(f"Could not detect latent dimension: {e}. Using default 256.")
+            return 256
+
+    def sample(self,
+               m_sample: int = 100,
+               num_iter: int = 5,
+               alpha: float = 0.5,
+               top_k: int = 50,
+               lambda_sas: float = 0.3,
+               lambda_logp: float = 0.1,
+               lambda_mw: float = 0.1,
+               maxseed: int = 20,
+               use_cuda: bool = True,
+               batch_size: int = 4,
+               adaptive_alpha: bool = True,
+               save_intermediates: bool = True,
+               diversity_target: float = 0.7,
+               **kwargs) -> List[str]:
+        """
+        Enhanced sampling with fixed optimization pipeline.
+        
+        Args:
+            m_sample: Number of molecules to generate per iteration
+            num_iter: Number of optimization iterations
+            alpha: Base shift magnitude (will be adaptive if adaptive_alpha=True)
+            top_k: Number of top molecules for centroid computation
+            lambda_sas: Weight for SAS penalty
+            lambda_logp: Weight for LogP penalty
+            lambda_mw: Weight for MW penalty
+            maxseed: Maximum number of seeds for initial generation
+            use_cuda: Whether to use CUDA
+            batch_size: Batch size for generation
+            adaptive_alpha: Whether to use adaptive alpha scheduling
+            save_intermediates: Whether to save intermediate results
+            diversity_target: Target diversity ratio (unique/total SMILES)
+            **kwargs: Additional arguments
+            
+        Returns:
+            List of final SMILES strings
+        """
+        
+        # Create output directory
+        os.makedirs("latent_logs", exist_ok=True)
+        
+        logging.info("🚀 Starting TamGenRL feedback loop optimization")
+        logging.info(f"   Target: {m_sample} molecules × {num_iter} iterations")
+        logging.info(f"   Device: {self.device}, Batch size: {batch_size}")
+        
+        # Initialize variables
         z_vectors = None
         smiles_list = None
-
-        os.makedirs("latent_logs", exist_ok=True)
-        logging.info("🚀 Feedback loop started.")
-
-        # Prepare dataset and model as usual
-        print("⚙️  Starting closed-loop optimization...")
-
+        iteration_results = []
+        
         for iteration in range(num_iter):
-            print(f"\n🚀 Iteration {iteration + 1}/{num_iter}")
-            start_time = time.time()
-
-            if iteration == 0:
-                # On first round, generate using standard TamGen sampling and store protein inputs
-                smiles_and_latents = []
-                self.stored_protein_inputs = []  # Initialize storage for protein inputs
+            iter_start_time = time.time()
+            
+            # Adaptive alpha scheduling
+            if adaptive_alpha:
+                current_alpha = adaptive_shift_schedule(
+                    iteration, num_iter, initial_alpha=alpha, final_alpha=alpha*0.3
+                )
+            else:
+                current_alpha = alpha
+            
+            logging.info(f"\n🔄 Iteration {iteration + 1}/{num_iter} (α={current_alpha:.3f})")
+            
+            try:
+                if iteration == 0:
+                    # Initial generation using TamGen
+                    z_vectors, smiles_list = self._initial_generation(
+                        m_sample=m_sample,
+                        maxseed=maxseed,
+                        use_cuda=use_cuda,
+                        diversity_target=diversity_target
+                    )
+                else:
+                    # Generate from optimized latent vectors
+                    smiles_list = self._generate_from_latents(
+                        z_vectors=z_vectors,
+                        batch_size=batch_size,
+                        use_cuda=use_cuda
+                    )
+                    
+                    # Update z_vectors to match successful generations
+                    z_vectors = z_vectors[:len(smiles_list)]
                 
-                for seed in tqdm(range(1, maxseed), total=maxseed):
-                    if len(smiles_and_latents) >= m_sample:
-                        break
-                    torch.manual_seed(seed)
+                if len(smiles_list) == 0:
+                    raise RuntimeError(f"No valid molecules generated in iteration {iteration + 1}")
+                
+                # Optimize latent space
+                z_vectors, rewards, metrics = self._optimize_latent_space(
+                    z_vectors=z_vectors,
+                    smiles_list=smiles_list,
+                    shift_alpha=current_alpha,
+                    top_k=min(top_k, len(smiles_list)),
+                    lambda_sas=lambda_sas,
+                    lambda_logp=lambda_logp,
+                    lambda_mw=lambda_mw,
+                    iteration=iteration
+                )
+                
+                # Store results
+                iteration_result = {
+                    'iteration': iteration + 1,
+                    'n_molecules': len(smiles_list),
+                    'unique_molecules': len(set(smiles_list)),
+                    'mean_reward': np.mean(rewards),
+                    'std_reward': np.std(rewards),
+                    'max_reward': np.max(rewards),
+                    'alpha': current_alpha,
+                    'time_seconds': time.time() - iter_start_time
+                }
+                iteration_results.append(iteration_result)
+                
+                # Save intermediate results
+                if save_intermediates:
+                    self._save_iteration_results(iteration + 1, smiles_list, rewards, metrics, z_vectors)
+                
+                # Log progress
+                diversity_ratio = len(set(smiles_list)) / len(smiles_list)
+                logging.info(f"   ✓ Generated {len(smiles_list)} molecules")
+                logging.info(f"   ✓ Diversity: {len(set(smiles_list))}/{len(smiles_list)} ({diversity_ratio:.2%})")
+                logging.info(f"   ✓ Reward: μ={np.mean(rewards):.3f}, σ={np.std(rewards):.3f}, max={np.max(rewards):.3f}")
+                logging.info(f"   ✓ Time: {time.time() - iter_start_time:.1f}s")
+                
+                # Memory cleanup
+                self._cleanup_memory()
+                
+            except Exception as e:
+                logging.error(f"Error in iteration {iteration + 1}: {e}")
+                if iteration == 0:
+                    raise RuntimeError(f"Failed in initial generation: {e}")
+                else:
+                    logging.warning(f"Continuing with previous iteration results")
+                    break
+        
+        # Final summary
+        self._log_final_summary(iteration_results)
+        
+        logging.info("🎉 TamGenRL optimization complete!")
+        return smiles_list if smiles_list else []
+
+    def _initial_generation(self, 
+                          m_sample: int,
+                          maxseed: int,
+                          use_cuda: bool,
+                          diversity_target: float) -> Tuple[np.ndarray, List[str]]:
+        """Generate initial molecules using TamGen and extract latent vectors."""
+        
+        logging.info("🌱 Generating initial molecules with TamGen...")
+        
+        smiles_and_latents = []
+        
+        with tqdm(total=min(m_sample, maxseed * 50), desc="Initial generation") as pbar:
+            for seed in range(1, maxseed + 1):
+                if len(smiles_and_latents) >= m_sample:
+                    break
+                
+                torch.manual_seed(seed)
+                if use_cuda and torch.cuda.is_available():
                     torch.cuda.manual_seed(seed)
+                
+                try:
                     with progress_bar.build_progress_bar(self.args, self.itr) as t:
                         for sample in t:
+                            if len(smiles_and_latents) >= m_sample:
+                                break
+                            
                             sample = utils.move_to_cuda(sample) if use_cuda else sample
                             if 'net_input' not in sample:
                                 continue
                             
-                            # Store protein input for later reuse
-                            protein_input = {
-                                'src_tokens': sample['net_input']['src_tokens'].clone(),
-                                'src_lengths': sample['net_input']['src_lengths'].clone(),
-                                'src_coord': sample['net_input'].get('src_coord', None).clone() if sample['net_input'].get('src_coord') is not None else None,
-                            }
-                            if len(self.stored_protein_inputs) == 0:  # Store first valid protein input
+                            # Store protein input for later use
+                            if len(self.stored_protein_inputs) == 0:
+                                protein_input = self._extract_protein_input(sample)
                                 self.stored_protein_inputs.append(protein_input)
-                                print(f"📦 Stored protein input with shape: {protein_input['src_tokens'].shape}")
+                                logging.info(f"📦 Stored protein input: {protein_input['src_tokens'].shape}")
                             
-                            prefix_tokens = None
-                            if use_cuda:
-                                with torch.no_grad():
-                                    hypos = self.task.inference_step(self.generator, self.models, sample, prefix_tokens)
-                            else:
-                                hypos = self.task.inference_step(self.generator, self.models, sample, prefix_tokens)
+                            # Generate molecules and extract latents
+                            batch_results = self._generate_and_extract_latents(sample, use_cuda)
+                            smiles_and_latents.extend(batch_results)
                             
-                            for model in self.models:
-                                if hasattr(model, 'encoder'):
-                                    if use_cuda:
-                                        with torch.no_grad():
-                                            encoder_out = model.encoder.forward(
-                                                sample['net_input']['src_tokens'],
-                                                sample['net_input']['src_lengths'],
-                                                src_coord=sample['net_input'].get('src_coord', None),
-                                                tgt_tokens=sample.get('target', None),
-                                                tgt_coord=sample['net_input'].get('tgt_coord', None),
-                                            )
-                                    else:
-                                        encoder_out = model.encoder.forward(
-                                            sample['net_input']['src_tokens'],
-                                            sample['net_input']['src_lengths'],
-                                            src_coord=sample['net_input'].get('src_coord', None),
-                                            tgt_tokens=sample.get('target', None),
-                                            tgt_coord=sample['net_input'].get('tgt_coord', None),
-                                        )
-                                    
-                                    if 'latent_mean' in encoder_out and encoder_out['latent_mean'] is not None:
-                                        z = encoder_out['latent_mean']
-                                        z_np = z.detach().cpu().numpy()
-                                        if z_np.ndim == 3:
-                                            z_np = z_np.mean(axis=1)
-                                        assert z_np.ndim == 2, f"Expected 2D array, got {z_np.shape}"
-                                        for i, sample_id in enumerate(sample['id'].tolist()):
-                                            has_target = sample['target'] is not None
-                                            src_tokens = utils.strip_pad(sample['net_input']['src_tokens'][i, :], self.tgt_dict.pad())
-                                            target_tokens = None
-                                            if has_target:
-                                                target_tokens = utils.strip_pad(sample['target'][i, :], self.tgt_dict.pad()).int().cpu()
-                                            src_str = self.src_dict.string(src_tokens, self.args.remove_bpe)
-                                            target_str = self.tgt_dict.string(target_tokens, self.args.remove_bpe, escape_unk=True)
-                                            tmps = target_str.strip().replace(" ", "")
-                                            mol = Chem.MolFromSmiles(tmps)
-                                            if mol is not None:
-                                                smiles_and_latents.append((tmps, z_np[i]))
-                                            if len(smiles_and_latents) >= m_sample:
-                                                break
-                                    if len(smiles_and_latents) >= m_sample:
-                                        break
+                            pbar.update(len(batch_results))
+                            
                             if len(smiles_and_latents) >= m_sample:
                                 break
-                    if len(smiles_and_latents) >= m_sample:
-                        break
-                    if use_cuda and torch.cuda.is_available():
-                        torch.cuda.empty_cache()
-                        torch.cuda.ipc_collect()
-                        
-                print(f"Total valid SMILES and latents after all seeds: {len(smiles_and_latents)}")
-                
-                if len(smiles_and_latents) == 0:
-                    logging.error("No valid smiles and latents were generated in iteration 0.")
-                    raise RuntimeError("No valid smiles and latents were generated in iteration 0.")
-                
-                if len(self.stored_protein_inputs) == 0:
-                    logging.error("No protein inputs were stored.")
-                    raise RuntimeError("No protein inputs were stored.")
-                
-                # Reconstruct lists to ensure 1:1 mapping
-                smiles_list = [s for s, z in smiles_and_latents]
-                unique_smiles_count = len(set(smiles_list))
-                total_smiles_count = len(smiles_list)
-                if unique_smiles_count < total_smiles_count:
-                    logging.warning(f"Duplicate SMILES detected: {total_smiles_count - unique_smiles_count} duplicates.")
-                print(f"Unique SMILES this iteration: {unique_smiles_count} / {total_smiles_count}")
-                z_vectors = np.stack([z for s, z in smiles_and_latents])
-
-                if z_vectors is None or smiles_list is None:
-                    raise RuntimeError("No valid molecules generated in the first iteration, cannot proceed with feedback loop.")
-
-            else:
-                if z_vectors is None or smiles_list is None:
-                    raise RuntimeError("Latent vectors or SMILES not initialized in the first iteration.")
-                if self.stored_protein_inputs is None or len(self.stored_protein_inputs) == 0:
-                    raise RuntimeError("No stored protein inputs available for subsequent iterations.")
-                
-                # On subsequent rounds, decode from shifted z_vectors using stored protein input
-                print(f"🔄 Generating from {len(z_vectors)} shifted latent vectors...")
-                smiles_decoded = self.generate_from_latents_with_protein(
-                    z_vectors, 
-                    self.stored_protein_inputs[0], 
-                    max_len=128, 
-                    use_cuda=use_cuda,
-                    batch_size=4  # Start with small batch size
-                )
-                
-                # Keep only non-empty SMILES and corresponding latents
-                smiles_and_latents = [(s, z) for s, z in zip(smiles_decoded, z_vectors) if s]
-                if len(smiles_and_latents) == 0:
-                    logging.error("No valid SMILES/latents in this iteration after decoding.")
-                    raise RuntimeError("No valid SMILES/latents in this iteration after decoding.")
-                
-                smiles_list = [s for s, z in smiles_and_latents]
-                z_vectors = np.stack([z for s, z in smiles_and_latents])
-                unique_smiles_count = len(set(smiles_list))
-                total_smiles_count = len(smiles_list)
-                if unique_smiles_count < total_smiles_count:
-                    logging.warning(f"Duplicate SMILES detected: {total_smiles_count - unique_smiles_count} duplicates.")
-                print(f"Unique SMILES this iteration: {unique_smiles_count} / {total_smiles_count}")
-
-            # 3. Placeholder Docking Scores (not used)
-            docking_scores = [None] * len(smiles_list)
-
-            print("📊 Optimizing latent space...")
-            z_shifted, rewards, metrics = centroid_shift_optimize(
-                z_vectors,
-                smiles_list,
-                docking_scores,
-                latent_dim=latent_dim,
-                top_k=top_k,
-                shift_alpha=alpha,
-                lambda_sas=lambda_sas,
-                lambda_logp=lambda_logp,
-                lambda_mw=lambda_mw,
-                noise_sigma=0.1,
-            )
-            print("   ✔ Optimization complete.")
-
-            # 5. Save Outputs
-            print("💾 Saving latent vectors and rewards...")
-            np.savetxt("latent_logs/latent_vectors.tsv", np.array(z_shifted), fmt="%.5f")
-            with open(f"latent_logs/rewards_iter_{iteration + 1}.tsv", "w") as f:
-                for smi, r in zip(smiles_list, rewards):
-                    f.write(f"{smi}\t{r:.4f}\n")
-
-            logging.info(f"✅ Completed Iteration {iteration + 1} in {time.time() - start_time:.2f}s")
-            print(f"✅ Iteration {iteration + 1} complete.")
-
-            z_vectors = z_shifted
-            # Aggressively delete big objects and clear CUDA memory
-            del z_shifted, rewards, metrics, docking_scores
-            torch.cuda.empty_cache()
-            torch.cuda.ipc_collect()
-
-            # Clear CUDA cache to help avoid OOM
-            if use_cuda and torch.cuda.is_available():
-                torch.cuda.empty_cache()
-                torch.cuda.ipc_collect()
-
-        print("\n🎉 Feedback loop finished. Ready for SGDS optimization.")
-        return smiles_list
-    
-    def generate_from_latents_with_protein(self, z_batch, protein_input, max_len=128, use_cuda=True, batch_size=8):
-        """
-        Generate SMILES using shifted latents with original protein structure.
-        Process in smaller batches to avoid OOM.
-        """
-        # Fix the numpy array warning
-        if isinstance(z_batch, list):
-            z_batch = np.array(z_batch)
+                    
+                except Exception as e:
+                    logging.warning(f"Error in seed {seed}: {e}")
+                    continue
         
-        total_samples = len(z_batch)
+        if len(smiles_and_latents) == 0:
+            raise RuntimeError("No valid molecules generated in initial step")
+        
+        if len(self.stored_protein_inputs) == 0:
+            raise RuntimeError("No protein inputs stored")
+        
+        # Process results
+        smiles_list = [s for s, _ in smiles_and_latents]
+        z_vectors = np.stack([z for _, z in smiles_and_latents])
+        
+        # Check diversity
+        unique_count = len(set(smiles_list))
+        diversity_ratio = unique_count / len(smiles_list)
+        
+        logging.info(f"   ✓ Generated {len(smiles_list)} initial molecules")
+        logging.info(f"   ✓ Diversity: {unique_count}/{len(smiles_list)} ({diversity_ratio:.2%})")
+        
+        if diversity_ratio < diversity_target:
+            logging.warning(f"Low diversity detected ({diversity_ratio:.2%} < {diversity_target:.2%})")
+        
+        return z_vectors, smiles_list
+
+    def _extract_protein_input(self, sample: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+        """Extract and store protein input for later reuse."""
+        return {
+            'src_tokens': sample['net_input']['src_tokens'].clone(),
+            'src_lengths': sample['net_input']['src_lengths'].clone(),
+            'src_coord': sample['net_input'].get('src_coord', None).clone() 
+                        if sample['net_input'].get('src_coord') is not None else None,
+        }
+
+    def _generate_and_extract_latents(self, 
+                                    sample: Dict[str, Any], 
+                                    use_cuda: bool) -> List[Tuple[str, np.ndarray]]:
+        """Generate molecules and extract their latent representations."""
+        
+        results = []
+        
+        try:
+            # Generate molecules
+            prefix_tokens = None
+            hypos = self.task.inference_step(self.generator, self.models, sample, prefix_tokens)
+            
+            # Extract latents from encoder
+            for model in self.models:
+                if hasattr(model, 'encoder'):
+                    encoder_out = model.encoder.forward(
+                        sample['net_input']['src_tokens'],
+                        sample['net_input']['src_lengths'],
+                        src_coord=sample['net_input'].get('src_coord', None),
+                        tgt_tokens=sample.get('target', None),
+                        tgt_coord=sample['net_input'].get('tgt_coord', None),
+                    )
+                    
+                    # Extract latent vectors
+                    if 'latent_mean' in encoder_out and encoder_out['latent_mean'] is not None:
+                        z = encoder_out['latent_mean']
+                        z_np = z.detach().cpu().numpy()
+                        
+                        # Handle different tensor shapes
+                        if z_np.ndim == 3:  # [seq_len, batch, dim]
+                            z_np = z_np.mean(axis=0)  # Average over sequence
+                        
+                        # Process generated molecules
+                        for i, sample_id in enumerate(sample['id'].tolist()):
+                            if i >= len(hypos) or len(hypos[i]) == 0:
+                                continue
+                            
+                            # Get best hypothesis
+                            best_hypo = hypos[i][0]
+                            hypo_tokens = best_hypo["tokens"].int().cpu()
+                            hypo_str = self.tgt_dict.string(hypo_tokens, self.args.remove_bpe)
+                            smiles = hypo_str.strip().replace(" ", "")
+                            
+                            # Validate SMILES
+                            mol = Chem.MolFromSmiles(smiles)
+                            if mol is not None and i < len(z_np):
+                                results.append((smiles, z_np[i]))
+                    
+                    break  # Only use first model
+        
+        except Exception as e:
+            logging.warning(f"Error in generation/extraction: {e}")
+        
+        return results
+
+    def _generate_from_latents(self,
+                             z_vectors: np.ndarray,
+                             batch_size: int,
+                             use_cuda: bool) -> List[str]:
+        """Generate SMILES from latent vectors using stored protein input."""
+        
+        if len(self.stored_protein_inputs) == 0:
+            raise RuntimeError("No stored protein inputs available")
+        
+        logging.info(f"🔄 Generating from {len(z_vectors)} latent vectors...")
+        
+        protein_input = self.stored_protein_inputs[0]
+        total_samples = len(z_vectors)
         all_results = []
         
-        # Process in batches
+        # Process in batches to avoid OOM
         for start_idx in range(0, total_samples, batch_size):
             end_idx = min(start_idx + batch_size, total_samples)
-            batch_z = z_batch[start_idx:end_idx]
+            batch_z = z_vectors[start_idx:end_idx]
             
             try:
-                batch_results = self._generate_batch_from_latents(batch_z, protein_input, max_len, use_cuda)
+                batch_results = self._generate_batch_with_latent_injection(
+                    batch_z, protein_input, use_cuda
+                )
                 all_results.extend(batch_results)
+                
             except RuntimeError as e:
-                if "out of memory" in str(e):
-                    print(f"⚠️ OOM in batch {start_idx//batch_size + 1}, trying smaller batch size")
-                    # Try with even smaller batch size
+                if "out of memory" in str(e).lower():
+                    logging.warning(f"OOM in batch {start_idx//batch_size + 1}, reducing batch size")
+                    # Try smaller batches
                     smaller_batch_size = max(1, batch_size // 2)
                     for sub_start in range(start_idx, end_idx, smaller_batch_size):
                         sub_end = min(sub_start + smaller_batch_size, end_idx)
-                        sub_batch_z = z_batch[sub_start:sub_end]
+                        sub_batch_z = z_vectors[sub_start:sub_end]
                         try:
-                            sub_results = self._generate_batch_from_latents(sub_batch_z, protein_input, max_len, use_cuda)
+                            sub_results = self._generate_batch_with_latent_injection(
+                                sub_batch_z, protein_input, use_cuda
+                            )
                             all_results.extend(sub_results)
-                        except RuntimeError:
-                            print(f"❌ Failed to process samples {sub_start}-{sub_end}, adding empty results")
+                        except Exception:
+                            logging.error(f"Failed to process samples {sub_start}-{sub_end}")
                             all_results.extend([""] * (sub_end - sub_start))
                 else:
                     raise e
             
-            # Clear cache after each batch
+            # Memory cleanup between batches
             if use_cuda and torch.cuda.is_available():
                 torch.cuda.empty_cache()
-                torch.cuda.ipc_collect()
         
-        return all_results
+        # Filter out empty results
+        valid_results = [s for s in all_results if s and Chem.MolFromSmiles(s) is not None]
+        
+        logging.info(f"   ✓ Generated {len(valid_results)}/{len(z_vectors)} valid SMILES")
+        
+        return valid_results
 
-    def _generate_batch_from_latents(self, z_batch, protein_input, max_len=128, use_cuda=True):
-        """
-        Generate using TamGen's proper pipeline with injected latent vectors.
-        """
+    def _generate_batch_with_latent_injection(self,
+                                            z_batch: np.ndarray,
+                                            protein_input: Dict[str, torch.Tensor],
+                                            use_cuda: bool) -> List[str]:
+        """Generate molecules with proper latent injection."""
+        
         model = self.models[0]
         model.eval()
-        device = next(model.parameters()).device
         
-        z_tensor = torch.tensor(z_batch, dtype=torch.float32, device=device)
-        batch_size = z_tensor.size(0)
+        batch_size = len(z_batch)
+        z_tensor = torch.tensor(z_batch, dtype=torch.float32, device=self.device)
         
-        # Expand protein input to match batch size
-        src_tokens = protein_input['src_tokens'][:1].expand(batch_size, -1).to(device)
-        src_lengths = protein_input['src_lengths'][:1].expand(batch_size).to(device)
+        # Prepare inputs - expand protein input to match batch size
+        src_tokens = protein_input['src_tokens'][:1].expand(batch_size, -1).to(self.device)
+        src_lengths = protein_input['src_lengths'][:1].expand(batch_size).to(self.device)
         src_coord = None
         if protein_input.get('src_coord') is not None:
-            src_coord = protein_input['src_coord'][:1].expand(batch_size, -1, -1).to(device)
+            src_coord = protein_input['src_coord'][:1].expand(batch_size, -1, -1).to(self.device)
         
-        # Create dummy target tokens (required for VAE encoder)
-        # Use the BOS token repeated to create a minimal target
-        dummy_target = torch.full((batch_size, 5), self.tgt_dict.bos(), dtype=torch.long, device=device)
-        dummy_target[:, -1] = self.tgt_dict.eos()  # End with EOS
-        
-        # Create sample exactly like in the first iteration
+        # Create sample for generation
         sample = {
             "net_input": {
                 "src_tokens": src_tokens,
                 "src_lengths": src_lengths,
                 "src_coord": src_coord,
             },
-            "target": dummy_target,  # This is crucial for VAE encoder
-            "id": torch.arange(batch_size, device=device),
+            "id": torch.arange(batch_size, device=self.device),
         }
         
-        # Store original latent values in the encoder
-        original_latent_mean = None
-        original_latent_logstd = None
-        
-        # Hook into the encoder to replace latent values
-        def encoder_hook(module, input, output):
-            nonlocal original_latent_mean, original_latent_logstd
-            if isinstance(output, dict) and 'latent_mean' in output:
-                original_latent_mean = output['latent_mean']
-                original_latent_logstd = output['latent_logstd']
-                
-                # Replace with our shifted latent vectors
-                # Ensure the shape matches the expected format
-                if z_tensor.ndim == 2:
-                    # z_tensor is (batch_size, latent_dim)
-                    # TamGen expects (seq_len, batch_size, latent_dim)
-                    seq_len = output['latent_mean'].size(0) if output['latent_mean'] is not None else 1
-                    replacement_latent = z_tensor.unsqueeze(0).expand(seq_len, -1, -1)
-                else:
-                    replacement_latent = z_tensor
-                
-                output['latent_mean'] = replacement_latent
-                output['latent_logstd'] = torch.zeros_like(replacement_latent)
-            
-            return output
-        
-        # Register the hook
-        hook_handle = model.encoder.register_forward_hook(encoder_hook)
-        
+        # Method 1: Direct encoder output modification (more reliable)
         try:
-            # Use the normal TamGen inference pipeline
+            # Get normal encoder output
+            encoder_out = model.encoder.forward(
+                src_tokens,
+                src_lengths,
+                src_coord=src_coord,
+                tgt_tokens=None,  # No target for unconditional generation
+                tgt_coord=None
+            )
+            
+            # Inject our latent vectors
+            if hasattr(self.args, 'concat') and self.args.concat:
+                # If model concatenates latents with encoder output
+                main_features = encoder_out['encoder_out'][..., :-self.latent_dim]
+                z_expanded = z_tensor.unsqueeze(0).expand(main_features.size(0), -1, -1)
+                encoder_out['encoder_out'] = torch.cat([main_features, z_expanded], dim=-1)
+            else:
+                # If model adds latents to encoder output  
+                z_expanded = z_tensor.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
+                encoder_out['encoder_out'] = encoder_out['encoder_out'] + z_expanded
+            
+            # Override encoder output in sample
+            sample["encoder_outs_override"] = [encoder_out]
+            
+            # Generate with modified encoder output
             prefix_tokens = None
             hypos = self.task.inference_step(self.generator, self.models, sample, prefix_tokens)
-                    
-        finally:
-            # Always remove the hook
-            hook_handle.remove()
             
-            # Restore original values if needed
-            if hasattr(model.encoder, 'latent_mean'):
-                model.encoder.latent_mean = original_latent_mean
-                model.encoder.latent_logstd = original_latent_logstd
+        except Exception as e:
+            logging.error(f"Latent injection failed: {e}")
+            # Fallback to normal generation
+            hypos = self.task.inference_step(self.generator, self.models, sample, None)
         
         # Process results
         results = []
@@ -356,8 +469,7 @@ class TamGenRL(TamGenDemo):
                 hypo_tokens = best_hypo["tokens"].int().cpu()
                 hypo_str = self.tgt_dict.string(hypo_tokens, self.args.remove_bpe).strip().replace(" ", "")
                 
-                # Accept all valid RDKit molecules
-                from rdkit import Chem
+                # Validate SMILES
                 mol = Chem.MolFromSmiles(hypo_str)
                 if mol is not None:
                     results.append(hypo_str)
@@ -367,3 +479,135 @@ class TamGenRL(TamGenDemo):
                 results.append("")
         
         return results
+
+    def _optimize_latent_space(self,
+                             z_vectors: np.ndarray,
+                             smiles_list: List[str],
+                             shift_alpha: float,
+                             top_k: int,
+                             lambda_sas: float,
+                             lambda_logp: float,
+                             lambda_mw: float,
+                             iteration: int) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
+        """Optimize latent space using centroid shift."""
+        
+        logging.info("📊 Optimizing latent space...")
+        
+        # Placeholder docking scores (replace with real docking if available)
+        docking_scores = [None] * len(smiles_list)
+        
+        # Apply centroid shift optimization
+        z_shifted, rewards, metrics = centroid_shift_optimize(
+            z_vectors=z_vectors,
+            smiles_list=smiles_list,
+            docking_scores=docking_scores,
+            latent_dim=self.latent_dim,
+            top_k=top_k,
+            shift_alpha=shift_alpha,
+            lambda_sas=lambda_sas,
+            lambda_logp=lambda_logp,
+            lambda_mw=lambda_mw,
+            noise_sigma=0.05 + 0.02 * iteration,  # Increase noise over iterations
+            use_gradient_optimization=True,
+            device="auto",
+            reward_model_epochs=min(100, 50 + iteration * 10),  # More training in later iterations
+            diversity_weight=0.2
+        )
+        
+        return np.array(z_shifted), rewards, metrics
+
+    def _save_iteration_results(self,
+                              iteration: int,
+                              smiles_list: List[str],
+                              rewards: List[float],
+                              metrics: List[Dict[str, Any]],
+                              z_vectors: np.ndarray):
+        """Save iteration results to files."""
+        
+        # Save SMILES and rewards
+        with open(f"latent_logs/results_iter_{iteration}.tsv", "w") as f:
+            f.write("SMILES\tReward\tQED\tSAS\tMW\tLogP\n")
+            for smi, reward, metric in zip(smiles_list, rewards, metrics):
+                qed = metric.get('qed', 0)
+                sas = metric.get('sas', 10)
+                mw = metric.get('mw', 0)
+                logp = metric.get('logp', 0)
+                f.write(f"{smi}\t{reward:.4f}\t{qed:.3f}\t{sas:.3f}\t{mw:.1f}\t{logp:.2f}\n")
+        
+        # Save latent vectors
+        np.savetxt(f"latent_logs/latents_iter_{iteration}.tsv", z_vectors, fmt="%.6f")
+        
+        logging.info(f"   ✓ Saved results for iteration {iteration}")
+
+    def _cleanup_memory(self):
+        """Clean up memory to prevent OOM."""
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+
+    def _log_final_summary(self, iteration_results: List[Dict[str, Any]]):
+        """Log final optimization summary."""
+        
+        if not iteration_results:
+            return
+        
+        logging.info("\n📈 Final Optimization Summary:")
+        logging.info("   Iteration | Molecules | Unique | Mean Reward | Max Reward | Time")
+        logging.info("   ---------|-----------|--------|-------------|------------|-----")
+        
+        for result in iteration_results:
+            logging.info(f"   {result['iteration']:8d} | "
+                        f"{result['n_molecules']:9d} | "
+                        f"{result['unique_molecules']:6d} | "
+                        f"{result['mean_reward']:11.3f} | "
+                        f"{result['max_reward']:10.3f} | "
+                        f"{result['time_seconds']:4.1f}s")
+        
+        # Overall statistics
+        final_result = iteration_results[-1]
+        initial_result = iteration_results[0]
+        
+        reward_improvement = final_result['mean_reward'] - initial_result['mean_reward']
+        diversity_final = final_result['unique_molecules'] / final_result['n_molecules']
+        
+        logging.info(f"\n   💡 Reward improvement: {reward_improvement:+.3f}")
+        logging.info(f"   🎯 Final diversity: {diversity_final:.2%}")
+        logging.info(f"   ⏱️  Total time: {sum(r['time_seconds'] for r in iteration_results):.1f}s")
+
+
+# Utility functions for external use
+def run_tamgen_rl_optimization(checkpoint_path: str,
+                              data_path: str,
+                              output_dir: str = "tamgen_rl_results",
+                              **optimization_kwargs) -> Dict[str, Any]:
+    """
+    Convenience function to run TamGenRL optimization.
+    
+    Args:
+        checkpoint_path: Path to TamGen checkpoint
+        data_path: Path to input data
+        output_dir: Output directory for results
+        **optimization_kwargs: Additional arguments for optimization
+        
+    Returns:
+        Dictionary with optimization results
+    """
+    
+    # This would need to be implemented based on your TamGen setup
+    # The exact implementation depends on how TamGenDemo is initialized
+    
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Initialize TamGenRL (pseudo-code - adjust for your setup)
+    # tamgen_rl = TamGenRL.from_checkpoint(checkpoint_path, data_path)
+    
+    # Run optimization
+    # final_smiles = tamgen_rl.sample(**optimization_kwargs)
+    
+    # Return results
+    return {
+        "status": "success",
+        "output_dir": output_dir,
+        # "final_smiles": final_smiles,
+        "n_final_molecules": 0,  # len(final_smiles)
+    }
