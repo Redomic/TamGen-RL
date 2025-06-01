@@ -1,7 +1,8 @@
-# reward_model_praneeth
+# reward_model.py
 
 import numpy as np
 import lightgbm as lgb
+from sklearn.model_selection import KFold
 
 class LatentRewardModel:
     def __init__(self):
@@ -20,12 +21,16 @@ class LatentRewardModel:
 
         X = np.array(self.latents)
         y = np.array(self.rewards)
-
-        # Normalize rewards for stability
         y = (y - np.mean(y)) / (np.std(y) + 1e-8)
 
-        self.model = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1)
-        self.model.fit(X, y)
+        kf = KFold(n_splits=3, shuffle=True, random_state=42)
+        models = []
+        for train_idx, val_idx in kf.split(X):
+            X_train, y_train = X[train_idx], y[train_idx]
+            model = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1)
+            model.fit(X_train, y_train)
+            models.append(model)
+        self.model = models[-1]
 
     def get_gradient_based_shift(self, z, alpha=0.2):
         if self.model is None:
@@ -38,7 +43,6 @@ class LatentRewardModel:
         norm = np.linalg.norm(direction)
         direction = direction / (norm + 1e-8)
 
-        # Momentum update
         if self.prev_direction is not None:
             direction = 0.8 * self.prev_direction + 0.2 * direction
 
