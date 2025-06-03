@@ -1,0 +1,679 @@
+2025-06-03 10:04:59,424 [INFO] TamGenRL initialized on device: cuda:0
+2025-06-03 10:04:59,428 [INFO] Detected latent dimension: 256
+2025-06-03 10:05:03,491 [INFO] 🚀 Starting TamGenRL feedback loop optimization
+2025-06-03 10:05:03,492 [INFO]    Target: 1000 molecules × 10 iterations
+2025-06-03 10:05:03,493 [INFO]    Device: cuda:0, Batch size: 4
+2025-06-03 10:12:10,228 [INFO] TamGenRL initialized on device: cuda:0
+2025-06-03 10:12:10,229 [INFO] Detected latent dimension: 256
+2025-06-03 10:12:13,890 [INFO] 🚀 Starting TamGenRL feedback loop optimization
+2025-06-03 10:12:13,892 [INFO]    Target: 1000 molecules × 10 iterations
+2025-06-03 10:12:13,893 [INFO]    Device: cuda:0, Batch size: 4
+2025-06-03 10:15:52,581 [INFO] 🚀 Starting TamGenRL feedback loop optimization
+2025-06-03 10:15:52,582 [INFO]    Target: 1000 molecules × 10 iterations
+2025-06-03 10:15:52,584 [INFO]    Device: cuda:0, Batch size: 4
+2025-06-03 10:20:30,907 [INFO] TamGenRL initialized on device: cuda:0
+2025-06-03 10:20:30,908 [INFO] Detected latent dimension: 256
+2025-06-03 10:20:36,092 [INFO] 🚀 Starting TamGenRL feedback loop optimization
+2025-06-03 10:20:36,094 [INFO]    Target: 1000 molecules × 10 iterations
+2025-06-03 10:20:36,095 [INFO]    Device: cuda:0, Batch size: 4
+2025-06-03 10:20:36,096 [INFO] 
+🔄 Iteration 1/10 (α=0.400)
+2025-06-03 10:20:36,097 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-03 10:20:36,218 [INFO] 📦 Stored protein input: torch.Size([2, 57])
+2025-06-03 10:20:56,180 [INFO]    ✓ Generated 40 initial molecules
+2025-06-03 10:20:56,181 [INFO]    ✓ Diversity: 12/40 (30.00%)
+2025-06-03 10:20:56,182 [WARNING] Low diversity detected (30.00% < 70.00%)
+2025-06-03 10:20:56,183 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:20:58,235 [INFO]    ✓ Saved results for iteration 1
+2025-06-03 10:20:58,236 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:20:58,238 [INFO]    ✓ Diversity: 12/40 (30.00%)
+2025-06-03 10:20:58,239 [INFO]    ✓ Reward: μ=2.478, σ=0.217, max=2.990
+2025-06-03 10:20:58,241 [INFO]    ✓ Time: 22.1s
+2025-06-03 10:20:58,242 [INFO] 
+🔄 Iteration 2/10 (α=0.369)
+2025-06-03 10:20:58,244 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:05,379 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:05,382 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:06,423 [INFO]    ✓ Saved results for iteration 2
+2025-06-03 10:21:06,425 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:06,426 [INFO]    ✓ Diversity: 14/40 (35.00%)
+2025-06-03 10:21:06,427 [INFO]    ✓ Reward: μ=2.555, σ=0.172, max=2.996
+2025-06-03 10:21:06,429 [INFO]    ✓ Time: 8.2s
+2025-06-03 10:21:06,430 [INFO] 
+🔄 Iteration 3/10 (α=0.338)
+2025-06-03 10:21:06,431 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:12,626 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:12,629 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:13,560 [INFO]    ✓ Saved results for iteration 3
+2025-06-03 10:21:13,562 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:13,563 [INFO]    ✓ Diversity: 10/40 (25.00%)
+2025-06-03 10:21:13,565 [INFO]    ✓ Reward: μ=2.618, σ=0.119, max=2.990
+2025-06-03 10:21:13,566 [INFO]    ✓ Time: 7.1s
+2025-06-03 10:21:13,568 [INFO] 
+🔄 Iteration 4/10 (α=0.307)
+2025-06-03 10:21:13,570 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:19,635 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:19,638 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:20,627 [INFO]    ✓ Saved results for iteration 4
+2025-06-03 10:21:20,629 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:20,630 [INFO]    ✓ Diversity: 11/40 (27.50%)
+2025-06-03 10:21:20,632 [INFO]    ✓ Reward: μ=2.664, σ=0.180, max=2.954
+2025-06-03 10:21:20,633 [INFO]    ✓ Time: 7.1s
+2025-06-03 10:21:20,635 [INFO] 
+🔄 Iteration 5/10 (α=0.276)
+2025-06-03 10:21:20,636 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:26,420 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:26,423 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:27,433 [INFO]    ✓ Saved results for iteration 5
+2025-06-03 10:21:27,435 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:27,436 [INFO]    ✓ Diversity: 10/40 (25.00%)
+2025-06-03 10:21:27,437 [INFO]    ✓ Reward: μ=2.836, σ=0.122, max=2.993
+2025-06-03 10:21:27,438 [INFO]    ✓ Time: 6.8s
+2025-06-03 10:21:27,440 [INFO] 
+🔄 Iteration 6/10 (α=0.244)
+2025-06-03 10:21:27,442 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:33,046 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:33,048 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:34,132 [INFO]    ✓ Saved results for iteration 6
+2025-06-03 10:21:34,133 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:34,134 [INFO]    ✓ Diversity: 7/40 (17.50%)
+2025-06-03 10:21:34,136 [INFO]    ✓ Reward: μ=2.800, σ=0.140, max=2.890
+2025-06-03 10:21:34,138 [INFO]    ✓ Time: 6.7s
+2025-06-03 10:21:34,139 [INFO] 
+🔄 Iteration 7/10 (α=0.213)
+2025-06-03 10:21:34,140 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:39,560 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:39,563 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:40,639 [INFO]    ✓ Saved results for iteration 7
+2025-06-03 10:21:40,640 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:40,641 [INFO]    ✓ Diversity: 16/40 (40.00%)
+2025-06-03 10:21:40,643 [INFO]    ✓ Reward: μ=2.758, σ=0.172, max=2.940
+2025-06-03 10:21:40,645 [INFO]    ✓ Time: 6.5s
+2025-06-03 10:21:40,646 [INFO] 
+🔄 Iteration 8/10 (α=0.182)
+2025-06-03 10:21:40,647 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:45,761 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:45,762 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:46,835 [INFO]    ✓ Saved results for iteration 8
+2025-06-03 10:21:46,836 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:46,838 [INFO]    ✓ Diversity: 13/40 (32.50%)
+2025-06-03 10:21:46,840 [INFO]    ✓ Reward: μ=2.798, σ=0.145, max=2.990
+2025-06-03 10:21:46,841 [INFO]    ✓ Time: 6.2s
+2025-06-03 10:21:46,842 [INFO] 
+🔄 Iteration 9/10 (α=0.151)
+2025-06-03 10:21:46,844 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:51,874 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:51,877 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:52,951 [INFO]    ✓ Saved results for iteration 9
+2025-06-03 10:21:52,953 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:52,954 [INFO]    ✓ Diversity: 18/40 (45.00%)
+2025-06-03 10:21:52,956 [INFO]    ✓ Reward: μ=2.767, σ=0.137, max=2.993
+2025-06-03 10:21:52,957 [INFO]    ✓ Time: 6.1s
+2025-06-03 10:21:52,958 [INFO] 
+🔄 Iteration 10/10 (α=0.120)
+2025-06-03 10:21:52,959 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 10:21:58,219 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 10:21:58,220 [INFO] 📊 Optimizing latent space...
+2025-06-03 10:21:59,327 [INFO]    ✓ Saved results for iteration 10
+2025-06-03 10:21:59,328 [INFO]    ✓ Generated 40 molecules
+2025-06-03 10:21:59,329 [INFO]    ✓ Diversity: 24/40 (60.00%)
+2025-06-03 10:21:59,331 [INFO]    ✓ Reward: μ=2.693, σ=0.189, max=3.087
+2025-06-03 10:21:59,332 [INFO]    ✓ Time: 6.4s
+2025-06-03 10:21:59,334 [INFO] 
+📈 Final Optimization Summary:
+2025-06-03 10:21:59,335 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
+2025-06-03 10:21:59,336 [INFO]    ---------|-----------|--------|-------------|------------|-----
+2025-06-03 10:21:59,338 [INFO]           1 |        40 |     12 |       2.478 |      2.990 | 22.1s
+2025-06-03 10:21:59,339 [INFO]           2 |        40 |     14 |       2.555 |      2.996 |  8.2s
+2025-06-03 10:21:59,340 [INFO]           3 |        40 |     10 |       2.618 |      2.990 |  7.1s
+2025-06-03 10:21:59,341 [INFO]           4 |        40 |     11 |       2.664 |      2.954 |  7.1s
+2025-06-03 10:21:59,342 [INFO]           5 |        40 |     10 |       2.836 |      2.993 |  6.8s
+2025-06-03 10:21:59,344 [INFO]           6 |        40 |      7 |       2.800 |      2.890 |  6.7s
+2025-06-03 10:21:59,345 [INFO]           7 |        40 |     16 |       2.758 |      2.940 |  6.5s
+2025-06-03 10:21:59,346 [INFO]           8 |        40 |     13 |       2.798 |      2.990 |  6.2s
+2025-06-03 10:21:59,347 [INFO]           9 |        40 |     18 |       2.767 |      2.993 |  6.1s
+2025-06-03 10:21:59,349 [INFO]          10 |        40 |     24 |       2.693 |      3.087 |  6.4s
+2025-06-03 10:21:59,350 [INFO] 
+   💡 Reward improvement: +0.216
+2025-06-03 10:21:59,351 [INFO]    🎯 Final diversity: 60.00%
+2025-06-03 10:21:59,352 [INFO]    ⏱️  Total time: 83.1s
+2025-06-03 10:21:59,353 [INFO] 🎉 TamGenRL optimization complete!
+2025-06-03 11:25:42,495 [INFO] 🚀 Starting TamGenRL feedback loop optimization
+2025-06-03 11:25:42,497 [INFO]    Target: 1000 molecules × 100 iterations
+2025-06-03 11:25:42,498 [INFO]    Device: cuda:0, Batch size: 4
+2025-06-03 11:25:42,499 [INFO] 
+🔄 Iteration 1/100 (α=0.400)
+2025-06-03 11:25:42,501 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-03 11:26:00,583 [INFO]    ✓ Generated 40 initial molecules
+2025-06-03 11:26:00,584 [INFO]    ✓ Diversity: 12/40 (30.00%)
+2025-06-03 11:26:00,584 [WARNING] Low diversity detected (30.00% < 70.00%)
+2025-06-03 11:26:00,586 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:01,804 [INFO]    ✓ Saved results for iteration 1
+2025-06-03 11:26:01,806 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:01,807 [INFO]    ✓ Diversity: 12/40 (30.00%)
+2025-06-03 11:26:01,809 [INFO]    ✓ Reward: μ=2.478, σ=0.217, max=2.990
+2025-06-03 11:26:01,810 [INFO]    ✓ Time: 19.3s
+2025-06-03 11:26:01,812 [INFO] 
+🔄 Iteration 2/100 (α=0.397)
+2025-06-03 11:26:01,813 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:09,572 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:09,574 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:10,762 [INFO]    ✓ Saved results for iteration 2
+2025-06-03 11:26:10,763 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:10,765 [INFO]    ✓ Diversity: 11/40 (27.50%)
+2025-06-03 11:26:10,766 [INFO]    ✓ Reward: μ=2.570, σ=0.157, max=2.990
+2025-06-03 11:26:10,767 [INFO]    ✓ Time: 9.0s
+2025-06-03 11:26:10,769 [INFO] 
+🔄 Iteration 3/100 (α=0.394)
+2025-06-03 11:26:10,770 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:18,210 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:18,211 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:19,289 [INFO]    ✓ Saved results for iteration 3
+2025-06-03 11:26:19,291 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:19,292 [INFO]    ✓ Diversity: 9/40 (22.50%)
+2025-06-03 11:26:19,294 [INFO]    ✓ Reward: μ=2.644, σ=0.112, max=2.990
+2025-06-03 11:26:19,295 [INFO]    ✓ Time: 8.5s
+2025-06-03 11:26:19,296 [INFO] 
+🔄 Iteration 4/100 (α=0.392)
+2025-06-03 11:26:19,298 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:26,244 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:26,245 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:27,312 [INFO]    ✓ Saved results for iteration 4
+2025-06-03 11:26:27,313 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:27,314 [INFO]    ✓ Diversity: 7/40 (17.50%)
+2025-06-03 11:26:27,316 [INFO]    ✓ Reward: μ=2.679, σ=0.169, max=2.990
+2025-06-03 11:26:27,318 [INFO]    ✓ Time: 8.0s
+2025-06-03 11:26:27,319 [INFO] 
+🔄 Iteration 5/100 (α=0.389)
+2025-06-03 11:26:27,320 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:34,041 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:34,043 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:35,171 [INFO]    ✓ Saved results for iteration 5
+2025-06-03 11:26:35,172 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:35,174 [INFO]    ✓ Diversity: 10/40 (25.00%)
+2025-06-03 11:26:35,175 [INFO]    ✓ Reward: μ=2.610, σ=0.225, max=3.069
+2025-06-03 11:26:35,177 [INFO]    ✓ Time: 7.9s
+2025-06-03 11:26:35,178 [INFO] 
+🔄 Iteration 6/100 (α=0.386)
+2025-06-03 11:26:35,179 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:41,287 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:41,290 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:42,397 [INFO]    ✓ Saved results for iteration 6
+2025-06-03 11:26:42,398 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:42,400 [INFO]    ✓ Diversity: 5/40 (12.50%)
+2025-06-03 11:26:42,401 [INFO]    ✓ Reward: μ=2.652, σ=0.113, max=2.990
+2025-06-03 11:26:42,402 [INFO]    ✓ Time: 7.2s
+2025-06-03 11:26:42,403 [INFO] 
+🔄 Iteration 7/100 (α=0.383)
+2025-06-03 11:26:42,404 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:48,727 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:48,728 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:49,880 [INFO]    ✓ Saved results for iteration 7
+2025-06-03 11:26:49,881 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:49,882 [INFO]    ✓ Diversity: 14/40 (35.00%)
+2025-06-03 11:26:49,884 [INFO]    ✓ Reward: μ=2.687, σ=0.216, max=3.014
+2025-06-03 11:26:49,885 [INFO]    ✓ Time: 7.5s
+2025-06-03 11:26:49,886 [INFO] 
+🔄 Iteration 8/100 (α=0.380)
+2025-06-03 11:26:49,888 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:26:55,120 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:26:55,121 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:26:56,210 [INFO]    ✓ Saved results for iteration 8
+2025-06-03 11:26:56,211 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:26:56,213 [INFO]    ✓ Diversity: 11/40 (27.50%)
+2025-06-03 11:26:56,215 [INFO]    ✓ Reward: μ=2.754, σ=0.165, max=2.993
+2025-06-03 11:26:56,216 [INFO]    ✓ Time: 6.3s
+2025-06-03 11:26:56,217 [INFO] 
+🔄 Iteration 9/100 (α=0.377)
+2025-06-03 11:26:56,219 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:27:01,449 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:27:01,450 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:27:02,511 [INFO]    ✓ Saved results for iteration 9
+2025-06-03 11:27:02,512 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:27:02,514 [INFO]    ✓ Diversity: 19/40 (47.50%)
+2025-06-03 11:27:02,515 [INFO]    ✓ Reward: μ=2.841, σ=0.137, max=2.993
+2025-06-03 11:27:02,517 [INFO]    ✓ Time: 6.3s
+2025-06-03 11:27:02,518 [INFO] 
+🔄 Iteration 10/100 (α=0.375)
+2025-06-03 11:27:02,520 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:27:07,761 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:27:07,762 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:27:08,836 [INFO]    ✓ Saved results for iteration 10
+2025-06-03 11:27:08,837 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:27:08,839 [INFO]    ✓ Diversity: 23/40 (57.50%)
+2025-06-03 11:27:08,841 [INFO]    ✓ Reward: μ=2.781, σ=0.168, max=3.096
+2025-06-03 11:27:08,842 [INFO]    ✓ Time: 6.3s
+2025-06-03 11:27:08,843 [INFO] 
+🔄 Iteration 11/100 (α=0.372)
+2025-06-03 11:27:08,845 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:27:18,089 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:27:18,091 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:27:19,174 [INFO]    ✓ Saved results for iteration 11
+2025-06-03 11:27:19,176 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:27:19,177 [INFO]    ✓ Diversity: 31/40 (77.50%)
+2025-06-03 11:27:19,178 [INFO]    ✓ Reward: μ=2.715, σ=0.332, max=3.196
+2025-06-03 11:27:19,179 [INFO]    ✓ Time: 10.3s
+2025-06-03 11:27:19,181 [INFO] 
+🔄 Iteration 12/100 (α=0.369)
+2025-06-03 11:27:19,183 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:27:25,262 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:27:25,264 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:27:26,288 [INFO]    ✓ Saved results for iteration 12
+2025-06-03 11:27:26,290 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:27:26,291 [INFO]    ✓ Diversity: 29/40 (72.50%)
+2025-06-03 11:27:26,293 [INFO]    ✓ Reward: μ=2.756, σ=0.222, max=3.108
+2025-06-03 11:27:26,294 [INFO]    ✓ Time: 7.1s
+2025-06-03 11:27:26,296 [INFO] 
+🔄 Iteration 13/100 (α=0.366)
+2025-06-03 11:27:26,297 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:27:32,640 [INFO]    ✓ Generated 40/40 valid SMILES
+2025-06-03 11:27:32,641 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:27:33,730 [INFO]    ✓ Saved results for iteration 13
+2025-06-03 11:27:33,731 [INFO]    ✓ Generated 40 molecules
+2025-06-03 11:27:33,733 [INFO]    ✓ Diversity: 36/40 (90.00%)
+2025-06-03 11:27:33,734 [INFO]    ✓ Reward: μ=2.706, σ=0.328, max=3.220
+2025-06-03 11:27:33,735 [INFO]    ✓ Time: 7.4s
+2025-06-03 11:27:33,737 [INFO] 
+🔄 Iteration 14/100 (α=0.363)
+2025-06-03 11:27:33,739 [INFO] 🔄 Generating from 40 latent vectors...
+2025-06-03 11:27:44,007 [INFO]    ✓ Generated 39/40 valid SMILES
+2025-06-03 11:27:44,008 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:27:45,106 [INFO]    ✓ Saved results for iteration 14
+2025-06-03 11:27:45,107 [INFO]    ✓ Generated 39 molecules
+2025-06-03 11:27:45,109 [INFO]    ✓ Diversity: 36/39 (92.31%)
+2025-06-03 11:27:45,110 [INFO]    ✓ Reward: μ=2.670, σ=0.356, max=3.248
+2025-06-03 11:27:45,112 [INFO]    ✓ Time: 11.4s
+2025-06-03 11:27:45,113 [INFO] 
+🔄 Iteration 15/100 (α=0.360)
+2025-06-03 11:27:45,115 [INFO] 🔄 Generating from 39 latent vectors...
+2025-06-03 11:27:59,701 [INFO]    ✓ Generated 39/39 valid SMILES
+2025-06-03 11:27:59,702 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:28:00,842 [INFO]    ✓ Saved results for iteration 15
+2025-06-03 11:28:00,844 [INFO]    ✓ Generated 39 molecules
+2025-06-03 11:28:00,845 [INFO]    ✓ Diversity: 37/39 (94.87%)
+2025-06-03 11:28:00,846 [INFO]    ✓ Reward: μ=2.234, σ=1.728, max=3.292
+2025-06-03 11:28:00,847 [INFO]    ✓ Time: 15.7s
+2025-06-03 11:28:00,849 [INFO] 
+🔄 Iteration 16/100 (α=0.358)
+2025-06-03 11:28:00,850 [INFO] 🔄 Generating from 39 latent vectors...
+2025-06-03 11:28:21,476 [INFO]    ✓ Generated 38/39 valid SMILES
+2025-06-03 11:28:21,479 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:28:22,573 [INFO]    ✓ Saved results for iteration 16
+2025-06-03 11:28:22,574 [INFO]    ✓ Generated 38 molecules
+2025-06-03 11:28:22,575 [INFO]    ✓ Diversity: 36/38 (94.74%)
+2025-06-03 11:28:22,577 [INFO]    ✓ Reward: μ=2.493, σ=0.494, max=3.261
+2025-06-03 11:28:22,579 [INFO]    ✓ Time: 21.7s
+2025-06-03 11:28:22,580 [INFO] 
+🔄 Iteration 17/100 (α=0.355)
+2025-06-03 11:28:22,581 [INFO] 🔄 Generating from 38 latent vectors...
+2025-06-03 11:28:50,320 [INFO]    ✓ Generated 34/38 valid SMILES
+2025-06-03 11:28:50,321 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:28:51,381 [INFO]    ✓ Saved results for iteration 17
+2025-06-03 11:28:51,382 [INFO]    ✓ Generated 34 molecules
+2025-06-03 11:28:51,383 [INFO]    ✓ Diversity: 30/34 (88.24%)
+2025-06-03 11:28:51,385 [INFO]    ✓ Reward: μ=2.380, σ=0.510, max=2.986
+2025-06-03 11:28:51,387 [INFO]    ✓ Time: 28.8s
+2025-06-03 11:28:51,388 [INFO] 
+🔄 Iteration 18/100 (α=0.352)
+2025-06-03 11:28:51,390 [INFO] 🔄 Generating from 34 latent vectors...
+2025-06-03 11:29:21,242 [INFO]    ✓ Generated 20/34 valid SMILES
+2025-06-03 11:29:21,245 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:29:22,218 [INFO]    ✓ Saved results for iteration 18
+2025-06-03 11:29:22,220 [INFO]    ✓ Generated 20 molecules
+2025-06-03 11:29:22,221 [INFO]    ✓ Diversity: 18/20 (90.00%)
+2025-06-03 11:29:22,223 [INFO]    ✓ Reward: μ=2.362, σ=0.526, max=3.048
+2025-06-03 11:29:22,224 [INFO]    ✓ Time: 30.8s
+2025-06-03 11:29:22,226 [INFO] 
+🔄 Iteration 19/100 (α=0.349)
+2025-06-03 11:29:22,227 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-03 11:29:42,263 [INFO]    ✓ Generated 10/20 valid SMILES
+2025-06-03 11:29:42,265 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:29:42,295 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:29:42,296 [WARNING] Using fallback centroid shift method
+2025-06-03 11:29:42,300 [INFO]    ✓ Saved results for iteration 19
+2025-06-03 11:29:42,301 [INFO]    ✓ Generated 10 molecules
+2025-06-03 11:29:42,302 [INFO]    ✓ Diversity: 10/10 (100.00%)
+2025-06-03 11:29:42,303 [INFO]    ✓ Reward: μ=1.900, σ=1.140, max=2.867
+2025-06-03 11:29:42,304 [INFO]    ✓ Time: 20.1s
+2025-06-03 11:29:42,305 [INFO] 
+🔄 Iteration 20/100 (α=0.346)
+2025-06-03 11:29:42,306 [INFO] 🔄 Generating from 10 latent vectors...
+2025-06-03 11:29:54,208 [INFO]    ✓ Generated 3/10 valid SMILES
+2025-06-03 11:29:54,209 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:29:54,210 [WARNING] Only 3 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:29:54,219 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:29:54,220 [WARNING] Using fallback centroid shift method
+2025-06-03 11:29:54,223 [INFO]    ✓ Saved results for iteration 20
+2025-06-03 11:29:54,224 [INFO]    ✓ Generated 3 molecules
+2025-06-03 11:29:54,224 [INFO]    ✓ Diversity: 3/3 (100.00%)
+2025-06-03 11:29:54,225 [INFO]    ✓ Reward: μ=2.432, σ=0.282, max=2.665
+2025-06-03 11:29:54,226 [INFO]    ✓ Time: 11.9s
+2025-06-03 11:29:54,227 [INFO] 
+🔄 Iteration 21/100 (α=0.343)
+2025-06-03 11:29:54,228 [INFO] 🔄 Generating from 3 latent vectors...
+2025-06-03 11:29:58,172 [INFO]    ✓ Generated 1/3 valid SMILES
+2025-06-03 11:29:58,173 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:29:58,174 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:29:58,180 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:29:58,181 [WARNING] Using fallback centroid shift method
+2025-06-03 11:29:58,183 [INFO]    ✓ Saved results for iteration 21
+2025-06-03 11:29:58,184 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:29:58,185 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:29:58,186 [INFO]    ✓ Reward: μ=2.595, σ=0.000, max=2.595
+2025-06-03 11:29:58,187 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:29:58,188 [INFO] 
+🔄 Iteration 22/100 (α=0.341)
+2025-06-03 11:29:58,188 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:29:58,558 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:29:58,559 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:29:58,560 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:29:58,566 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:29:58,567 [WARNING] Using fallback centroid shift method
+2025-06-03 11:29:58,570 [INFO]    ✓ Saved results for iteration 22
+2025-06-03 11:29:58,570 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:29:58,571 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:29:58,572 [INFO]    ✓ Reward: μ=2.595, σ=0.000, max=2.595
+2025-06-03 11:29:58,573 [INFO]    ✓ Time: 0.4s
+2025-06-03 11:29:58,574 [INFO] 
+🔄 Iteration 23/100 (α=0.338)
+2025-06-03 11:29:58,574 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:02,553 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:02,554 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:02,555 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:02,583 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:02,583 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:02,586 [INFO]    ✓ Saved results for iteration 23
+2025-06-03 11:30:02,587 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:02,588 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:02,588 [INFO]    ✓ Reward: μ=-3.917, σ=0.000, max=-3.917
+2025-06-03 11:30:02,589 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:30:02,590 [INFO] 
+🔄 Iteration 24/100 (α=0.335)
+2025-06-03 11:30:02,591 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:06,502 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:06,503 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:06,504 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:06,531 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:06,532 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:06,535 [INFO]    ✓ Saved results for iteration 24
+2025-06-03 11:30:06,535 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:06,536 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:06,537 [INFO]    ✓ Reward: μ=-3.917, σ=0.000, max=-3.917
+2025-06-03 11:30:06,538 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:06,539 [INFO] 
+🔄 Iteration 25/100 (α=0.332)
+2025-06-03 11:30:06,540 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:10,498 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:10,499 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:10,500 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:10,526 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:10,527 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:10,530 [INFO]    ✓ Saved results for iteration 25
+2025-06-03 11:30:10,530 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:10,531 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:10,532 [INFO]    ✓ Reward: μ=-3.917, σ=0.000, max=-3.917
+2025-06-03 11:30:10,533 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:30:10,533 [INFO] 
+🔄 Iteration 26/100 (α=0.329)
+2025-06-03 11:30:10,534 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:14,444 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:14,446 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:14,447 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:14,475 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:14,476 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:14,479 [INFO]    ✓ Saved results for iteration 26
+2025-06-03 11:30:14,479 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:14,480 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:14,481 [INFO]    ✓ Reward: μ=-7.769, σ=0.000, max=-7.769
+2025-06-03 11:30:14,482 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:14,483 [INFO] 
+🔄 Iteration 27/100 (α=0.326)
+2025-06-03 11:30:14,483 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:18,394 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:18,395 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:18,396 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:18,424 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:18,425 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:18,427 [INFO]    ✓ Saved results for iteration 27
+2025-06-03 11:30:18,428 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:18,429 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:18,430 [INFO]    ✓ Reward: μ=-7.765, σ=0.000, max=-7.765
+2025-06-03 11:30:18,431 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:18,432 [INFO] 
+🔄 Iteration 28/100 (α=0.324)
+2025-06-03 11:30:18,432 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:22,329 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:22,330 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:22,331 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:22,360 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:22,361 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:22,364 [INFO]    ✓ Saved results for iteration 28
+2025-06-03 11:30:22,365 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:22,365 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:22,366 [INFO]    ✓ Reward: μ=-8.031, σ=0.000, max=-8.031
+2025-06-03 11:30:22,367 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:22,368 [INFO] 
+🔄 Iteration 29/100 (α=0.321)
+2025-06-03 11:30:22,369 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:26,282 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:26,283 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:26,284 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:26,315 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:26,315 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:26,318 [INFO]    ✓ Saved results for iteration 29
+2025-06-03 11:30:26,319 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:26,320 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:26,321 [INFO]    ✓ Reward: μ=-7.992, σ=0.000, max=-7.992
+2025-06-03 11:30:26,322 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:30:26,322 [INFO] 
+🔄 Iteration 30/100 (α=0.318)
+2025-06-03 11:30:26,323 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:30,226 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:30,227 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:30,228 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:30,251 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:30,252 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:30,255 [INFO]    ✓ Saved results for iteration 30
+2025-06-03 11:30:30,256 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:30,256 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:30,257 [INFO]    ✓ Reward: μ=-13.869, σ=0.000, max=-13.869
+2025-06-03 11:30:30,258 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:30,259 [INFO] 
+🔄 Iteration 31/100 (α=0.315)
+2025-06-03 11:30:30,260 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:34,156 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:34,158 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:34,159 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:34,190 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:34,191 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:34,194 [INFO]    ✓ Saved results for iteration 31
+2025-06-03 11:30:34,195 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:34,195 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:34,196 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:30:34,197 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:34,198 [INFO] 
+🔄 Iteration 32/100 (α=0.312)
+2025-06-03 11:30:34,199 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:38,109 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:38,110 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:38,112 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:38,143 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:38,144 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:38,147 [INFO]    ✓ Saved results for iteration 32
+2025-06-03 11:30:38,147 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:38,148 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:38,149 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:30:38,150 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:30:38,151 [INFO] 
+🔄 Iteration 33/100 (α=0.309)
+2025-06-03 11:30:38,152 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:42,107 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:42,108 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:42,109 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:42,138 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:42,139 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:42,142 [INFO]    ✓ Saved results for iteration 33
+2025-06-03 11:30:42,142 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:42,143 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:42,144 [INFO]    ✓ Reward: μ=-8.002, σ=0.000, max=-8.002
+2025-06-03 11:30:42,145 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:30:42,145 [INFO] 
+🔄 Iteration 34/100 (α=0.307)
+2025-06-03 11:30:42,146 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:46,051 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:46,052 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:46,053 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:46,084 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:46,085 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:46,088 [INFO]    ✓ Saved results for iteration 34
+2025-06-03 11:30:46,089 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:46,090 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:46,091 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:30:46,092 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:46,092 [INFO] 
+🔄 Iteration 35/100 (α=0.304)
+2025-06-03 11:30:46,093 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:49,996 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:49,997 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:49,998 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:50,029 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:50,030 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:50,033 [INFO]    ✓ Saved results for iteration 35
+2025-06-03 11:30:50,034 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:50,034 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:50,035 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:30:50,036 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:50,037 [INFO] 
+🔄 Iteration 36/100 (α=0.301)
+2025-06-03 11:30:50,038 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:53,937 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:53,938 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:53,939 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:53,969 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:53,970 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:53,973 [INFO]    ✓ Saved results for iteration 36
+2025-06-03 11:30:53,974 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:53,975 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:53,976 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:30:53,977 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:53,977 [INFO] 
+🔄 Iteration 37/100 (α=0.298)
+2025-06-03 11:30:53,978 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:30:57,877 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:30:57,878 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:30:57,879 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:30:57,910 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:30:57,911 [WARNING] Using fallback centroid shift method
+2025-06-03 11:30:57,913 [INFO]    ✓ Saved results for iteration 37
+2025-06-03 11:30:57,914 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:30:57,915 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:30:57,916 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:30:57,917 [INFO]    ✓ Time: 3.9s
+2025-06-03 11:30:57,917 [INFO] 
+🔄 Iteration 38/100 (α=0.295)
+2025-06-03 11:30:57,918 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:31:01,872 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:31:01,874 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:31:01,875 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:31:01,907 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:31:01,908 [WARNING] Using fallback centroid shift method
+2025-06-03 11:31:01,911 [INFO]    ✓ Saved results for iteration 38
+2025-06-03 11:31:01,912 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:31:01,913 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:31:01,914 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:31:01,915 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:31:01,915 [INFO] 
+🔄 Iteration 39/100 (α=0.293)
+2025-06-03 11:31:01,916 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:31:05,953 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:31:05,954 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:31:05,955 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:31:05,987 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:31:05,988 [WARNING] Using fallback centroid shift method
+2025-06-03 11:31:05,991 [INFO]    ✓ Saved results for iteration 39
+2025-06-03 11:31:05,992 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:31:05,992 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:31:05,993 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:31:05,994 [INFO]    ✓ Time: 4.1s
+2025-06-03 11:31:05,995 [INFO] 
+🔄 Iteration 40/100 (α=0.290)
+2025-06-03 11:31:05,996 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:31:09,967 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:31:09,968 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:31:09,969 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:31:09,998 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:31:09,999 [WARNING] Using fallback centroid shift method
+2025-06-03 11:31:10,002 [INFO]    ✓ Saved results for iteration 40
+2025-06-03 11:31:10,003 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:31:10,004 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:31:10,005 [INFO]    ✓ Reward: μ=-1.620, σ=0.000, max=-1.620
+2025-06-03 11:31:10,005 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:31:10,006 [INFO] 
+🔄 Iteration 41/100 (α=0.287)
+2025-06-03 11:31:10,007 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:31:13,978 [INFO]    ✓ Generated 1/1 valid SMILES
+2025-06-03 11:31:13,979 [INFO] 📊 Optimizing latent space...
+2025-06-03 11:31:13,980 [WARNING] Only 1 samples available for centroid shift (recommended: ≥10)
+2025-06-03 11:31:14,011 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
+2025-06-03 11:31:14,012 [WARNING] Using fallback centroid shift method
+2025-06-03 11:31:14,015 [INFO]    ✓ Saved results for iteration 41
+2025-06-03 11:31:14,015 [INFO]    ✓ Generated 1 molecules
+2025-06-03 11:31:14,016 [INFO]    ✓ Diversity: 1/1 (100.00%)
+2025-06-03 11:31:14,017 [INFO]    ✓ Reward: μ=-8.024, σ=0.000, max=-8.024
+2025-06-03 11:31:14,018 [INFO]    ✓ Time: 4.0s
+2025-06-03 11:31:14,019 [INFO] 
+🔄 Iteration 42/100 (α=0.284)
+2025-06-03 11:31:14,019 [INFO] 🔄 Generating from 1 latent vectors...
+2025-06-03 11:31:17,913 [INFO]    ✓ Generated 0/1 valid SMILES
+2025-06-03 11:31:17,915 [ERROR] Error in iteration 42: No valid molecules generated in iteration 42
+2025-06-03 11:31:17,915 [WARNING] Continuing with previous iteration results
+2025-06-03 11:31:17,916 [INFO] 
+📈 Final Optimization Summary:
+2025-06-03 11:31:17,917 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
+2025-06-03 11:31:17,918 [INFO]    ---------|-----------|--------|-------------|------------|-----
+2025-06-03 11:31:17,919 [INFO]           1 |        40 |     12 |       2.478 |      2.990 | 19.3s
+2025-06-03 11:31:17,920 [INFO]           2 |        40 |     11 |       2.570 |      2.990 |  8.9s
+2025-06-03 11:31:17,920 [INFO]           3 |        40 |      9 |       2.644 |      2.990 |  8.5s
+2025-06-03 11:31:17,921 [INFO]           4 |        40 |      7 |       2.679 |      2.990 |  8.0s
+2025-06-03 11:31:17,922 [INFO]           5 |        40 |     10 |       2.610 |      3.069 |  7.8s
+2025-06-03 11:31:17,923 [INFO]           6 |        40 |      5 |       2.652 |      2.990 |  7.2s
+2025-06-03 11:31:17,924 [INFO]           7 |        40 |     14 |       2.687 |      3.014 |  7.5s
+2025-06-03 11:31:17,925 [INFO]           8 |        40 |     11 |       2.754 |      2.993 |  6.3s
+2025-06-03 11:31:17,925 [INFO]           9 |        40 |     19 |       2.841 |      2.993 |  6.3s
+2025-06-03 11:31:17,926 [INFO]          10 |        40 |     23 |       2.781 |      3.096 |  6.3s
+2025-06-03 11:31:17,927 [INFO]          11 |        40 |     31 |       2.715 |      3.196 | 10.3s
+2025-06-03 11:31:17,928 [INFO]          12 |        40 |     29 |       2.756 |      3.108 |  7.1s
+2025-06-03 11:31:17,929 [INFO]          13 |        40 |     36 |       2.706 |      3.220 |  7.4s
+2025-06-03 11:31:17,929 [INFO]          14 |        39 |     36 |       2.670 |      3.248 | 11.4s
+2025-06-03 11:31:17,930 [INFO]          15 |        39 |     37 |       2.234 |      3.292 | 15.7s
+2025-06-03 11:31:17,931 [INFO]          16 |        38 |     36 |       2.493 |      3.261 | 21.7s
+2025-06-03 11:31:17,932 [INFO]          17 |        34 |     30 |       2.380 |      2.986 | 28.8s
+2025-06-03 11:31:17,933 [INFO]          18 |        20 |     18 |       2.362 |      3.048 | 30.8s
+2025-06-03 11:31:17,933 [INFO]          19 |        10 |     10 |       1.900 |      2.867 | 20.1s
+2025-06-03 11:31:17,934 [INFO]          20 |         3 |      3 |       2.432 |      2.665 | 11.9s
+2025-06-03 11:31:17,935 [INFO]          21 |         1 |      1 |       2.595 |      2.595 |  4.0s
+2025-06-03 11:31:17,936 [INFO]          22 |         1 |      1 |       2.595 |      2.595 |  0.4s
+2025-06-03 11:31:17,936 [INFO]          23 |         1 |      1 |      -3.917 |     -3.917 |  4.0s
+2025-06-03 11:31:17,937 [INFO]          24 |         1 |      1 |      -3.917 |     -3.917 |  3.9s
+2025-06-03 11:31:17,938 [INFO]          25 |         1 |      1 |      -3.917 |     -3.917 |  4.0s
+2025-06-03 11:31:17,939 [INFO]          26 |         1 |      1 |      -7.769 |     -7.769 |  3.9s
+2025-06-03 11:31:17,940 [INFO]          27 |         1 |      1 |      -7.765 |     -7.765 |  3.9s
+2025-06-03 11:31:17,941 [INFO]          28 |         1 |      1 |      -8.031 |     -8.031 |  3.9s
+2025-06-03 11:31:17,941 [INFO]          29 |         1 |      1 |      -7.992 |     -7.992 |  3.9s
+2025-06-03 11:31:17,942 [INFO]          30 |         1 |      1 |     -13.869 |    -13.869 |  3.9s
+2025-06-03 11:31:17,943 [INFO]          31 |         1 |      1 |      -8.024 |     -8.024 |  3.9s
+2025-06-03 11:31:17,944 [INFO]          32 |         1 |      1 |      -8.024 |     -8.024 |  3.9s
+2025-06-03 11:31:17,945 [INFO]          33 |         1 |      1 |      -8.002 |     -8.002 |  4.0s
+2025-06-03 11:31:17,945 [INFO]          34 |         1 |      1 |      -8.024 |     -8.024 |  3.9s
+2025-06-03 11:31:17,946 [INFO]          35 |         1 |      1 |      -8.024 |     -8.024 |  3.9s
+2025-06-03 11:31:17,947 [INFO]          36 |         1 |      1 |      -8.024 |     -8.024 |  3.9s
+2025-06-03 11:31:17,948 [INFO]          37 |         1 |      1 |      -8.024 |     -8.024 |  3.9s
+2025-06-03 11:31:17,949 [INFO]          38 |         1 |      1 |      -8.024 |     -8.024 |  4.0s
+2025-06-03 11:31:17,950 [INFO]          39 |         1 |      1 |      -8.024 |     -8.024 |  4.1s
+2025-06-03 11:31:17,951 [INFO]          40 |         1 |      1 |      -1.620 |     -1.620 |  4.0s
+2025-06-03 11:31:17,951 [INFO]          41 |         1 |      1 |      -8.024 |     -8.024 |  4.0s
+2025-06-03 11:31:17,952 [INFO] 
+   💡 Reward improvement: -10.502
+2025-06-03 11:31:17,953 [INFO]    🎯 Final diversity: 100.00%
+2025-06-03 11:31:17,954 [INFO]    ⏱️  Total time: 331.2s
+2025-06-03 11:31:17,955 [INFO] 🎉 TamGenRL optimization complete!

@@ -1,5 +1,5 @@
 """
-Enhanced TamGenRL implementation with proper latent space optimization using CentroidShiftOptimizer.
+Fixed TamGenRL implementation with proper latent space optimization.
 Addresses critical issues in latent injection and memory management.
 """
 
@@ -7,7 +7,7 @@ import os
 import time
 import numpy as np
 import logging
-from typing import List, Dict, Any, Optional, Tuple, Callable
+from typing import List, Dict, Any, Optional, Tuple
 from rdkit import Chem
 import torch
 from tqdm import tqdm
@@ -16,9 +16,8 @@ from tqdm import tqdm
 from TamGen_Demo import TamGenDemo
 from fairseq import progress_bar, utils
 
-# Import our enhanced optimization components
-from feedback.centroid_praneeth import CentroidShiftOptimizer
-from feedback.reward_utils_praneeth import compute_advanced_reward, compute_diversity_bonus
+# Import our fixed optimization components
+from feedback.centroid_optimizer import centroid_shift_optimize, adaptive_shift_schedule
 
 # Setup logging
 logging.basicConfig(
@@ -33,14 +32,13 @@ logging.basicConfig(
 
 class TamGenRL(TamGenDemo):
     """
-    Enhanced TamGenRL with CentroidShiftOptimizer integration.
+    Enhanced TamGenRL with fixed latent space optimization.
     
     Key improvements:
-    - Integrated with enhanced CentroidShiftOptimizer for better latent space navigation
     - Fixed latent injection method that works with TamGen's architecture
     - Proper memory management to prevent OOM errors
     - Better batch processing for large-scale generation
-    - Comprehensive reward computation with multiple objectives
+    - Adaptive optimization parameters
     """
     
     def __init__(self, *args, **kwargs):
@@ -48,23 +46,6 @@ class TamGenRL(TamGenDemo):
         self.stored_protein_inputs = []
         self.device = next(self.models[0].parameters()).device
         self.latent_dim = self._detect_latent_dim()
-        
-        # Initialize the enhanced optimizer
-        self.optimizer = CentroidShiftOptimizer(
-            decoder=self._decode_latent_to_smiles,
-            reward_fn=self._compute_molecular_reward,
-            learning_rate=0.2,
-            diversity_weight=0.1,
-            perturbation_scale=0.01,
-            train_frequency=5
-        )
-        
-        # Optimization parameters
-        self.lambda_sas = 0.3
-        self.lambda_logp = 0.1
-        self.lambda_mw = 0.1
-        self.lambda_qed = 0.2
-        self.lambda_docking = 1.0
         
         logging.info(f"TamGenRL initialized on device: {self.device}")
         logging.info(f"Detected latent dimension: {self.latent_dim}")
@@ -87,269 +68,144 @@ class TamGenRL(TamGenDemo):
             logging.warning(f"Could not detect latent dimension: {e}. Using default 256.")
             return 256
 
-    def _decode_latent_to_smiles(self, z: np.ndarray) -> str:
-        """
-        Decoder function for the CentroidShiftOptimizer.
-        Converts a single latent vector to SMILES string.
-        """
-        try:
-            # Ensure z is 2D for batch processing
-            if z.ndim == 1:
-                z = z.reshape(1, -1)
-            
-            # Generate SMILES from latent vector
-            smiles_list = self._generate_from_latents(
-                z_vectors=z,
-                batch_size=1,
-                use_cuda=torch.cuda.is_available()
-            )
-            
-            # Return first valid SMILES or empty string
-            return smiles_list[0] if smiles_list else ""
-            
-        except Exception as e:
-            logging.warning(f"Failed to decode latent vector: {e}")
-            return ""
-
-    def _compute_molecular_reward(self, smiles: str) -> float:
-        """
-        Enhanced reward function for molecular optimization.
-        Combines multiple objectives including drug-likeness, synthetic accessibility, etc.
-        """
-        if not smiles or not isinstance(smiles, str):
-            return -10.0
-        
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return -10.0
-        
-        try:
-            # Use the advanced reward function from reward_utils_praneeth
-            base_reward = compute_advanced_reward(smiles)
-            
-            # Additional penalties/bonuses can be added here
-            # For example, specific structural constraints for target proteins
-            
-            return base_reward
-            
-        except Exception as e:
-            logging.warning(f"Error computing reward for {smiles}: {e}")
-            return -5.0
-
     def sample(self,
                m_sample: int = 100,
                num_iter: int = 5,
-               alpha: float = 0.2,
+               alpha: float = 0.5,
                top_k: int = 50,
                lambda_sas: float = 0.3,
                lambda_logp: float = 0.1,
                lambda_mw: float = 0.1,
-               lambda_qed: float = 0.2,
-               lambda_docking: float = 1.0,
                maxseed: int = 20,
                use_cuda: bool = True,
                batch_size: int = 4,
                adaptive_alpha: bool = True,
                save_intermediates: bool = True,
                diversity_target: float = 0.7,
-               early_stopping: bool = True,
-               patience: int = 3,
-               min_improvement: float = 0.01,
                **kwargs) -> List[str]:
         """
-        Enhanced sampling with CentroidShiftOptimizer integration.
+        Enhanced sampling with fixed optimization pipeline.
         
         Args:
             m_sample: Number of molecules to generate per iteration
             num_iter: Number of optimization iterations
-            alpha: Base learning rate for optimizer
+            alpha: Base shift magnitude (will be adaptive if adaptive_alpha=True)
             top_k: Number of top molecules for centroid computation
             lambda_sas: Weight for SAS penalty
             lambda_logp: Weight for LogP penalty
             lambda_mw: Weight for MW penalty
-            lambda_qed: Weight for QED score
-            lambda_docking: Weight for docking score
             maxseed: Maximum number of seeds for initial generation
             use_cuda: Whether to use CUDA
             batch_size: Batch size for generation
             adaptive_alpha: Whether to use adaptive alpha scheduling
             save_intermediates: Whether to save intermediate results
             diversity_target: Target diversity ratio (unique/total SMILES)
-            early_stopping: Whether to use early stopping
-            patience: Steps to wait without improvement before stopping
-            min_improvement: Minimum improvement threshold for early stopping
             **kwargs: Additional arguments
             
         Returns:
-            List of final optimized SMILES strings
+            List of final SMILES strings
         """
-        
-        # Update reward function parameters
-        self.lambda_sas = lambda_sas
-        self.lambda_logp = lambda_logp
-        self.lambda_mw = lambda_mw
-        self.lambda_qed = lambda_qed
-        self.lambda_docking = lambda_docking
         
         # Create output directory
         os.makedirs("latent_logs", exist_ok=True)
         
-        logging.info("🚀 Starting TamGenRL optimization with CentroidShiftOptimizer")
+        logging.info("🚀 Starting TamGenRL feedback loop optimization")
         logging.info(f"   Target: {m_sample} molecules × {num_iter} iterations")
         logging.info(f"   Device: {self.device}, Batch size: {batch_size}")
-        logging.info(f"   Reward weights - SAS: {lambda_sas}, LogP: {lambda_logp}, MW: {lambda_mw}")
-        logging.info(f"   QED: {lambda_qed}, Docking: {lambda_docking}")
         
         # Initialize variables
         z_vectors = None
         smiles_list = None
-        all_results = []
-        best_molecules = []
+        iteration_results = []
         
-        try:
-            # Step 1: Initial generation using TamGen
-            z_vectors, smiles_list = self._initial_generation(
-                m_sample=m_sample,
-                maxseed=maxseed,
-                use_cuda=use_cuda,
-                diversity_target=diversity_target
-            )
+        for iteration in range(num_iter):
+            iter_start_time = time.time()
             
-            if len(z_vectors) == 0:
-                raise RuntimeError("No initial molecules generated")
+            # Adaptive alpha scheduling
+            if adaptive_alpha:
+                current_alpha = adaptive_shift_schedule(
+                    iteration, num_iter, initial_alpha=alpha, final_alpha=alpha*0.3
+                )
+            else:
+                current_alpha = alpha
             
-            # Step 2: Iterative optimization using CentroidShiftOptimizer
-            for iteration in range(num_iter):
-                iter_start_time = time.time()
-                
-                logging.info(f"\n🔄 Optimization Iteration {iteration + 1}/{num_iter}")
-                
-                # Update optimizer parameters
-                if adaptive_alpha:
-                    current_alpha = alpha * (0.5 ** (iteration / max(1, num_iter - 1)))
-                    self.optimizer.learning_rate = current_alpha
-                    logging.info(f"   Learning rate: {current_alpha:.4f}")
-                
-                # Optimize each latent vector individually
-                iteration_results = []
-                optimized_molecules = []
-                
-                for i, z_init in enumerate(z_vectors):
-                    if i >= m_sample:  # Limit to requested number
-                        break
-                    
-                    try:
-                        # Run optimization for this latent vector
-                        best_smiles, best_reward, history = self.optimizer.optimize(
-                            initial_z=z_init,
-                            steps=20,  # Fewer steps per iteration for better exploration
-                            use_gradient=True,
-                            early_stopping=early_stopping,
-                            patience=max(3, patience // 2),
-                            min_improvement=min_improvement
-                        )
-                        
-                        if best_smiles:
-                            optimized_molecules.append((best_smiles, best_reward, history))
-                            iteration_results.append({
-                                'molecule_idx': i,
-                                'smiles': best_smiles,
-                                'reward': best_reward,
-                                'optimization_steps': len(history)
-                            })
-                        
-                    except Exception as e:
-                        logging.warning(f"Optimization failed for molecule {i}: {e}")
-                        continue
-                
-                if not optimized_molecules:
-                    logging.warning(f"No molecules optimized in iteration {iteration + 1}")
-                    break
-                
-                # Update best molecules
-                current_molecules = [mol[0] for mol in optimized_molecules]
-                current_rewards = [mol[1] for mol in optimized_molecules]
-                
-                # Select top molecules for next iteration
-                if len(current_rewards) > top_k:
-                    top_indices = np.argsort(current_rewards)[-top_k:]
-                    selected_molecules = [current_molecules[i] for i in top_indices]
-                    selected_rewards = [current_rewards[i] for i in top_indices]
+            logging.info(f"\n🔄 Iteration {iteration + 1}/{num_iter} (α={current_alpha:.3f})")
+            
+            try:
+                if iteration == 0:
+                    # Initial generation using TamGen
+                    z_vectors, smiles_list = self._initial_generation(
+                        m_sample=m_sample,
+                        maxseed=maxseed,
+                        use_cuda=use_cuda,
+                        diversity_target=diversity_target
+                    )
                 else:
-                    selected_molecules = current_molecules
-                    selected_rewards = current_rewards
+                    # Generate from optimized latent vectors
+                    smiles_list = self._generate_from_latents(
+                        z_vectors=z_vectors,
+                        batch_size=batch_size,
+                        use_cuda=use_cuda
+                    )
+                    
+                    # Update z_vectors to match successful generations
+                    z_vectors = z_vectors[:len(smiles_list)]
                 
-                # Convert selected molecules back to latent vectors for next iteration
-                if iteration < num_iter - 1:  # Don't need latents for final iteration
-                    try:
-                        z_vectors = self._smiles_to_latents(selected_molecules, use_cuda)
-                    except Exception as e:
-                        logging.error(f"Failed to convert SMILES to latents: {e}")
-                        break
+                if len(smiles_list) == 0:
+                    raise RuntimeError(f"No valid molecules generated in iteration {iteration + 1}")
+                
+                # Optimize latent space
+                z_vectors, rewards, metrics = self._optimize_latent_space(
+                    z_vectors=z_vectors,
+                    smiles_list=smiles_list,
+                    shift_alpha=current_alpha,
+                    top_k=min(top_k, len(smiles_list)),
+                    lambda_sas=lambda_sas,
+                    lambda_logp=lambda_logp,
+                    lambda_mw=lambda_mw,
+                    iteration=iteration
+                )
                 
                 # Store results
-                iter_result = {
+                iteration_result = {
                     'iteration': iteration + 1,
-                    'n_molecules': len(current_molecules),
-                    'unique_molecules': len(set(current_molecules)),
-                    'mean_reward': np.mean(current_rewards),
-                    'std_reward': np.std(current_rewards),
-                    'max_reward': np.max(current_rewards),
-                    'top_molecules': list(zip(selected_molecules, selected_rewards)),
+                    'n_molecules': len(smiles_list),
+                    'unique_molecules': len(set(smiles_list)),
+                    'mean_reward': np.mean(rewards),
+                    'std_reward': np.std(rewards),
+                    'max_reward': np.max(rewards),
+                    'alpha': current_alpha,
                     'time_seconds': time.time() - iter_start_time
                 }
-                all_results.append(iter_result)
+                iteration_results.append(iteration_result)
                 
                 # Save intermediate results
                 if save_intermediates:
-                    self._save_iteration_results(
-                        iteration + 1, 
-                        current_molecules, 
-                        current_rewards, 
-                        iteration_results
-                    )
+                    self._save_iteration_results(iteration + 1, smiles_list, rewards, metrics, z_vectors)
                 
                 # Log progress
-                diversity_ratio = len(set(current_molecules)) / len(current_molecules)
-                logging.info(f"   ✓ Optimized {len(current_molecules)} molecules")
-                logging.info(f"   ✓ Diversity: {len(set(current_molecules))}/{len(current_molecules)} ({diversity_ratio:.2%})")
-                logging.info(f"   ✓ Reward: μ={np.mean(current_rewards):.3f}, σ={np.std(current_rewards):.3f}, max={np.max(current_rewards):.3f}")
+                diversity_ratio = len(set(smiles_list)) / len(smiles_list)
+                logging.info(f"   ✓ Generated {len(smiles_list)} molecules")
+                logging.info(f"   ✓ Diversity: {len(set(smiles_list))}/{len(smiles_list)} ({diversity_ratio:.2%})")
+                logging.info(f"   ✓ Reward: μ={np.mean(rewards):.3f}, σ={np.std(rewards):.3f}, max={np.max(rewards):.3f}")
                 logging.info(f"   ✓ Time: {time.time() - iter_start_time:.1f}s")
-                
-                # Early stopping check
-                if early_stopping and iteration > 0:
-                    prev_best = all_results[-2]['max_reward'] if len(all_results) > 1 else -np.inf
-                    curr_best = all_results[-1]['max_reward']
-                    
-                    if curr_best - prev_best < min_improvement:
-                        logging.info(f"Early stopping: improvement {curr_best - prev_best:.4f} < {min_improvement}")
-                        break
                 
                 # Memory cleanup
                 self._cleanup_memory()
                 
-                # Update best molecules list
-                best_molecules = selected_molecules.copy()
-        
-        except Exception as e:
-            logging.error(f"Critical error in optimization: {e}")
-            best_molecules = smiles_list[:m_sample] if smiles_list else []
+            except Exception as e:
+                logging.error(f"Error in iteration {iteration + 1}: {e}")
+                if iteration == 0:
+                    raise RuntimeError(f"Failed in initial generation: {e}")
+                else:
+                    logging.warning(f"Continuing with previous iteration results")
+                    break
         
         # Final summary
-        self._log_final_summary(all_results)
-        
-        # Get optimizer statistics if available
-        if hasattr(self.optimizer, 'reward_model') and len(all_results) > 0:
-            try:
-                final_stats = self.optimizer.get_optimization_stats(
-                    all_results[-1].get('optimization_history', [])
-                )
-                logging.info(f"📊 Final optimization stats: {final_stats}")
-            except Exception as e:
-                logging.warning(f"Could not compute final stats: {e}")
+        self._log_final_summary(iteration_results)
         
         logging.info("🎉 TamGenRL optimization complete!")
-        return best_molecules if best_molecules else []
+        return smiles_list if smiles_list else []
 
     def _initial_generation(self, 
                           m_sample: int,
@@ -495,6 +351,8 @@ class TamGenRL(TamGenDemo):
         if len(self.stored_protein_inputs) == 0:
             raise RuntimeError("No stored protein inputs available")
         
+        logging.info(f"🔄 Generating from {len(z_vectors)} latent vectors...")
+        
         protein_input = self.stored_protein_inputs[0]
         total_samples = len(z_vectors)
         all_results = []
@@ -536,6 +394,8 @@ class TamGenRL(TamGenDemo):
         # Filter out empty results
         valid_results = [s for s in all_results if s and Chem.MolFromSmiles(s) is not None]
         
+        logging.info(f"   ✓ Generated {len(valid_results)}/{len(z_vectors)} valid SMILES")
+        
         return valid_results
 
     def _generate_batch_with_latent_injection(self,
@@ -567,35 +427,27 @@ class TamGenRL(TamGenDemo):
             "id": torch.arange(batch_size, device=self.device),
         }
         
-        # Enhanced latent injection with multiple fallback strategies
+        # Method 1: Direct encoder output modification (more reliable)
         try:
             # Get normal encoder output
             encoder_out = model.encoder.forward(
                 src_tokens,
                 src_lengths,
                 src_coord=src_coord,
-                tgt_tokens=None,
+                tgt_tokens=None,  # No target for unconditional generation
                 tgt_coord=None
             )
             
-            # Strategy 1: Direct latent replacement
-            if 'latent_mean' in encoder_out and encoder_out['latent_mean'] is not None:
-                encoder_out['latent_mean'] = z_tensor
-                if 'latent_logstd' in encoder_out:
-                    # Set small variance for injected latents
-                    encoder_out['latent_logstd'] = torch.full_like(z_tensor, -2.0)
-            
-            # Strategy 2: Encoder output modification
-            elif 'encoder_out' in encoder_out and encoder_out['encoder_out'] is not None:
-                if hasattr(self.args, 'concat') and self.args.concat:
-                    # Concatenation approach
-                    main_features = encoder_out['encoder_out'][..., :-self.latent_dim]
-                    z_expanded = z_tensor.unsqueeze(0).expand(main_features.size(0), -1, -1)
-                    encoder_out['encoder_out'] = torch.cat([main_features, z_expanded], dim=-1)
-                else:
-                    # Addition approach
-                    z_expanded = z_tensor.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
-                    encoder_out['encoder_out'] = encoder_out['encoder_out'] + z_expanded
+            # Inject our latent vectors
+            if hasattr(self.args, 'concat') and self.args.concat:
+                # If model concatenates latents with encoder output
+                main_features = encoder_out['encoder_out'][..., :-self.latent_dim]
+                z_expanded = z_tensor.unsqueeze(0).expand(main_features.size(0), -1, -1)
+                encoder_out['encoder_out'] = torch.cat([main_features, z_expanded], dim=-1)
+            else:
+                # If model adds latents to encoder output  
+                z_expanded = z_tensor.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
+                encoder_out['encoder_out'] = encoder_out['encoder_out'] + z_expanded
             
             # Override encoder output in sample
             sample["encoder_outs_override"] = [encoder_out]
@@ -628,44 +480,62 @@ class TamGenRL(TamGenDemo):
         
         return results
 
-    def _smiles_to_latents(self, smiles_list: List[str], use_cuda: bool) -> np.ndarray:
-        """Convert SMILES back to latent vectors (if possible)."""
-        # This is a challenging reverse operation
-        # For now, we'll use a simple approach of encoding the SMILES
-        # In practice, you might want to use a separate encoder model
+    def _optimize_latent_space(self,
+                             z_vectors: np.ndarray,
+                             smiles_list: List[str],
+                             shift_alpha: float,
+                             top_k: int,
+                             lambda_sas: float,
+                             lambda_logp: float,
+                             lambda_mw: float,
+                             iteration: int) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
+        """Optimize latent space using centroid shift."""
         
-        logging.info("🔄 Converting SMILES back to latents...")
+        logging.info("📊 Optimizing latent space...")
         
-        latents = []
+        # Placeholder docking scores (replace with real docking if available)
+        docking_scores = [None] * len(smiles_list)
         
-        # Simple approach: generate small perturbations around stored latents
-        # This is not ideal but works as a fallback
-        if hasattr(self, '_last_successful_latents') and len(self._last_successful_latents) > 0:
-            base_latents = self._last_successful_latents
-            for i, smiles in enumerate(smiles_list):
-                base_idx = i % len(base_latents)
-                perturbed = base_latents[base_idx] + np.random.randn(self.latent_dim) * 0.1
-                latents.append(perturbed)
-        else:
-            # Generate random latents as last resort
-            for _ in smiles_list:
-                latents.append(np.random.randn(self.latent_dim) * 0.5)
+        # Apply centroid shift optimization
+        z_shifted, rewards, metrics = centroid_shift_optimize(
+            z_vectors=z_vectors,
+            smiles_list=smiles_list,
+            docking_scores=docking_scores,
+            latent_dim=self.latent_dim,
+            top_k=top_k,
+            shift_alpha=shift_alpha,
+            lambda_sas=lambda_sas,
+            lambda_logp=lambda_logp,
+            lambda_mw=lambda_mw,
+            noise_sigma=0.05 + 0.02 * iteration,  # Increase noise over iterations
+            use_gradient_optimization=True,
+            device="auto",
+            reward_model_epochs=min(100, 50 + iteration * 10),  # More training in later iterations
+            diversity_weight=0.2
+        )
         
-        return np.array(latents)
+        return np.array(z_shifted), rewards, metrics
 
     def _save_iteration_results(self,
                               iteration: int,
                               smiles_list: List[str],
                               rewards: List[float],
-                              detailed_results: List[Dict[str, Any]]):
+                              metrics: List[Dict[str, Any]],
+                              z_vectors: np.ndarray):
         """Save iteration results to files."""
         
         # Save SMILES and rewards
         with open(f"latent_logs/results_iter_{iteration}.tsv", "w") as f:
-            f.write("SMILES\tReward\tOptimization_Steps\n")
-            for i, (smi, reward) in enumerate(zip(smiles_list, rewards)):
-                opt_steps = detailed_results[i].get('optimization_steps', 0) if i < len(detailed_results) else 0
-                f.write(f"{smi}\t{reward:.4f}\t{opt_steps}\n")
+            f.write("SMILES\tReward\tQED\tSAS\tMW\tLogP\n")
+            for smi, reward, metric in zip(smiles_list, rewards, metrics):
+                qed = metric.get('qed', 0)
+                sas = metric.get('sas', 10)
+                mw = metric.get('mw', 0)
+                logp = metric.get('logp', 0)
+                f.write(f"{smi}\t{reward:.4f}\t{qed:.3f}\t{sas:.3f}\t{mw:.1f}\t{logp:.2f}\n")
+        
+        # Save latent vectors
+        np.savetxt(f"latent_logs/latents_iter_{iteration}.tsv", z_vectors, fmt="%.6f")
         
         logging.info(f"   ✓ Saved results for iteration {iteration}")
 
@@ -694,12 +564,50 @@ class TamGenRL(TamGenDemo):
                         f"{result['time_seconds']:4.1f}s")
         
         # Overall statistics
-        if len(iteration_results) > 1:
-            final_result = iteration_results[-1]
-            initial_result = iteration_results[0]
-            
-            reward_improvement = final_result['mean_reward'] - initial_result['mean_reward']
-            diversity_final = final_result['unique_molecules'] / final_result['n_molecules']
-            
-            logging.info(f"\n   💡 Reward improvement: {reward_improvement:+.3f}")
-            logging.info(f"   🎯 Final diversity: {diversity_final:.2%}")
+        final_result = iteration_results[-1]
+        initial_result = iteration_results[0]
+        
+        reward_improvement = final_result['mean_reward'] - initial_result['mean_reward']
+        diversity_final = final_result['unique_molecules'] / final_result['n_molecules']
+        
+        logging.info(f"\n   💡 Reward improvement: {reward_improvement:+.3f}")
+        logging.info(f"   🎯 Final diversity: {diversity_final:.2%}")
+        logging.info(f"   ⏱️  Total time: {sum(r['time_seconds'] for r in iteration_results):.1f}s")
+
+
+# Utility functions for external use
+def run_tamgen_rl_optimization(checkpoint_path: str,
+                              data_path: str,
+                              output_dir: str = "tamgen_rl_results",
+                              **optimization_kwargs) -> Dict[str, Any]:
+    """
+    Convenience function to run TamGenRL optimization.
+    
+    Args:
+        checkpoint_path: Path to TamGen checkpoint
+        data_path: Path to input data
+        output_dir: Output directory for results
+        **optimization_kwargs: Additional arguments for optimization
+        
+    Returns:
+        Dictionary with optimization results
+    """
+    
+    # This would need to be implemented based on your TamGen setup
+    # The exact implementation depends on how TamGenDemo is initialized
+    
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Initialize TamGenRL (pseudo-code - adjust for your setup)
+    # tamgen_rl = TamGenRL.from_checkpoint(checkpoint_path, data_path)
+    
+    # Run optimization
+    # final_smiles = tamgen_rl.sample(**optimization_kwargs)
+    
+    # Return results
+    return {
+        "status": "success",
+        "output_dir": output_dir,
+        # "final_smiles": final_smiles,
+        "n_final_molecules": 0,  # len(final_smiles)
+    }
