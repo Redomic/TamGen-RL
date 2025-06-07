@@ -180,6 +180,7 @@ def compute_advanced_reward(mol: Chem.Mol,
         'docking': 2.0,
         'target_similarity': 1.0
     }
+    additional_penalties = 0
     
     if weights is not None:
         default_weights.update(weights)
@@ -211,26 +212,25 @@ def compute_advanced_reward(mol: Chem.Mol,
     
     # Additional molecular properties
     # LogP should be in reasonable range (0-5)
-    logp_penalty = 0
-    if lipinski_desc['logp'] < 0:
-        logp_penalty = abs(lipinski_desc['logp']) * 0.1
-    elif lipinski_desc['logp'] > 5:
-        logp_penalty = (lipinski_desc['logp'] - 5) * 0.1
-    
-    # Molecular weight penalty for very large molecules
-    mw_penalty = max(0, (lipinski_desc['mw'] - 600) / 400) * 0.2
-    
-    # TPSA should be reasonable (20-140)
-    tpsa_penalty = 0
-    if lipinski_desc['tpsa'] > 140:
-        tpsa_penalty = (lipinski_desc['tpsa'] - 140) / 100 * 0.1
-    elif lipinski_desc['tpsa'] < 20:
-        tpsa_penalty = (20 - lipinski_desc['tpsa']) / 20 * 0.1
-    
-    # Combine penalties
-    additional_penalties = logp_penalty + mw_penalty + tpsa_penalty
-    
-    # Diversity component
+    sas_normalized = max(0, min(1, (10 - sas_score) / 9))
+    sas_component = sas_normalized * w['sas']
+
+    # LogP should be in reasonable range (0-5) - add reward for being in range
+    logp_reward = 0
+    if 0 <= lipinski_desc['logp'] <= 5:
+        # Bonus for being within ideal range
+        logp_reward = 1.0 - abs(lipinski_desc['logp'] - 2.5) / 2.5  # Centered around 2.5
+    logp_component = logp_reward * w['logp']
+
+    # Docking component (handle minimization)
+    docking_component = 0
+    if docking_score is not None:
+        # Convert minimization to maximization: -docking_score
+        # Clip and normalize negative docking scores (assumes scores are negative)
+        docking_normalized = max(0, min(1, (-docking_score) / 15))  # Normalize to 0-1
+        docking_component = docking_normalized * w['docking']
+
+    # Diversity component (use weight directly)
     diversity_bonus = 0
     if reference_mols is not None:
         diversity_bonus = compute_diversity_bonus(mol, reference_mols) * w['diversity']
@@ -284,7 +284,7 @@ def compute_advanced_reward(mol: Chem.Mol,
         'lipinski_violations': lipinski_violations,
         'qed_component': qed_component,
         'sas_component': sas_component,
-        'lipinski_component': lipinski_component,
+        'logp_component': logp_component,
         'diversity_bonus': diversity_bonus,
         'docking_component': docking_component,
         'target_component': target_component,

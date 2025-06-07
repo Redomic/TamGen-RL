@@ -498,23 +498,35 @@ class TamGenRL(TamGenDemo):
         
         # Apply centroid shift optimization
         z_shifted, rewards, metrics = centroid_shift_optimize(
-            z_vectors=z_vectors,
-            smiles_list=smiles_list,
-            docking_scores=docking_scores,
-            latent_dim=self.latent_dim,
-            top_k=top_k,
-            shift_alpha=shift_alpha,
-            lambda_sas=lambda_sas,
-            lambda_logp=lambda_logp,
-            lambda_mw=lambda_mw,
-            noise_sigma=0.05 + 0.02 * iteration,  # Increase noise over iterations
-            use_gradient_optimization=True,
-            device="auto",
-            reward_model_epochs=min(100, 50 + iteration * 10),  # More training in later iterations
-            diversity_weight=0.2
+        z_vectors=z_vectors,
+        smiles_list=smiles_list,
+        docking_scores=docking_scores,
+        latent_dim=self.latent_dim,
+        top_k=min(top_k, len(smiles_list)),
+        shift_alpha=shift_alpha,
+        lambda_sas=lambda_sas,  # SAS weight
+        lambda_logp=lambda_logp,  # LogP weight
+        lambda_mw=lambda_mw,  # MW weight
+        noise_sigma=max(0.03, 0.10 - 0.005 * iteration),
+        use_gradient_optimization=True,
+        device="auto",
+        reward_model_epochs=min(100, 50 + iteration * 10),
+        diversity_weight=min(0.6, 0.3 + 0.03 * iteration)
         )
-        
+    
+        self._track_metrics(iteration, metrics)
         return np.array(z_shifted), rewards, metrics
+    
+    def _track_metrics(self, iteration, metrics):
+        """Track key metrics across iterations"""
+        if not hasattr(self, 'metric_history'):
+            self.metric_history = {}
+            
+        for key in ['qed', 'sas', 'docking', 'logp', 'diversity']:
+            values = [m.get(key, 0) for m in metrics]
+            if key not in self.metric_history:
+                self.metric_history[key] = []
+            self.metric_history[key].append(np.mean(values))
 
     def _save_iteration_results(self,
                               iteration: int,

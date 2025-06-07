@@ -1,3 +1,7 @@
+import numpy as np
+
+from reward_model_praneeth import LatentRewardModel, compute_advanced_reward, compute_diversity_bonus
+
 class CentroidShiftOptimizer:
     def __init__(self, decoder, reward_fn=compute_advanced_reward):
         self.decoder = decoder

@@ -99,11 +99,12 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
             reference_mols.append(mol)
     
     reward_weights = {
-        'qed': 2.0,
-        'sas': lambda_sas * 3.0,
-        'lipinski': 1.0,
-        'diversity': diversity_weight,
-        'docking': 1.0
+        'qed': 2.0,          # Maximize QED
+        'sas': 1.5,           # Minimize SAS (converted to maximize)
+        'lipinski': 1.0,      # Minimize violations
+        'diversity': diversity_weight,  # Maximize diversity
+        'docking': 3.0,       # Minimize docking score
+        'logp': 1.5           # Keep in 0-5 range
     }
     
     for i, (z, smi, dock_score) in enumerate(zip(z_vectors, smiles_list, docking_scores)):
