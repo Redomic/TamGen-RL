@@ -220,6 +220,8 @@ def compute_advanced_reward(mol: Chem.Mol,
     if 0 <= lipinski_desc['logp'] <= 5:
         # Bonus for being within ideal range
         logp_reward = 1.0 - abs(lipinski_desc['logp'] - 2.5) / 2.5  # Centered around 2.5
+    else: 
+        logp_reward = -1.0
     logp_component = logp_reward * w['logp']
 
     # Docking component (handle minimization)

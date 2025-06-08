@@ -488,7 +488,9 @@ class TamGenRL(TamGenDemo):
                              lambda_sas: float,
                              lambda_logp: float,
                              lambda_mw: float,
-                             iteration: int) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
+                             iteration: int, 
+                             diversity_weight: float = 0.3,
+                             docking_weight: float = 3.0)-> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
         """Optimize latent space using centroid shift."""
         
         logging.info("📊 Optimizing latent space...")
@@ -498,21 +500,23 @@ class TamGenRL(TamGenDemo):
         
         # Apply centroid shift optimization
         z_shifted, rewards, metrics = centroid_shift_optimize(
-        z_vectors=z_vectors,
-        smiles_list=smiles_list,
-        docking_scores=docking_scores,
-        latent_dim=self.latent_dim,
-        top_k=min(top_k, len(smiles_list)),
-        shift_alpha=shift_alpha,
-        lambda_sas=lambda_sas,  # SAS weight
-        lambda_logp=lambda_logp,  # LogP weight
-        lambda_mw=lambda_mw,  # MW weight
-        noise_sigma=max(0.03, 0.10 - 0.005 * iteration),
-        use_gradient_optimization=True,
-        device="auto",
-        reward_model_epochs=min(100, 50 + iteration * 10),
-        diversity_weight=min(0.6, 0.3 + 0.03 * iteration)
+            z_vectors=z_vectors,
+            smiles_list=smiles_list,
+            docking_scores=[None] * len(smiles_list),
+            latent_dim=self.latent_dim,
+            top_k=min(top_k, len(smiles_list)),
+            shift_alpha=shift_alpha,
+            lambda_sas=lambda_sas,
+            lambda_logp=lambda_logp,
+            lambda_mw=lambda_mw,
+            noise_sigma=max(0.03, 0.10 - 0.005 * iteration),
+            use_gradient_optimization=True,
+            device="auto",
+            reward_model_epochs=min(100, 50 + iteration * 10),
+            diversity_weight=diversity_weight,
+            docking_weight=docking_weight
         )
+
     
         self._track_metrics(iteration, metrics)
         return np.array(z_shifted), rewards, metrics

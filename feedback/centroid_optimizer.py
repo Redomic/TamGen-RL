@@ -26,7 +26,8 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
                           use_gradient_optimization: bool = True,
                           device: str = "auto",
                           reward_model_epochs: int = 100,
-                          diversity_weight: float = 0.2) -> Tuple[List[np.ndarray], List[float], List[Dict[str, Any]]]:
+                          diversity_weight: float = 0.3,
+                          docking_weight: float = 3.0) -> Tuple[List[np.ndarray], List[float], List[Dict[str, Any]]]:
     """
     FIXED: Compute new latent vectors using centroid shift based on reward.
     
