@@ -1,6 +1,7 @@
 """
 Fixed centroid shift optimization for latent space molecular generation.
 Addresses critical data flow issues and improves optimization strategy.
+Now includes GNINA binding affinity as primary optimization criterion.
 """
 
 import numpy as np
@@ -26,12 +27,15 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
                           use_gradient_optimization: bool = True,
                           device: str = "auto",
                           reward_model_epochs: int = 100,
-                          diversity_weight: float = 0.2) -> Tuple[List[np.ndarray], List[float], List[Dict[str, Any]]]:
+                          diversity_weight: float = 0.2,
+                          pdb_id: Optional[str] = None,
+                          use_binding_affinity: bool = True) -> Tuple[List[np.ndarray], List[float], List[Dict[str, Any]]]:
     """
     FIXED: Compute new latent vectors using centroid shift based on reward.
     
     This version fixes the critical data flow bug where the reward model
     would clear its data before computing the centroid shift.
+    Now includes GNINA binding affinity as the primary optimization criterion.
     
     Args:
         z_vectors: Array of latent vectors (shape: [n_samples, latent_dim])
@@ -48,6 +52,8 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
         device: Device for reward model ("cpu", "cuda", or "auto")
         reward_model_epochs: Number of training epochs for reward model
         diversity_weight: Weight for molecular diversity bonus
+        pdb_id: PDB ID for GNINA docking (e.g., "1HSG" for HIV protease)
+        use_binding_affinity: Whether to compute binding affinity using GNINA
         
     Returns:
         Tuple of (shifted_z_vectors, rewards, metrics_list)
@@ -98,13 +104,22 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
         if mol is not None:
             reference_mols.append(mol)
     
+    # Set up reward weights with binding affinity as primary criterion
     reward_weights = {
-        'qed': 2.0,
-        'sas': lambda_sas * 3.0,
-        'lipinski': 1.0,
-        'diversity': diversity_weight,
-        'docking': 1.0
+        'binding_affinity': 10.0 if use_binding_affinity else 0.0,
+        'qed': 1.0 if not use_binding_affinity else 0.3,  # Reduced when docking available
+        'sas': lambda_sas * (3.0 if not use_binding_affinity else 1.0),
+        'lipinski': 1.0 if not use_binding_affinity else 0.3,
+        'diversity': diversity_weight
     }
+    
+    # Show docking info
+    if use_binding_affinity and pdb_id:
+        print(f"   🧬 Using GNINA docking with PDB ID: {pdb_id}")
+    elif use_binding_affinity:
+        print("   📋 Using pre-computed docking scores")
+    else:
+        print("   ⚗️  Using drug-likeness properties only")
     
     for i, (z, smi, dock_score) in enumerate(zip(z_vectors, smiles_list, docking_scores)):
         mol = Chem.MolFromSmiles(smi)
@@ -114,12 +129,14 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
             metrics = {"error": "invalid_smiles", "smiles": smi}
             logging.warning(f"Invalid SMILES at index {i}: {smi}")
         else:
-            # Compute advanced reward with diversity consideration
+            # Compute advanced reward with binding affinity
             reward, metrics = compute_advanced_reward(
                 mol=mol,
                 docking_score=dock_score,
+                pdb_id=pdb_id if use_binding_affinity else None,
                 reference_mols=reference_mols[:i] if i > 0 else None,  # Previous molecules for diversity
-                weights=reward_weights
+                weights=reward_weights,
+                use_binding_affinity=use_binding_affinity
             )
             valid_molecules.append(mol)
         
@@ -129,6 +146,14 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
         metrics_list.append(metrics)
     
     print(f"   ✓ Computed rewards for {len(valid_molecules)}/{n_samples} valid molecules")
+    
+    # Show binding affinity statistics if available
+    binding_affinities = [m.get('binding_affinity') for m in metrics_list if m.get('binding_affinity') is not None]
+    if binding_affinities:
+        best_affinity = min(binding_affinities)  # Most negative = best
+        success_rate = len(binding_affinities) / n_samples
+        print(f"   🎯 Binding affinity: {len(binding_affinities)}/{n_samples} successful ({success_rate:.1%})")
+        print(f"   🏆 Best binding affinity: {best_affinity:.2f} kcal/mol")
     
     # Step 2: Train reward model BEFORE getting centroid shift
     print("🎯 Training reward model...")
@@ -205,6 +230,13 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
     print(f"   • Reward distribution: μ={reward_analysis['reward_stats']['mean']:.3f}, "
           f"σ={reward_analysis['reward_stats']['std']:.3f}")
     print(f"   • Valid molecules: {len(valid_molecules)}/{n_samples}")
+    
+    # Show binding affinity summary
+    if 'binding_affinity_stats' in reward_analysis:
+        ba_stats = reward_analysis['binding_affinity_stats']
+        print(f"   • Binding affinity: μ={ba_stats['mean']:.2f}, best={ba_stats['best_binding']:.2f} kcal/mol")
+        print(f"   • Docking success rate: {reward_analysis['binding_affinity_success_rate']:.1%}")
+    
     print(f"   • Shift magnitude: {direction_norm:.4f}")
     print(f"   • Applied noise: σ={adaptive_noise:.4f}")
     
@@ -314,15 +346,19 @@ def multi_objective_centroid_shift(z_vectors: np.ndarray,
                                  smiles_list: List[str],
                                  objectives: Dict[str, List[float]],
                                  objective_weights: Dict[str, float],
+                                 pdb_id: Optional[str] = None,
+                                 use_binding_affinity: bool = True,
                                  **kwargs) -> Tuple[List[np.ndarray], List[float], List[Dict[str, Any]]]:
     """
-    Multi-objective centroid shift optimization.
+    Multi-objective centroid shift optimization with binding affinity support.
     
     Args:
         z_vectors: Array of latent vectors
         smiles_list: List of SMILES strings
         objectives: Dictionary of objective names to value lists
         objective_weights: Dictionary of objective names to weights
+        pdb_id: PDB ID for GNINA docking
+        use_binding_affinity: Whether to compute binding affinity
         **kwargs: Additional arguments for centroid_shift_optimize
         
     Returns:
@@ -345,5 +381,7 @@ def multi_objective_centroid_shift(z_vectors: np.ndarray,
         z_vectors=z_vectors,
         smiles_list=smiles_list,
         docking_scores=combined_rewards,
+        pdb_id=pdb_id,
+        use_binding_affinity=use_binding_affinity,
         **kwargs
     )
