@@ -1,1225 +1,233 @@
-2025-05-28 19:57:17,033 [INFO] TamGenRL initialized on device: cuda:0
-2025-05-28 19:57:17,035 [INFO] Detected latent dimension: 256
-2025-05-28 19:57:20,442 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-05-28 19:57:20,444 [INFO]    Target: 10000 molecules × 30 iterations
-2025-05-28 19:57:20,445 [INFO]    Device: cuda:0, Batch size: 4
-2025-05-28 19:57:20,446 [INFO] 
-🔄 Iteration 1/30 (α=0.400)
-2025-05-28 19:57:20,447 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-05-28 19:57:20,542 [INFO] 📦 Stored protein input: torch.Size([1, 83])
-2025-05-28 19:58:01,394 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-05-28 19:58:01,395 [INFO]    Target: 1000 molecules × 10 iterations
-2025-05-28 19:58:01,396 [INFO]    Device: cuda:0, Batch size: 4
-2025-05-28 19:58:01,397 [INFO] 
+2025-06-22 19:27:35,515 [INFO] TamGenRL initialized on device: cuda:0
+2025-06-22 19:27:35,516 [INFO] Detected latent dimension: 256
+2025-06-22 19:27:37,305 [INFO] 🚀 Starting TamGenRL feedback loop optimization
+2025-06-22 19:27:37,306 [INFO]    Target: 1000 molecules × 10 iterations
+2025-06-22 19:27:37,306 [INFO]    Device: cuda:0, Batch size: 4
+2025-06-22 19:27:37,306 [INFO] 
 🔄 Iteration 1/10 (α=0.400)
-2025-05-28 19:58:01,398 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-05-28 19:58:09,971 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-05-28 19:58:09,972 [INFO]    Target: 1000 molecules × 10 iterations
-2025-05-28 19:58:09,973 [INFO]    Device: cuda:0, Batch size: 4
-2025-05-28 19:58:09,975 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-05-28 19:58:09,976 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-05-28 19:58:35,610 [INFO]    ✓ Generated 20 initial molecules
-2025-05-28 19:58:35,611 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 19:58:35,612 [WARNING] Low diversity detected (25.00% < 70.00%)
-2025-05-28 19:58:35,613 [INFO] 📊 Optimizing latent space...
-2025-05-28 19:58:37,775 [INFO]    ✓ Saved results for iteration 1
-2025-05-28 19:58:37,777 [INFO]    ✓ Generated 20 molecules
-2025-05-28 19:58:37,778 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 19:58:37,780 [INFO]    ✓ Reward: μ=1.727, σ=0.616, max=2.353
-2025-05-28 19:58:37,781 [INFO]    ✓ Time: 27.8s
-2025-05-28 19:58:37,783 [INFO] 
+2025-06-22 19:27:37,306 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-22 19:27:37,361 [INFO] 📦 Stored protein input: torch.Size([1, 83])
+2025-06-22 19:27:43,220 [INFO]    ✓ Generated 20 initial molecules
+2025-06-22 19:27:43,221 [INFO]    ✓ Diversity: 5/20 (25.00%)
+2025-06-22 19:27:43,221 [WARNING] Low diversity detected (25.00% < 70.00%)
+2025-06-22 19:27:43,221 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:27:43,784 [INFO] 🔍 Injection quality check - Iteration 0
+2025-06-22 19:27:43,785 [INFO] 🔧 Running comprehensive injection debug...
+2025-06-22 19:27:43,785 [INFO] 🔍 Checking architecture assumptions...
+2025-06-22 19:27:43,787 [INFO]    Encoder output keys: ['encoder_out', 'encoder_padding_mask', 'latent_mean', 'latent_logstd']
+2025-06-22 19:27:43,787 [INFO]    Encoder output shape: torch.Size([83, 1, 256])
+2025-06-22 19:27:43,787 [INFO]    Concat mode: NOT_SET
+2025-06-22 19:27:43,787 [INFO]    Detected latent dim: 256
+2025-06-22 19:27:43,787 [INFO]    Expected encoder dim: NOT_SET
+2025-06-22 19:27:43,787 [INFO]    ✅ VAE encoder found
+2025-06-22 19:27:43,787 [INFO]    ✅ Latent mean attribute found
+2025-06-22 19:27:43,788 [INFO]    gen_vae setting: True
+2025-06-22 19:27:43,788 [INFO]    Model gen_vae: True
+2025-06-22 19:27:43,788 [INFO] 🔍 Testing injection identity...
+2025-06-22 19:27:43,788 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-22 19:27:44,621 [INFO]    ✓ Generated 3 initial molecules
+2025-06-22 19:27:44,621 [INFO]    ✓ Diversity: 3/3 (100.00%)
+2025-06-22 19:27:44,840 [INFO]    Generation 1: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:45,058 [INFO]    Generation 2: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:45,273 [INFO]    Generation 3: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:45,488 [INFO]    Generation 4: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:45,703 [INFO]    Generation 5: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:45,704 [INFO]    ✅ PERFECT: All generations identical - injection working!
+2025-06-22 19:27:45,704 [INFO] 🔍 Testing encoder override mechanism...
+2025-06-22 19:27:46,121 [INFO]    Normal:   CCc1[nH]c(=N)[nH]c(=N)c1C#CCc1cc(OC)cc(-c2ccncc2)c1
+2025-06-22 19:27:46,122 [INFO]    Override: CC[C@@H]1[C@@H]2[C@H](C(=O)N1Cc1ccc3c(c1)OCO3)[C@H](c1ccc(C(=N)N)cc1)N1CCC[C@@H]21
+2025-06-22 19:27:46,122 [INFO]    ✅ GOOD: Override working - different outputs
+2025-06-22 19:27:49,020 [INFO]    Small perturbation similarity: 0.748
+2025-06-22 19:27:49,021 [INFO]    Large perturbation similarity: 0.311
+2025-06-22 19:27:49,021 [INFO]    Identity similarity: 0.725
+2025-06-22 19:27:49,021 [INFO]    Protein preservation score: 1.000
+2025-06-22 19:27:49,022 [INFO]    Valid molecules ratio: 1.000
+2025-06-22 19:27:49,022 [WARNING] ⚠️ Injection health issue detected: unhealthy: poor_reproducibility
+2025-06-22 19:27:49,022 [INFO] 🔍 Testing injection identity...
+2025-06-22 19:27:49,022 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-22 19:27:49,871 [INFO]    ✓ Generated 3 initial molecules
+2025-06-22 19:27:49,872 [INFO]    ✓ Diversity: 3/3 (100.00%)
+2025-06-22 19:27:50,090 [INFO]    Generation 1: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:50,310 [INFO]    Generation 2: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:50,526 [INFO]    Generation 3: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:50,742 [INFO]    Generation 4: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:50,957 [INFO]    Generation 5: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:27:50,957 [INFO]    ✅ PERFECT: All generations identical - injection working!
+2025-06-22 19:27:51,176 [INFO]    Reward direction test: positive_gradient
+2025-06-22 19:27:51,178 [INFO]    ✓ Saved results for iteration 1
+2025-06-22 19:27:51,178 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:27:51,178 [INFO]    ✓ Diversity: 5/20 (25.00%)
+2025-06-22 19:27:51,179 [INFO]    ✓ Reward: μ=1.892, σ=0.644, max=2.573
+2025-06-22 19:27:51,179 [INFO]    ✓ Time: 13.9s
+2025-06-22 19:27:51,179 [INFO] 
 🔄 Iteration 2/10 (α=0.369)
-2025-05-28 19:58:37,784 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 19:58:44,251 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 19:58:44,252 [INFO] 📊 Optimizing latent space...
-2025-05-28 19:58:45,640 [INFO]    ✓ Saved results for iteration 2
-2025-05-28 19:58:45,641 [INFO]    ✓ Generated 20 molecules
-2025-05-28 19:58:45,643 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-05-28 19:58:45,644 [INFO]    ✓ Reward: μ=1.604, σ=0.473, max=2.353
-2025-05-28 19:58:45,646 [INFO]    ✓ Time: 7.9s
-2025-05-28 19:58:45,648 [INFO] 
+2025-06-22 19:27:51,179 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:27:52,898 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:27:52,898 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:27:53,223 [INFO]    ✓ Saved results for iteration 2
+2025-06-22 19:27:53,224 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:27:53,224 [INFO]    ✓ Diversity: 5/20 (25.00%)
+2025-06-22 19:27:53,224 [INFO]    ✓ Reward: μ=2.467, σ=0.480, max=3.027
+2025-06-22 19:27:53,225 [INFO]    ✓ Time: 2.0s
+2025-06-22 19:27:53,225 [INFO] 
 🔄 Iteration 3/10 (α=0.338)
-2025-05-28 19:58:45,649 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 19:58:52,192 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 19:58:52,194 [INFO] 📊 Optimizing latent space...
-2025-05-28 19:58:54,326 [INFO]    ✓ Saved results for iteration 3
-2025-05-28 19:58:54,327 [INFO]    ✓ Generated 20 molecules
-2025-05-28 19:58:54,328 [INFO]    ✓ Diversity: 6/20 (30.00%)
-2025-05-28 19:58:54,330 [INFO]    ✓ Reward: μ=1.859, σ=0.417, max=2.353
-2025-05-28 19:58:54,332 [INFO]    ✓ Time: 8.7s
-2025-05-28 19:58:54,333 [INFO] 
+2025-06-22 19:27:53,225 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:27:54,922 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:27:54,923 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:27:55,251 [INFO]    ✓ Saved results for iteration 3
+2025-06-22 19:27:55,251 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:27:55,252 [INFO]    ✓ Diversity: 5/20 (25.00%)
+2025-06-22 19:27:55,252 [INFO]    ✓ Reward: μ=2.463, σ=0.593, max=3.027
+2025-06-22 19:27:55,252 [INFO]    ✓ Time: 2.0s
+2025-06-22 19:27:55,252 [INFO] 
 🔄 Iteration 4/10 (α=0.307)
-2025-05-28 19:58:54,335 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 19:59:00,864 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 19:59:00,866 [INFO] 📊 Optimizing latent space...
-2025-05-28 19:59:02,717 [INFO]    ✓ Saved results for iteration 4
-2025-05-28 19:59:02,718 [INFO]    ✓ Generated 20 molecules
-2025-05-28 19:59:02,720 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-05-28 19:59:02,722 [INFO]    ✓ Reward: μ=1.889, σ=0.273, max=2.353
-2025-05-28 19:59:02,723 [INFO]    ✓ Time: 8.4s
-2025-05-28 19:59:02,725 [INFO] 
+2025-06-22 19:27:55,252 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:27:56,939 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:27:56,940 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:27:57,269 [INFO] 🔍 Injection quality check - Iteration 3
+2025-06-22 19:28:00,286 [INFO]    Small perturbation similarity: 0.854
+2025-06-22 19:28:00,286 [INFO]    Large perturbation similarity: 0.580
+2025-06-22 19:28:00,287 [INFO]    Identity similarity: 0.580
+2025-06-22 19:28:00,287 [INFO]    Protein preservation score: 1.000
+2025-06-22 19:28:00,287 [INFO]    Valid molecules ratio: 1.000
+2025-06-22 19:28:00,287 [WARNING] ⚠️ Injection health issue detected: unhealthy: poor_reproducibility, insufficient_sensitivity
+2025-06-22 19:28:00,287 [INFO] 🔍 Testing injection identity...
+2025-06-22 19:28:00,287 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-22 19:28:01,124 [INFO]    ✓ Generated 3 initial molecules
+2025-06-22 19:28:01,125 [INFO]    ✓ Diversity: 3/3 (100.00%)
+2025-06-22 19:28:01,343 [INFO]    Generation 1: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:01,557 [INFO]    Generation 2: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:01,772 [INFO]    Generation 3: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:01,987 [INFO]    Generation 4: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:02,202 [INFO]    Generation 5: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:02,202 [INFO]    ✅ PERFECT: All generations identical - injection working!
+2025-06-22 19:28:02,434 [INFO]    Reward direction test: positive_gradient
+2025-06-22 19:28:02,435 [INFO]    ✓ Saved results for iteration 4
+2025-06-22 19:28:02,435 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:02,435 [INFO]    ✓ Diversity: 5/20 (25.00%)
+2025-06-22 19:28:02,436 [INFO]    ✓ Reward: μ=2.660, σ=0.490, max=3.027
+2025-06-22 19:28:02,436 [INFO]    ✓ Time: 7.2s
+2025-06-22 19:28:02,436 [INFO] 
 🔄 Iteration 5/10 (α=0.276)
-2025-05-28 19:59:02,726 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 19:59:09,243 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 19:59:09,246 [INFO] 📊 Optimizing latent space...
-2025-05-28 19:59:11,038 [INFO]    ✓ Saved results for iteration 5
-2025-05-28 19:59:11,039 [INFO]    ✓ Generated 20 molecules
-2025-05-28 19:59:11,040 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-05-28 19:59:11,042 [INFO]    ✓ Reward: μ=1.893, σ=0.458, max=2.558
-2025-05-28 19:59:11,044 [INFO]    ✓ Time: 8.3s
-2025-05-28 19:59:11,046 [INFO] 
+2025-06-22 19:28:02,436 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:28:04,159 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:28:04,159 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:28:04,577 [INFO]    ✓ Saved results for iteration 5
+2025-06-22 19:28:04,578 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:04,578 [INFO]    ✓ Diversity: 3/20 (15.00%)
+2025-06-22 19:28:04,578 [INFO]    ✓ Reward: μ=2.618, σ=0.565, max=3.090
+2025-06-22 19:28:04,578 [INFO]    ✓ Time: 2.1s
+2025-06-22 19:28:04,578 [INFO] 
 🔄 Iteration 6/10 (α=0.244)
-2025-05-28 19:59:11,047 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:10:15,431 [INFO] TamGenRL initialized on device: cuda:0
-2025-05-28 20:10:15,432 [INFO] Detected latent dimension: 256
-2025-05-28 20:10:32,187 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-05-28 20:10:32,189 [INFO]    Target: 1000 molecules × 10 iterations
-2025-05-28 20:10:32,190 [INFO]    Device: cuda:0, Batch size: 4
-2025-05-28 20:10:32,191 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-05-28 20:10:32,193 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-05-28 20:10:32,309 [INFO] 📦 Stored protein input: torch.Size([1, 83])
-2025-05-28 20:11:05,963 [INFO]    ✓ Generated 20 initial molecules
-2025-05-28 20:11:05,964 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 20:11:05,965 [WARNING] Low diversity detected (25.00% < 70.00%)
-2025-05-28 20:11:05,967 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:11:07,986 [INFO]    ✓ Saved results for iteration 1
-2025-05-28 20:11:07,988 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:11:07,990 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 20:11:07,991 [INFO]    ✓ Reward: μ=1.892, σ=0.644, max=2.573
-2025-05-28 20:11:07,992 [INFO]    ✓ Time: 35.8s
-2025-05-28 20:11:07,994 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-05-28 20:11:07,996 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:11:16,022 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:11:16,024 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:11:17,508 [INFO]    ✓ Saved results for iteration 2
-2025-05-28 20:11:17,510 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:11:17,511 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-05-28 20:11:17,513 [INFO]    ✓ Reward: μ=1.846, σ=0.501, max=2.573
-2025-05-28 20:11:17,515 [INFO]    ✓ Time: 9.5s
-2025-05-28 20:11:17,516 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-05-28 20:11:17,517 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:11:25,700 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:11:25,703 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:11:27,418 [INFO]    ✓ Saved results for iteration 3
-2025-05-28 20:11:27,420 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:11:27,421 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 20:11:27,422 [INFO]    ✓ Reward: μ=1.707, σ=0.482, max=2.573
-2025-05-28 20:11:27,424 [INFO]    ✓ Time: 9.9s
-2025-05-28 20:11:27,426 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-05-28 20:11:27,427 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:11:35,916 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:11:35,917 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:11:38,328 [INFO]    ✓ Saved results for iteration 4
-2025-05-28 20:11:38,330 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:11:38,332 [INFO]    ✓ Diversity: 4/20 (20.00%)
-2025-05-28 20:11:38,334 [INFO]    ✓ Reward: μ=1.901, σ=0.175, max=2.573
-2025-05-28 20:11:38,335 [INFO]    ✓ Time: 10.9s
-2025-05-28 20:11:38,336 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-05-28 20:11:38,338 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:11:46,943 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:11:46,945 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:11:49,364 [INFO]    ✓ Saved results for iteration 5
-2025-05-28 20:11:49,365 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:11:49,367 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 20:11:49,369 [INFO]    ✓ Reward: μ=1.783, σ=0.372, max=2.187
-2025-05-28 20:11:49,370 [INFO]    ✓ Time: 11.0s
-2025-05-28 20:11:49,371 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-05-28 20:11:49,373 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:11:57,828 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:11:57,829 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:12:00,038 [INFO]    ✓ Saved results for iteration 6
-2025-05-28 20:12:00,039 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:12:00,041 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-05-28 20:12:00,043 [INFO]    ✓ Reward: μ=2.020, σ=0.211, max=2.573
-2025-05-28 20:12:00,044 [INFO]    ✓ Time: 10.7s
-2025-05-28 20:12:00,046 [INFO] 
+2025-06-22 19:28:04,579 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:28:06,244 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:28:06,245 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:28:06,586 [INFO]    ✓ Saved results for iteration 6
+2025-06-22 19:28:06,587 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:06,587 [INFO]    ✓ Diversity: 3/20 (15.00%)
+2025-06-22 19:28:06,587 [INFO]    ✓ Reward: μ=2.783, σ=0.478, max=3.127
+2025-06-22 19:28:06,587 [INFO]    ✓ Time: 2.0s
+2025-06-22 19:28:06,587 [INFO] 
 🔄 Iteration 7/10 (α=0.213)
-2025-05-28 20:12:00,047 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:12:08,864 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:12:08,866 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:12:10,646 [INFO]    ✓ Saved results for iteration 7
-2025-05-28 20:12:10,648 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:12:10,649 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-05-28 20:12:10,651 [INFO]    ✓ Reward: μ=2.015, σ=0.728, max=3.096
-2025-05-28 20:12:10,652 [INFO]    ✓ Time: 10.6s
-2025-05-28 20:12:10,653 [INFO] 
+2025-06-22 19:28:06,587 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:28:08,158 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:28:08,158 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:28:08,456 [INFO] 🔍 Injection quality check - Iteration 6
+2025-06-22 19:28:11,178 [INFO]    Small perturbation similarity: 0.726
+2025-06-22 19:28:11,179 [INFO]    Large perturbation similarity: 0.726
+2025-06-22 19:28:11,179 [INFO]    Identity similarity: 0.726
+2025-06-22 19:28:11,179 [INFO]    Protein preservation score: 1.000
+2025-06-22 19:28:11,180 [INFO]    Valid molecules ratio: 1.000
+2025-06-22 19:28:11,180 [WARNING] ⚠️ Injection health issue detected: unhealthy: poor_reproducibility, perturbation_scaling_broken
+2025-06-22 19:28:11,180 [INFO] 🔍 Testing injection identity...
+2025-06-22 19:28:11,180 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-22 19:28:12,029 [INFO]    ✓ Generated 3 initial molecules
+2025-06-22 19:28:12,029 [INFO]    ✓ Diversity: 3/3 (100.00%)
+2025-06-22 19:28:12,248 [INFO]    Generation 1: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:12,465 [INFO]    Generation 2: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:12,681 [INFO]    Generation 3: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:12,896 [INFO]    Generation 4: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:13,112 [INFO]    Generation 5: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:13,113 [INFO]    ✅ PERFECT: All generations identical - injection working!
+2025-06-22 19:28:13,113 [INFO] 🔍 Debugging perturbation scaling...
+2025-06-22 19:28:13,267 [INFO]    Base molecule: C[C@]12CCc3c(ccc4cc(O)ccc34)[C@@H]1CCC2=O
+2025-06-22 19:28:13,420 [INFO]    Scale 0.00: Similarity 1.000 - C[C@]12CCc3c(ccc4cc(O)ccc34)[C@@H]1CCC2=O
+2025-06-22 19:28:13,580 [INFO]    Scale 0.01: Similarity 1.000 - C[C@]12CCc3c(ccc4cc(O)ccc34)[C@@H]1CCC2=O
+2025-06-22 19:28:13,749 [INFO]    Scale 0.05: Similarity 1.000 - C[C@]12CCc3c(ccc4cc(O)ccc34)[C@@H]1CCC2=O
+2025-06-22 19:28:13,918 [INFO]    Scale 0.10: Similarity 1.000 - C[C@]12CCc3c(ccc4cc(O)ccc34)[C@@H]1CCC2=O
+2025-06-22 19:28:14,080 [INFO]    Scale 0.20: Similarity 1.000 - C[C@]12CCc3c(ccc4cc(O)ccc34)[C@@H]1CCC2=O
+2025-06-22 19:28:14,234 [INFO]    Scale 0.50: Similarity 0.240 - CN(C)CCOc1ccc(/C=C2/C(O)=Nc3ccccc32)cc1
+2025-06-22 19:28:14,235 [INFO]    ✅ Perturbation scaling working correctly
+2025-06-22 19:28:14,392 [INFO]    Reward direction test: positive_gradient
+2025-06-22 19:28:14,394 [INFO]    ✓ Saved results for iteration 7
+2025-06-22 19:28:14,394 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:14,394 [INFO]    ✓ Diversity: 2/20 (10.00%)
+2025-06-22 19:28:14,394 [INFO]    ✓ Reward: μ=2.913, σ=0.360, max=3.127
+2025-06-22 19:28:14,394 [INFO]    ✓ Time: 7.8s
+2025-06-22 19:28:14,394 [INFO] 
 🔄 Iteration 8/10 (α=0.182)
-2025-05-28 20:12:10,654 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:12:19,480 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:12:19,483 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:12:21,235 [INFO]    ✓ Saved results for iteration 8
-2025-05-28 20:12:21,236 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:12:21,238 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-05-28 20:12:21,240 [INFO]    ✓ Reward: μ=2.131, σ=0.554, max=3.096
-2025-05-28 20:12:21,242 [INFO]    ✓ Time: 10.6s
-2025-05-28 20:12:21,243 [INFO] 
+2025-06-22 19:28:14,395 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:28:15,887 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:28:15,887 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:28:16,155 [INFO]    ✓ Saved results for iteration 8
+2025-06-22 19:28:16,155 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:16,155 [INFO]    ✓ Diversity: 3/20 (15.00%)
+2025-06-22 19:28:16,156 [INFO]    ✓ Reward: μ=2.950, σ=0.254, max=3.027
+2025-06-22 19:28:16,156 [INFO]    ✓ Time: 1.8s
+2025-06-22 19:28:16,156 [INFO] 
 🔄 Iteration 9/10 (α=0.151)
-2025-05-28 20:12:21,245 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:12:30,128 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:12:30,129 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:12:31,713 [INFO]    ✓ Saved results for iteration 9
-2025-05-28 20:12:31,714 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:12:31,716 [INFO]    ✓ Diversity: 16/20 (80.00%)
-2025-05-28 20:12:31,717 [INFO]    ✓ Reward: μ=2.065, σ=0.645, max=3.096
-2025-05-28 20:12:31,719 [INFO]    ✓ Time: 10.5s
-2025-05-28 20:12:31,720 [INFO] 
+2025-06-22 19:28:16,156 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:28:17,656 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:28:17,657 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:28:17,902 [INFO]    ✓ Saved results for iteration 9
+2025-06-22 19:28:17,902 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:17,902 [INFO]    ✓ Diversity: 9/20 (45.00%)
+2025-06-22 19:28:17,902 [INFO]    ✓ Reward: μ=2.869, σ=0.354, max=3.448
+2025-06-22 19:28:17,903 [INFO]    ✓ Time: 1.7s
+2025-06-22 19:28:17,903 [INFO] 
 🔄 Iteration 10/10 (α=0.120)
-2025-05-28 20:12:31,722 [INFO] 🔄 Generating from 20 latent vectors...
-2025-05-28 20:12:40,265 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-05-28 20:12:40,266 [INFO] 📊 Optimizing latent space...
-2025-05-28 20:12:41,671 [INFO]    ✓ Saved results for iteration 10
-2025-05-28 20:12:41,672 [INFO]    ✓ Generated 20 molecules
-2025-05-28 20:12:41,673 [INFO]    ✓ Diversity: 16/20 (80.00%)
-2025-05-28 20:12:41,675 [INFO]    ✓ Reward: μ=1.865, σ=0.599, max=2.819
-2025-05-28 20:12:41,677 [INFO]    ✓ Time: 10.0s
-2025-05-28 20:12:41,679 [INFO] 
+2025-06-22 19:28:17,903 [INFO] 🔄 Generating from 20 latent vectors...
+2025-06-22 19:28:19,494 [INFO]    ✓ Generated 20/20 valid SMILES
+2025-06-22 19:28:19,495 [INFO] 📊 Optimizing latent space...
+2025-06-22 19:28:19,744 [INFO] 🔍 Injection quality check - Iteration 9
+2025-06-22 19:28:22,822 [INFO]    Small perturbation similarity: 0.571
+2025-06-22 19:28:22,823 [INFO]    Large perturbation similarity: 0.457
+2025-06-22 19:28:22,823 [INFO]    Identity similarity: 0.622
+2025-06-22 19:28:22,823 [INFO]    Protein preservation score: 1.000
+2025-06-22 19:28:22,824 [INFO]    Valid molecules ratio: 1.000
+2025-06-22 19:28:22,824 [WARNING] ⚠️ Injection health issue detected: unhealthy: poor_reproducibility
+2025-06-22 19:28:22,824 [INFO] 🔍 Testing injection identity...
+2025-06-22 19:28:22,824 [INFO] 🌱 Generating initial molecules with TamGen...
+2025-06-22 19:28:23,660 [INFO]    ✓ Generated 3 initial molecules
+2025-06-22 19:28:23,660 [INFO]    ✓ Diversity: 3/3 (100.00%)
+2025-06-22 19:28:23,878 [INFO]    Generation 1: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:24,095 [INFO]    Generation 2: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:24,311 [INFO]    Generation 3: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:24,526 [INFO]    Generation 4: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:24,741 [INFO]    Generation 5: NS(=O)(=O)c1c(F)c(F)c(N[C@]23C[C@H]4C[C@H](C[C@H](C4)C2)C3)c(F)c1F
+2025-06-22 19:28:24,742 [INFO]    ✅ PERFECT: All generations identical - injection working!
+2025-06-22 19:28:24,972 [INFO]    Reward direction test: negative_gradient
+2025-06-22 19:28:24,974 [INFO]    ✓ Saved results for iteration 10
+2025-06-22 19:28:24,974 [INFO]    ✓ Generated 20 molecules
+2025-06-22 19:28:24,975 [INFO]    ✓ Diversity: 15/20 (75.00%)
+2025-06-22 19:28:24,975 [INFO]    ✓ Reward: μ=2.500, σ=0.765, max=3.396
+2025-06-22 19:28:24,975 [INFO]    ✓ Time: 7.1s
+2025-06-22 19:28:24,975 [INFO] 
 📈 Final Optimization Summary:
-2025-05-28 20:12:41,680 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-05-28 20:12:41,681 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-05-28 20:12:41,682 [INFO]           1 |        20 |      5 |       1.892 |      2.573 | 35.8s
-2025-05-28 20:12:41,684 [INFO]           2 |        20 |      7 |       1.846 |      2.573 |  9.5s
-2025-05-28 20:12:41,685 [INFO]           3 |        20 |      5 |       1.707 |      2.573 |  9.9s
-2025-05-28 20:12:41,686 [INFO]           4 |        20 |      4 |       1.901 |      2.573 | 10.9s
-2025-05-28 20:12:41,688 [INFO]           5 |        20 |      5 |       1.783 |      2.187 | 11.0s
-2025-05-28 20:12:41,689 [INFO]           6 |        20 |      5 |       2.020 |      2.573 | 10.7s
-2025-05-28 20:12:41,690 [INFO]           7 |        20 |      9 |       2.015 |      3.096 | 10.6s
-2025-05-28 20:12:41,692 [INFO]           8 |        20 |      9 |       2.131 |      3.096 | 10.6s
-2025-05-28 20:12:41,693 [INFO]           9 |        20 |     16 |       2.065 |      3.096 | 10.5s
-2025-05-28 20:12:41,695 [INFO]          10 |        20 |     16 |       1.865 |      2.819 |  9.9s
-2025-05-28 20:12:41,696 [INFO] 
-   💡 Reward improvement: -0.028
-2025-05-28 20:12:41,698 [INFO]    🎯 Final diversity: 80.00%
-2025-05-28 20:12:41,699 [INFO]    ⏱️  Total time: 129.4s
-2025-05-28 20:12:41,700 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 07:56:16,013 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 07:56:16,015 [INFO] Detected latent dimension: 256
-2025-06-01 07:56:19,309 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 07:56:19,311 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 07:56:19,312 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 07:56:19,313 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 07:56:19,314 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 07:56:19,503 [INFO] 📦 Stored protein input: torch.Size([1, 83])
-2025-06-01 07:56:48,778 [INFO]    ✓ Generated 20 initial molecules
-2025-06-01 07:56:48,779 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 07:56:48,780 [WARNING] Low diversity detected (25.00% < 70.00%)
-2025-06-01 07:56:48,781 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:56:51,416 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 07:56:51,418 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:56:51,420 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 07:56:51,421 [INFO]    ✓ Reward: μ=1.892, σ=0.644, max=2.573
-2025-06-01 07:56:51,423 [INFO]    ✓ Time: 32.1s
-2025-06-01 07:56:51,424 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 07:56:51,426 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:56:58,009 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:56:58,012 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:56:59,395 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 07:56:59,397 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:56:59,398 [INFO]    ✓ Diversity: 11/20 (55.00%)
-2025-06-01 07:56:59,399 [INFO]    ✓ Reward: μ=1.859, σ=0.719, max=3.099
-2025-06-01 07:56:59,401 [INFO]    ✓ Time: 8.0s
-2025-06-01 07:56:59,403 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 07:56:59,405 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:06,199 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:06,202 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:07,879 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 07:57:07,881 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:07,882 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-06-01 07:57:07,883 [INFO]    ✓ Reward: μ=1.942, σ=0.643, max=3.099
-2025-06-01 07:57:07,886 [INFO]    ✓ Time: 8.5s
-2025-06-01 07:57:07,887 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 07:57:07,889 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:14,665 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:14,668 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:16,352 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 07:57:16,353 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:16,355 [INFO]    ✓ Diversity: 6/20 (30.00%)
-2025-06-01 07:57:16,356 [INFO]    ✓ Reward: μ=1.866, σ=0.386, max=2.818
-2025-06-01 07:57:16,358 [INFO]    ✓ Time: 8.5s
-2025-06-01 07:57:16,359 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 07:57:16,361 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:23,138 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:23,141 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:24,741 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 07:57:24,743 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:24,744 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-06-01 07:57:24,746 [INFO]    ✓ Reward: μ=1.971, σ=0.656, max=3.071
-2025-06-01 07:57:24,748 [INFO]    ✓ Time: 8.4s
-2025-06-01 07:57:24,749 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 07:57:24,750 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:31,389 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:31,391 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:32,795 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 07:57:32,796 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:32,798 [INFO]    ✓ Diversity: 6/20 (30.00%)
-2025-06-01 07:57:32,799 [INFO]    ✓ Reward: μ=2.460, σ=0.580, max=3.127
-2025-06-01 07:57:32,801 [INFO]    ✓ Time: 8.1s
-2025-06-01 07:57:32,802 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 07:57:32,804 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:39,537 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:39,541 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:40,998 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 07:57:41,000 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:41,001 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-06-01 07:57:41,002 [INFO]    ✓ Reward: μ=2.382, σ=0.753, max=3.127
-2025-06-01 07:57:41,004 [INFO]    ✓ Time: 8.2s
-2025-06-01 07:57:41,005 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 07:57:41,006 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:47,841 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:47,844 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:49,070 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 07:57:49,072 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:49,073 [INFO]    ✓ Diversity: 11/20 (55.00%)
-2025-06-01 07:57:49,074 [INFO]    ✓ Reward: μ=2.478, σ=0.583, max=3.127
-2025-06-01 07:57:49,076 [INFO]    ✓ Time: 8.1s
-2025-06-01 07:57:49,078 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 07:57:49,080 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:57:56,023 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:57:56,024 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:57:57,593 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 07:57:57,594 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:57:57,596 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-06-01 07:57:57,597 [INFO]    ✓ Reward: μ=2.590, σ=0.576, max=3.213
-2025-06-01 07:57:57,599 [INFO]    ✓ Time: 8.5s
-2025-06-01 07:57:57,600 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 07:57:57,602 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 07:58:04,607 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 07:58:04,609 [INFO] 📊 Optimizing latent space...
-2025-06-01 07:58:06,104 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 07:58:06,105 [INFO]    ✓ Generated 20 molecules
-2025-06-01 07:58:06,106 [INFO]    ✓ Diversity: 10/20 (50.00%)
-2025-06-01 07:58:06,109 [INFO]    ✓ Reward: μ=2.497, σ=0.822, max=3.216
-2025-06-01 07:58:06,110 [INFO]    ✓ Time: 8.5s
-2025-06-01 07:58:06,112 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 07:58:06,113 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 07:58:06,114 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 07:58:06,115 [INFO]           1 |        20 |      5 |       1.892 |      2.573 | 32.1s
-2025-06-01 07:58:06,116 [INFO]           2 |        20 |     11 |       1.859 |      3.099 |  8.0s
-2025-06-01 07:58:06,118 [INFO]           3 |        20 |      8 |       1.942 |      3.099 |  8.5s
-2025-06-01 07:58:06,120 [INFO]           4 |        20 |      6 |       1.866 |      2.818 |  8.5s
-2025-06-01 07:58:06,121 [INFO]           5 |        20 |      8 |       1.971 |      3.071 |  8.4s
-2025-06-01 07:58:06,123 [INFO]           6 |        20 |      6 |       2.460 |      3.127 |  8.0s
-2025-06-01 07:58:06,124 [INFO]           7 |        20 |      8 |       2.382 |      3.127 |  8.2s
-2025-06-01 07:58:06,125 [INFO]           8 |        20 |     11 |       2.478 |      3.127 |  8.1s
-2025-06-01 07:58:06,126 [INFO]           9 |        20 |      8 |       2.590 |      3.213 |  8.5s
-2025-06-01 07:58:06,127 [INFO]          10 |        20 |     10 |       2.497 |      3.216 |  8.5s
-2025-06-01 07:58:06,130 [INFO] 
-   💡 Reward improvement: +0.605
-2025-06-01 07:58:06,131 [INFO]    🎯 Final diversity: 50.00%
-2025-06-01 07:58:06,132 [INFO]    ⏱️  Total time: 106.7s
-2025-06-01 07:58:06,133 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 08:04:45,289 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 08:04:45,290 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 08:04:45,292 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 08:04:45,293 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 08:04:45,295 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 08:05:12,831 [INFO]    ✓ Generated 20 initial molecules
-2025-06-01 08:05:12,832 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 08:05:12,833 [WARNING] Low diversity detected (25.00% < 70.00%)
-2025-06-01 08:05:12,834 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:05:14,113 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 08:05:14,114 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:05:14,115 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 08:05:14,117 [INFO]    ✓ Reward: μ=1.892, σ=0.644, max=2.573
-2025-06-01 08:05:14,118 [INFO]    ✓ Time: 28.8s
-2025-06-01 08:05:14,120 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 08:05:14,121 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:05:20,559 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:05:20,560 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:05:21,791 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 08:05:21,793 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:05:21,794 [INFO]    ✓ Diversity: 6/20 (30.00%)
-2025-06-01 08:05:21,796 [INFO]    ✓ Reward: μ=2.083, σ=0.749, max=2.751
-2025-06-01 08:05:21,798 [INFO]    ✓ Time: 7.7s
-2025-06-01 08:05:21,800 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 08:05:21,801 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:05:28,373 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:05:28,374 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:05:29,810 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 08:05:29,812 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:05:29,813 [INFO]    ✓ Diversity: 4/20 (20.00%)
-2025-06-01 08:05:29,815 [INFO]    ✓ Reward: μ=2.259, σ=0.646, max=2.751
-2025-06-01 08:05:29,817 [INFO]    ✓ Time: 8.0s
-2025-06-01 08:05:29,818 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 08:05:29,820 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:05:36,048 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:05:36,049 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:05:37,396 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 08:05:37,398 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:05:37,399 [INFO]    ✓ Diversity: 6/20 (30.00%)
-2025-06-01 08:05:37,400 [INFO]    ✓ Reward: μ=2.476, σ=0.589, max=3.127
-2025-06-01 08:05:37,402 [INFO]    ✓ Time: 7.6s
-2025-06-01 08:05:37,404 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 08:05:37,405 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:05:43,994 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:05:43,997 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:05:45,508 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 08:05:45,509 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:05:45,511 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-06-01 08:05:45,513 [INFO]    ✓ Reward: μ=2.476, σ=0.473, max=3.127
-2025-06-01 08:05:45,514 [INFO]    ✓ Time: 8.1s
-2025-06-01 08:05:45,516 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 08:05:45,517 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:05:51,970 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:05:51,971 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:05:53,665 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 08:05:53,666 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:05:53,667 [INFO]    ✓ Diversity: 10/20 (50.00%)
-2025-06-01 08:05:53,669 [INFO]    ✓ Reward: μ=2.472, σ=0.613, max=3.027
-2025-06-01 08:05:53,671 [INFO]    ✓ Time: 8.2s
-2025-06-01 08:05:53,673 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 08:05:53,674 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:06:00,074 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:06:00,075 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:06:01,609 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 08:06:01,610 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:06:01,612 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-06-01 08:06:01,614 [INFO]    ✓ Reward: μ=2.534, σ=0.792, max=3.027
-2025-06-01 08:06:01,615 [INFO]    ✓ Time: 7.9s
-2025-06-01 08:06:01,617 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 08:06:01,618 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:06:07,795 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:06:07,796 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:06:09,265 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 08:06:09,267 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:06:09,268 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-06-01 08:06:09,271 [INFO]    ✓ Reward: μ=2.838, σ=0.289, max=3.027
-2025-06-01 08:06:09,272 [INFO]    ✓ Time: 7.7s
-2025-06-01 08:06:09,274 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 08:06:09,277 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:06:15,158 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:06:15,160 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:06:16,560 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 08:06:16,561 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:06:16,562 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-06-01 08:06:16,565 [INFO]    ✓ Reward: μ=2.693, σ=0.549, max=3.027
-2025-06-01 08:06:16,566 [INFO]    ✓ Time: 7.3s
-2025-06-01 08:06:16,568 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 08:06:16,570 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 08:06:22,635 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 08:06:22,636 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:06:23,994 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 08:06:23,995 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:06:23,997 [INFO]    ✓ Diversity: 15/20 (75.00%)
-2025-06-01 08:06:23,999 [INFO]    ✓ Reward: μ=2.582, σ=0.792, max=3.316
-2025-06-01 08:06:24,000 [INFO]    ✓ Time: 7.4s
-2025-06-01 08:06:24,004 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 08:06:24,005 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 08:06:24,006 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 08:06:24,008 [INFO]           1 |        20 |      5 |       1.892 |      2.573 | 28.8s
-2025-06-01 08:06:24,011 [INFO]           2 |        20 |      6 |       2.083 |      2.751 |  7.7s
-2025-06-01 08:06:24,012 [INFO]           3 |        20 |      4 |       2.259 |      2.751 |  8.0s
-2025-06-01 08:06:24,014 [INFO]           4 |        20 |      6 |       2.476 |      3.127 |  7.6s
-2025-06-01 08:06:24,015 [INFO]           5 |        20 |      9 |       2.476 |      3.127 |  8.1s
-2025-06-01 08:06:24,017 [INFO]           6 |        20 |     10 |       2.472 |      3.027 |  8.1s
-2025-06-01 08:06:24,020 [INFO]           7 |        20 |      9 |       2.534 |      3.027 |  7.9s
-2025-06-01 08:06:24,022 [INFO]           8 |        20 |      7 |       2.838 |      3.027 |  7.6s
-2025-06-01 08:06:24,023 [INFO]           9 |        20 |      9 |       2.693 |      3.027 |  7.3s
-2025-06-01 08:06:24,025 [INFO]          10 |        20 |     15 |       2.582 |      3.316 |  7.4s
-2025-06-01 08:06:24,027 [INFO] 
-   💡 Reward improvement: +0.690
-2025-06-01 08:06:24,028 [INFO]    🎯 Final diversity: 75.00%
-2025-06-01 08:06:24,030 [INFO]    ⏱️  Total time: 98.6s
-2025-06-01 08:06:24,031 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 08:59:17,007 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 08:59:17,008 [INFO] Detected latent dimension: 256
-2025-06-01 08:59:26,683 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 08:59:26,684 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 08:59:26,685 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 08:59:26,686 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 08:59:26,688 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 08:59:26,802 [INFO] 📦 Stored protein input: torch.Size([1, 83])
-2025-06-01 08:59:55,003 [INFO]    ✓ Generated 20 initial molecules
-2025-06-01 08:59:55,004 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 08:59:55,005 [WARNING] Low diversity detected (25.00% < 70.00%)
-2025-06-01 08:59:55,007 [INFO] 📊 Optimizing latent space...
-2025-06-01 08:59:57,117 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 08:59:57,119 [INFO]    ✓ Generated 20 molecules
-2025-06-01 08:59:57,120 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 08:59:57,121 [INFO]    ✓ Reward: μ=1.892, σ=0.644, max=2.573
-2025-06-01 08:59:57,123 [INFO]    ✓ Time: 30.4s
-2025-06-01 08:59:57,125 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 08:59:57,126 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:03,868 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 09:00:03,870 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:05,581 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 09:00:05,582 [INFO]    ✓ Generated 20 molecules
-2025-06-01 09:00:05,583 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-06-01 09:00:05,585 [INFO]    ✓ Reward: μ=1.924, σ=0.334, max=2.573
-2025-06-01 09:00:05,587 [INFO]    ✓ Time: 8.5s
-2025-06-01 09:00:05,589 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 09:00:05,590 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:12,294 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 09:00:12,296 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:14,162 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 09:00:14,164 [INFO]    ✓ Generated 20 molecules
-2025-06-01 09:00:14,165 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-06-01 09:00:14,167 [INFO]    ✓ Reward: μ=1.957, σ=0.423, max=2.809
-2025-06-01 09:00:14,168 [INFO]    ✓ Time: 8.6s
-2025-06-01 09:00:14,170 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 09:00:14,171 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:20,849 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 09:00:20,852 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:22,698 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 09:00:22,700 [INFO]    ✓ Generated 20 molecules
-2025-06-01 09:00:22,701 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-06-01 09:00:22,702 [INFO]    ✓ Reward: μ=1.999, σ=0.454, max=3.132
-2025-06-01 09:00:22,704 [INFO]    ✓ Time: 8.5s
-2025-06-01 09:00:22,705 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 09:00:22,707 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:29,358 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 09:00:29,361 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:31,162 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 09:00:31,164 [INFO]    ✓ Generated 20 molecules
-2025-06-01 09:00:31,165 [INFO]    ✓ Diversity: 9/20 (45.00%)
-2025-06-01 09:00:31,166 [INFO]    ✓ Reward: μ=1.887, σ=0.606, max=2.809
-2025-06-01 09:00:31,168 [INFO]    ✓ Time: 8.5s
-2025-06-01 09:00:31,169 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 09:00:31,171 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:37,782 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 09:00:37,784 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:39,806 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 09:00:39,808 [INFO]    ✓ Generated 20 molecules
-2025-06-01 09:00:39,809 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 09:00:39,810 [INFO]    ✓ Reward: μ=2.104, σ=0.364, max=2.818
-2025-06-01 09:00:39,812 [INFO]    ✓ Time: 8.6s
-2025-06-01 09:00:39,813 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 09:00:39,814 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:46,313 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 09:00:46,314 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:48,050 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 09:00:48,051 [INFO]    ✓ Generated 20 molecules
-2025-06-01 09:00:48,052 [INFO]    ✓ Diversity: 13/20 (65.00%)
-2025-06-01 09:00:48,054 [INFO]    ✓ Reward: μ=2.265, σ=0.494, max=3.127
-2025-06-01 09:00:48,056 [INFO]    ✓ Time: 8.2s
-2025-06-01 09:00:48,058 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 09:00:48,059 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 09:00:54,684 [INFO]    ✓ Generated 18/20 valid SMILES
-2025-06-01 09:00:54,686 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:00:55,270 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
-2025-06-01 09:00:55,271 [WARNING] Using fallback centroid shift method
-2025-06-01 09:00:55,277 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 09:00:55,278 [INFO]    ✓ Generated 18 molecules
-2025-06-01 09:00:55,278 [INFO]    ✓ Diversity: 11/18 (61.11%)
-2025-06-01 09:00:55,280 [INFO]    ✓ Reward: μ=2.538, σ=0.538, max=3.214
-2025-06-01 09:00:55,280 [INFO]    ✓ Time: 7.2s
-2025-06-01 09:00:55,281 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 09:00:55,282 [INFO] 🔄 Generating from 18 latent vectors...
-2025-06-01 09:01:01,783 [INFO]    ✓ Generated 18/18 valid SMILES
-2025-06-01 09:01:01,784 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:01:02,250 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
-2025-06-01 09:01:02,251 [WARNING] Using fallback centroid shift method
-2025-06-01 09:01:02,256 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 09:01:02,257 [INFO]    ✓ Generated 18 molecules
-2025-06-01 09:01:02,258 [INFO]    ✓ Diversity: 16/18 (88.89%)
-2025-06-01 09:01:02,259 [INFO]    ✓ Reward: μ=2.379, σ=0.564, max=3.067
-2025-06-01 09:01:02,260 [INFO]    ✓ Time: 7.0s
-2025-06-01 09:01:02,261 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 09:01:02,262 [INFO] 🔄 Generating from 18 latent vectors...
-2025-06-01 09:01:09,043 [INFO]    ✓ Generated 18/18 valid SMILES
-2025-06-01 09:01:09,045 [INFO] 📊 Optimizing latent space...
-2025-06-01 09:01:09,457 [ERROR] Reward model training failed: {'status': 'insufficient_data'}
-2025-06-01 09:01:09,458 [WARNING] Using fallback centroid shift method
-2025-06-01 09:01:09,464 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 09:01:09,465 [INFO]    ✓ Generated 18 molecules
-2025-06-01 09:01:09,466 [INFO]    ✓ Diversity: 17/18 (94.44%)
-2025-06-01 09:01:09,467 [INFO]    ✓ Reward: μ=2.058, σ=0.885, max=3.232
-2025-06-01 09:01:09,467 [INFO]    ✓ Time: 7.2s
-2025-06-01 09:01:09,468 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 09:01:09,469 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 09:01:09,470 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 09:01:09,471 [INFO]           1 |        20 |      5 |       1.892 |      2.573 | 30.4s
-2025-06-01 09:01:09,472 [INFO]           2 |        20 |      7 |       1.924 |      2.573 |  8.5s
-2025-06-01 09:01:09,473 [INFO]           3 |        20 |      9 |       1.957 |      2.809 |  8.6s
-2025-06-01 09:01:09,474 [INFO]           4 |        20 |      8 |       1.999 |      3.132 |  8.5s
-2025-06-01 09:01:09,474 [INFO]           5 |        20 |      9 |       1.887 |      2.809 |  8.5s
-2025-06-01 09:01:09,475 [INFO]           6 |        20 |      5 |       2.104 |      2.818 |  8.6s
-2025-06-01 09:01:09,476 [INFO]           7 |        20 |     13 |       2.265 |      3.127 |  8.2s
-2025-06-01 09:01:09,477 [INFO]           8 |        18 |     11 |       2.538 |      3.214 |  7.2s
-2025-06-01 09:01:09,478 [INFO]           9 |        18 |     16 |       2.379 |      3.067 |  7.0s
-2025-06-01 09:01:09,479 [INFO]          10 |        18 |     17 |       2.058 |      3.232 |  7.2s
-2025-06-01 09:01:09,480 [INFO] 
-   💡 Reward improvement: +0.166
-2025-06-01 09:01:09,481 [INFO]    🎯 Final diversity: 94.44%
-2025-06-01 09:01:09,481 [INFO]    ⏱️  Total time: 102.7s
-2025-06-01 09:01:09,482 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 10:11:02,923 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 10:11:02,923 [INFO] Detected latent dimension: 256
-2025-06-01 10:11:06,170 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 10:11:06,172 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 10:11:06,173 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 10:11:06,174 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 10:11:06,176 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 10:11:06,318 [INFO] 📦 Stored protein input: torch.Size([1, 83])
-2025-06-01 10:11:35,692 [INFO]    ✓ Generated 20 initial molecules
-2025-06-01 10:11:35,694 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 10:11:35,695 [WARNING] Low diversity detected (25.00% < 70.00%)
-2025-06-01 10:11:35,697 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:11:37,063 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 10:11:37,065 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:11:37,066 [INFO]    ✓ Diversity: 5/20 (25.00%)
-2025-06-01 10:11:37,067 [INFO]    ✓ Reward: μ=1.892, σ=0.644, max=2.573
-2025-06-01 10:11:37,069 [INFO]    ✓ Time: 30.9s
-2025-06-01 10:11:37,071 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 10:11:37,072 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:11:43,443 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:11:43,445 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:11:44,712 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 10:11:44,713 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:11:44,715 [INFO]    ✓ Diversity: 10/20 (50.00%)
-2025-06-01 10:11:44,716 [INFO]    ✓ Reward: μ=1.810, σ=0.821, max=2.823
-2025-06-01 10:11:44,718 [INFO]    ✓ Time: 7.6s
-2025-06-01 10:11:44,720 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 10:11:44,721 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:11:51,196 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:11:51,197 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:11:52,926 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 10:11:52,927 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:11:52,929 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-06-01 10:11:52,930 [INFO]    ✓ Reward: μ=1.655, σ=0.461, max=2.573
-2025-06-01 10:11:52,931 [INFO]    ✓ Time: 8.2s
-2025-06-01 10:11:52,933 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 10:11:52,934 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:11:59,395 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:11:59,396 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:01,347 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 10:12:01,349 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:01,350 [INFO]    ✓ Diversity: 4/20 (20.00%)
-2025-06-01 10:12:01,351 [INFO]    ✓ Reward: μ=2.132, σ=0.310, max=2.573
-2025-06-01 10:12:01,353 [INFO]    ✓ Time: 8.4s
-2025-06-01 10:12:01,355 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 10:12:01,356 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:12:07,801 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:12:07,802 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:09,672 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 10:12:09,673 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:09,674 [INFO]    ✓ Diversity: 4/20 (20.00%)
-2025-06-01 10:12:09,676 [INFO]    ✓ Reward: μ=2.201, σ=0.395, max=3.071
-2025-06-01 10:12:09,678 [INFO]    ✓ Time: 8.3s
-2025-06-01 10:12:09,680 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 10:12:09,681 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:12:16,238 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:12:16,239 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:18,162 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 10:12:18,163 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:18,165 [INFO]    ✓ Diversity: 8/20 (40.00%)
-2025-06-01 10:12:18,166 [INFO]    ✓ Reward: μ=2.163, σ=0.429, max=3.127
-2025-06-01 10:12:18,168 [INFO]    ✓ Time: 8.5s
-2025-06-01 10:12:18,169 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 10:12:18,170 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:12:24,730 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:12:24,731 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:26,495 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 10:12:26,496 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:26,497 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-06-01 10:12:26,499 [INFO]    ✓ Reward: μ=2.395, σ=0.501, max=3.127
-2025-06-01 10:12:26,501 [INFO]    ✓ Time: 8.3s
-2025-06-01 10:12:26,502 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 10:12:26,504 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:12:32,893 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:12:32,894 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:34,382 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 10:12:34,383 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:34,385 [INFO]    ✓ Diversity: 13/20 (65.00%)
-2025-06-01 10:12:34,386 [INFO]    ✓ Reward: μ=2.237, σ=0.664, max=3.127
-2025-06-01 10:12:34,388 [INFO]    ✓ Time: 7.9s
-2025-06-01 10:12:34,389 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 10:12:34,390 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:12:40,719 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:12:40,721 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:42,194 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 10:12:42,195 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:42,196 [INFO]    ✓ Diversity: 15/20 (75.00%)
-2025-06-01 10:12:42,198 [INFO]    ✓ Reward: μ=2.497, σ=0.542, max=3.127
-2025-06-01 10:12:42,200 [INFO]    ✓ Time: 7.8s
-2025-06-01 10:12:42,202 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 10:12:42,203 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:12:48,959 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:12:48,960 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:12:50,425 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 10:12:50,427 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:12:50,428 [INFO]    ✓ Diversity: 12/20 (60.00%)
-2025-06-01 10:12:50,430 [INFO]    ✓ Reward: μ=2.371, σ=0.819, max=3.084
-2025-06-01 10:12:50,431 [INFO]    ✓ Time: 8.2s
-2025-06-01 10:12:50,432 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 10:12:50,434 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 10:12:50,435 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 10:12:50,437 [INFO]           1 |        20 |      5 |       1.892 |      2.573 | 30.9s
-2025-06-01 10:12:50,438 [INFO]           2 |        20 |     10 |       1.810 |      2.823 |  7.6s
-2025-06-01 10:12:50,439 [INFO]           3 |        20 |      7 |       1.655 |      2.573 |  8.2s
-2025-06-01 10:12:50,441 [INFO]           4 |        20 |      4 |       2.132 |      2.573 |  8.4s
-2025-06-01 10:12:50,442 [INFO]           5 |        20 |      4 |       2.201 |      3.071 |  8.3s
-2025-06-01 10:12:50,443 [INFO]           6 |        20 |      8 |       2.163 |      3.127 |  8.5s
-2025-06-01 10:12:50,444 [INFO]           7 |        20 |      7 |       2.395 |      3.127 |  8.3s
-2025-06-01 10:12:50,446 [INFO]           8 |        20 |     13 |       2.237 |      3.127 |  7.9s
-2025-06-01 10:12:50,447 [INFO]           9 |        20 |     15 |       2.497 |      3.127 |  7.8s
-2025-06-01 10:12:50,448 [INFO]          10 |        20 |     12 |       2.371 |      3.084 |  8.2s
-2025-06-01 10:12:50,450 [INFO] 
-   💡 Reward improvement: +0.479
-2025-06-01 10:12:50,451 [INFO]    🎯 Final diversity: 60.00%
-2025-06-01 10:12:50,453 [INFO]    ⏱️  Total time: 104.1s
-2025-06-01 10:12:50,454 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 10:27:09,175 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 10:27:09,176 [INFO] Detected latent dimension: 256
-2025-06-01 10:27:13,381 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 10:27:13,382 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 10:27:13,383 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 10:27:13,384 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 10:27:13,386 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 10:27:13,509 [INFO] 📦 Stored protein input: torch.Size([1, 47])
-2025-06-01 10:27:39,217 [INFO]    ✓ Generated 20 initial molecules
-2025-06-01 10:27:39,218 [INFO]    ✓ Diversity: 1/20 (5.00%)
-2025-06-01 10:27:39,219 [WARNING] Low diversity detected (5.00% < 70.00%)
-2025-06-01 10:27:39,220 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:27:40,165 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 10:27:40,166 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:27:40,168 [INFO]    ✓ Diversity: 1/20 (5.00%)
-2025-06-01 10:27:40,169 [INFO]    ✓ Reward: μ=1.745, σ=0.000, max=1.745
-2025-06-01 10:27:40,171 [INFO]    ✓ Time: 26.8s
-2025-06-01 10:27:40,172 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 10:27:40,173 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:27:46,647 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:27:46,649 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:27:47,656 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 10:27:47,657 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:27:47,659 [INFO]    ✓ Diversity: 2/20 (10.00%)
-2025-06-01 10:27:47,660 [INFO]    ✓ Reward: μ=1.722, σ=0.103, max=1.745
-2025-06-01 10:27:47,662 [INFO]    ✓ Time: 7.5s
-2025-06-01 10:27:47,663 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 10:27:47,665 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:27:54,093 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:27:54,094 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:27:55,161 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 10:27:55,163 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:27:55,164 [INFO]    ✓ Diversity: 1/20 (5.00%)
-2025-06-01 10:27:55,166 [INFO]    ✓ Reward: μ=1.745, σ=0.000, max=1.745
-2025-06-01 10:27:55,167 [INFO]    ✓ Time: 7.5s
-2025-06-01 10:27:55,169 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 10:27:55,170 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:01,468 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:01,469 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:02,613 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 10:28:02,615 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:02,616 [INFO]    ✓ Diversity: 2/20 (10.00%)
-2025-06-01 10:28:02,618 [INFO]    ✓ Reward: μ=1.723, σ=0.100, max=1.745
-2025-06-01 10:28:02,619 [INFO]    ✓ Time: 7.4s
-2025-06-01 10:28:02,621 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 10:28:02,622 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:09,107 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:09,108 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:10,341 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 10:28:10,343 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:10,344 [INFO]    ✓ Diversity: 4/20 (20.00%)
-2025-06-01 10:28:10,345 [INFO]    ✓ Reward: μ=1.705, σ=0.349, max=2.323
-2025-06-01 10:28:10,346 [INFO]    ✓ Time: 7.7s
-2025-06-01 10:28:10,348 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 10:28:10,350 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:17,083 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:17,084 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:18,370 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 10:28:18,371 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:18,372 [INFO]    ✓ Diversity: 7/20 (35.00%)
-2025-06-01 10:28:18,375 [INFO]    ✓ Reward: μ=1.568, σ=0.331, max=1.832
-2025-06-01 10:28:18,376 [INFO]    ✓ Time: 8.0s
-2025-06-01 10:28:18,377 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 10:28:18,379 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:25,202 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:25,203 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:26,507 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 10:28:26,508 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:26,509 [INFO]    ✓ Diversity: 13/20 (65.00%)
-2025-06-01 10:28:26,511 [INFO]    ✓ Reward: μ=1.397, σ=0.559, max=2.552
-2025-06-01 10:28:26,512 [INFO]    ✓ Time: 8.1s
-2025-06-01 10:28:26,514 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 10:28:26,515 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:32,686 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:32,688 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:33,954 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 10:28:33,955 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:33,956 [INFO]    ✓ Diversity: 10/20 (50.00%)
-2025-06-01 10:28:33,958 [INFO]    ✓ Reward: μ=1.563, σ=0.455, max=2.469
-2025-06-01 10:28:33,959 [INFO]    ✓ Time: 7.4s
-2025-06-01 10:28:33,961 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 10:28:33,962 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:40,559 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:40,560 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:42,023 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 10:28:42,025 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:42,026 [INFO]    ✓ Diversity: 15/20 (75.00%)
-2025-06-01 10:28:42,028 [INFO]    ✓ Reward: μ=1.635, σ=0.722, max=2.704
-2025-06-01 10:28:42,029 [INFO]    ✓ Time: 8.1s
-2025-06-01 10:28:42,031 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 10:28:42,033 [INFO] 🔄 Generating from 20 latent vectors...
-2025-06-01 10:28:49,015 [INFO]    ✓ Generated 20/20 valid SMILES
-2025-06-01 10:28:49,017 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:28:50,439 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 10:28:50,440 [INFO]    ✓ Generated 20 molecules
-2025-06-01 10:28:50,442 [INFO]    ✓ Diversity: 18/20 (90.00%)
-2025-06-01 10:28:50,443 [INFO]    ✓ Reward: μ=1.560, σ=0.653, max=2.668
-2025-06-01 10:28:50,445 [INFO]    ✓ Time: 8.4s
-2025-06-01 10:28:50,446 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 10:28:50,448 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 10:28:50,449 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 10:28:50,450 [INFO]           1 |        20 |      1 |       1.745 |      1.745 | 26.8s
-2025-06-01 10:28:50,452 [INFO]           2 |        20 |      2 |       1.722 |      1.745 |  7.5s
-2025-06-01 10:28:50,453 [INFO]           3 |        20 |      1 |       1.745 |      1.745 |  7.5s
-2025-06-01 10:28:50,455 [INFO]           4 |        20 |      2 |       1.723 |      1.745 |  7.4s
-2025-06-01 10:28:50,456 [INFO]           5 |        20 |      4 |       1.705 |      2.323 |  7.7s
-2025-06-01 10:28:50,458 [INFO]           6 |        20 |      7 |       1.568 |      1.832 |  8.0s
-2025-06-01 10:28:50,459 [INFO]           7 |        20 |     13 |       1.397 |      2.552 |  8.1s
-2025-06-01 10:28:50,460 [INFO]           8 |        20 |     10 |       1.563 |      2.469 |  7.4s
-2025-06-01 10:28:50,461 [INFO]           9 |        20 |     15 |       1.635 |      2.704 |  8.1s
-2025-06-01 10:28:50,462 [INFO]          10 |        20 |     18 |       1.560 |      2.668 |  8.4s
-2025-06-01 10:28:50,464 [INFO] 
-   💡 Reward improvement: -0.186
-2025-06-01 10:28:50,465 [INFO]    🎯 Final diversity: 90.00%
-2025-06-01 10:28:50,466 [INFO]    ⏱️  Total time: 96.9s
-2025-06-01 10:28:50,468 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 10:29:50,498 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 10:29:50,501 [INFO] Detected latent dimension: 256
-2025-06-01 10:29:52,730 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 10:29:52,731 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 10:29:52,732 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 10:29:52,733 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 10:29:52,734 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 10:29:52,832 [INFO] 📦 Stored protein input: torch.Size([2, 57])
-2025-06-01 10:30:09,926 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 10:30:09,927 [INFO] Detected latent dimension: 256
-2025-06-01 10:30:12,412 [INFO]    ✓ Generated 40 initial molecules
-2025-06-01 10:30:12,413 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:30:12,414 [WARNING] Low diversity detected (30.00% < 70.00%)
-2025-06-01 10:30:12,415 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:13,638 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 10:30:13,639 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:13,640 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:30:13,641 [INFO]    ✓ Reward: μ=2.478, σ=0.217, max=2.990
-2025-06-01 10:30:13,642 [INFO]    ✓ Time: 20.9s
-2025-06-01 10:30:13,645 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 10:30:13,646 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:17,522 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 10:30:17,523 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 10:30:17,524 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 10:30:17,525 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 10:30:17,526 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 10:30:17,657 [INFO] 📦 Stored protein input: torch.Size([2, 57])
-2025-06-01 10:30:22,547 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:22,548 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:23,807 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 10:30:23,808 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:23,809 [INFO]    ✓ Diversity: 8/40 (20.00%)
-2025-06-01 10:30:23,811 [INFO]    ✓ Reward: μ=2.576, σ=0.107, max=2.990
-2025-06-01 10:30:23,812 [INFO]    ✓ Time: 10.2s
-2025-06-01 10:30:23,813 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 10:30:23,815 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:31,838 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:31,839 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:32,938 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 10:30:32,939 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:32,940 [INFO]    ✓ Diversity: 7/40 (17.50%)
-2025-06-01 10:30:32,942 [INFO]    ✓ Reward: μ=2.571, σ=0.139, max=2.831
-2025-06-01 10:30:32,943 [INFO]    ✓ Time: 9.1s
-2025-06-01 10:30:32,944 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 10:30:32,945 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:38,004 [INFO]    ✓ Generated 40 initial molecules
-2025-06-01 10:30:38,006 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:30:38,006 [WARNING] Low diversity detected (30.00% < 70.00%)
-2025-06-01 10:30:38,008 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:39,264 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 10:30:39,265 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:39,266 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:30:39,268 [INFO]    ✓ Reward: μ=2.478, σ=0.217, max=2.990
-2025-06-01 10:30:39,269 [INFO]    ✓ Time: 21.7s
-2025-06-01 10:30:39,270 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 10:30:39,272 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:40,059 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:40,060 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:41,260 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 10:30:41,261 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:41,262 [INFO]    ✓ Diversity: 11/40 (27.50%)
-2025-06-01 10:30:41,263 [INFO]    ✓ Reward: μ=2.593, σ=0.180, max=3.075
-2025-06-01 10:30:41,265 [INFO]    ✓ Time: 8.3s
-2025-06-01 10:30:41,267 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 10:30:41,268 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:47,228 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:47,229 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:47,813 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:47,815 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:48,461 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 10:30:48,462 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:48,463 [INFO]    ✓ Diversity: 14/40 (35.00%)
-2025-06-01 10:30:48,465 [INFO]    ✓ Reward: μ=2.529, σ=0.237, max=2.881
-2025-06-01 10:30:48,466 [INFO]    ✓ Time: 9.2s
-2025-06-01 10:30:48,468 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 10:30:48,469 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:49,123 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 10:30:49,124 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:49,125 [INFO]    ✓ Diversity: 15/40 (37.50%)
-2025-06-01 10:30:49,126 [INFO]    ✓ Reward: μ=2.681, σ=0.204, max=3.152
-2025-06-01 10:30:49,128 [INFO]    ✓ Time: 7.9s
-2025-06-01 10:30:49,130 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 10:30:49,131 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:54,751 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:54,752 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:55,947 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 10:30:55,948 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:55,949 [INFO]    ✓ Diversity: 14/40 (35.00%)
-2025-06-01 10:30:55,951 [INFO]    ✓ Reward: μ=2.771, σ=0.165, max=3.075
-2025-06-01 10:30:55,952 [INFO]    ✓ Time: 6.8s
-2025-06-01 10:30:55,954 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 10:30:55,955 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:30:56,737 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:30:56,738 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:30:58,003 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 10:30:58,004 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:30:58,005 [INFO]    ✓ Diversity: 9/40 (22.50%)
-2025-06-01 10:30:58,006 [INFO]    ✓ Reward: μ=2.609, σ=0.134, max=3.082
-2025-06-01 10:30:58,008 [INFO]    ✓ Time: 9.5s
-2025-06-01 10:30:58,009 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 10:30:58,010 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:01,669 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:01,670 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:02,869 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 10:31:02,870 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:02,871 [INFO]    ✓ Diversity: 20/40 (50.00%)
-2025-06-01 10:31:02,872 [INFO]    ✓ Reward: μ=2.809, σ=0.220, max=3.084
-2025-06-01 10:31:02,874 [INFO]    ✓ Time: 6.9s
-2025-06-01 10:31:02,875 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 10:31:02,877 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:04,751 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:04,752 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:05,898 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 10:31:05,899 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:05,900 [INFO]    ✓ Diversity: 11/40 (27.50%)
-2025-06-01 10:31:05,902 [INFO]    ✓ Reward: μ=2.662, σ=0.119, max=2.883
-2025-06-01 10:31:05,903 [INFO]    ✓ Time: 7.9s
-2025-06-01 10:31:05,904 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 10:31:05,905 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:08,851 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:08,853 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:10,025 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 10:31:10,026 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:10,027 [INFO]    ✓ Diversity: 21/40 (52.50%)
-2025-06-01 10:31:10,029 [INFO]    ✓ Reward: μ=2.815, σ=0.229, max=3.138
-2025-06-01 10:31:10,030 [INFO]    ✓ Time: 7.2s
-2025-06-01 10:31:10,032 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 10:31:10,033 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:12,970 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:12,971 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:14,216 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 10:31:14,217 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:14,218 [INFO]    ✓ Diversity: 18/40 (45.00%)
-2025-06-01 10:31:14,219 [INFO]    ✓ Reward: μ=2.698, σ=0.165, max=3.205
-2025-06-01 10:31:14,220 [INFO]    ✓ Time: 8.3s
-2025-06-01 10:31:14,222 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 10:31:14,223 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:15,815 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:15,816 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:17,004 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 10:31:17,006 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:17,007 [INFO]    ✓ Diversity: 29/40 (72.50%)
-2025-06-01 10:31:17,009 [INFO]    ✓ Reward: μ=2.763, σ=0.252, max=3.084
-2025-06-01 10:31:17,010 [INFO]    ✓ Time: 7.0s
-2025-06-01 10:31:17,012 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 10:31:17,013 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:19,877 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:19,878 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:21,074 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 10:31:21,075 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:21,076 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:31:21,078 [INFO]    ✓ Reward: μ=2.747, σ=0.133, max=3.075
-2025-06-01 10:31:21,079 [INFO]    ✓ Time: 6.9s
-2025-06-01 10:31:21,081 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 10:31:21,082 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:22,415 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:22,416 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:23,588 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 10:31:23,589 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:23,590 [INFO]    ✓ Diversity: 31/40 (77.50%)
-2025-06-01 10:31:23,592 [INFO]    ✓ Reward: μ=2.827, σ=0.249, max=3.084
-2025-06-01 10:31:23,593 [INFO]    ✓ Time: 6.6s
-2025-06-01 10:31:23,595 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 10:31:23,596 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 10:31:23,597 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 10:31:23,599 [INFO]           1 |        40 |     12 |       2.478 |      2.990 | 20.9s
-2025-06-01 10:31:23,600 [INFO]           2 |        40 |      8 |       2.576 |      2.990 | 10.2s
-2025-06-01 10:31:23,601 [INFO]           3 |        40 |      7 |       2.571 |      2.831 |  9.1s
-2025-06-01 10:31:23,602 [INFO]           4 |        40 |     11 |       2.593 |      3.075 |  8.3s
-2025-06-01 10:31:23,604 [INFO]           5 |        40 |     15 |       2.681 |      3.152 |  7.8s
-2025-06-01 10:31:23,605 [INFO]           6 |        40 |     14 |       2.771 |      3.075 |  6.8s
-2025-06-01 10:31:23,606 [INFO]           7 |        40 |     20 |       2.809 |      3.084 |  6.9s
-2025-06-01 10:31:23,608 [INFO]           8 |        40 |     21 |       2.815 |      3.138 |  7.1s
-2025-06-01 10:31:23,609 [INFO]           9 |        40 |     29 |       2.763 |      3.084 |  7.0s
-2025-06-01 10:31:23,610 [INFO]          10 |        40 |     31 |       2.827 |      3.084 |  6.6s
-2025-06-01 10:31:23,611 [INFO] 
-   💡 Reward improvement: +0.349
-2025-06-01 10:31:23,612 [INFO]    🎯 Final diversity: 77.50%
-2025-06-01 10:31:23,613 [INFO]    ⏱️  Total time: 90.7s
-2025-06-01 10:31:23,615 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 10:31:26,710 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:26,711 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:28,015 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 10:31:28,016 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:28,018 [INFO]    ✓ Diversity: 17/40 (42.50%)
-2025-06-01 10:31:28,019 [INFO]    ✓ Reward: μ=2.838, σ=0.148, max=2.993
-2025-06-01 10:31:28,020 [INFO]    ✓ Time: 6.9s
-2025-06-01 10:31:28,022 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 10:31:28,024 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:33,219 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:33,220 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:34,522 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 10:31:34,523 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:34,525 [INFO]    ✓ Diversity: 19/40 (47.50%)
-2025-06-01 10:31:34,526 [INFO]    ✓ Reward: μ=2.851, σ=0.147, max=3.208
-2025-06-01 10:31:34,527 [INFO]    ✓ Time: 6.5s
-2025-06-01 10:31:34,528 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 10:31:34,530 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:39,771 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:39,773 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:40,935 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 10:31:40,936 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:40,938 [INFO]    ✓ Diversity: 27/40 (67.50%)
-2025-06-01 10:31:40,939 [INFO]    ✓ Reward: μ=2.822, σ=0.207, max=3.084
-2025-06-01 10:31:40,941 [INFO]    ✓ Time: 6.4s
-2025-06-01 10:31:40,942 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 10:31:40,943 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:31:45,995 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:31:45,997 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:31:47,309 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 10:31:47,310 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:31:47,312 [INFO]    ✓ Diversity: 25/40 (62.50%)
-2025-06-01 10:31:47,313 [INFO]    ✓ Reward: μ=2.833, σ=0.214, max=3.087
-2025-06-01 10:31:47,314 [INFO]    ✓ Time: 6.4s
-2025-06-01 10:31:47,316 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 10:31:47,318 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 10:31:47,319 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 10:31:47,320 [INFO]           1 |        40 |     12 |       2.478 |      2.990 | 21.7s
-2025-06-01 10:31:47,321 [INFO]           2 |        40 |     14 |       2.529 |      2.881 |  9.2s
-2025-06-01 10:31:47,323 [INFO]           3 |        40 |      9 |       2.609 |      3.082 |  9.5s
-2025-06-01 10:31:47,324 [INFO]           4 |        40 |     11 |       2.662 |      2.883 |  7.9s
-2025-06-01 10:31:47,325 [INFO]           5 |        40 |     18 |       2.698 |      3.205 |  8.3s
-2025-06-01 10:31:47,327 [INFO]           6 |        40 |     12 |       2.747 |      3.075 |  6.8s
-2025-06-01 10:31:47,328 [INFO]           7 |        40 |     17 |       2.838 |      2.993 |  6.9s
-2025-06-01 10:31:47,329 [INFO]           8 |        40 |     19 |       2.851 |      3.208 |  6.5s
-2025-06-01 10:31:47,331 [INFO]           9 |        40 |     27 |       2.822 |      3.084 |  6.4s
-2025-06-01 10:31:47,332 [INFO]          10 |        40 |     25 |       2.833 |      3.087 |  6.4s
-2025-06-01 10:31:47,333 [INFO] 
-   💡 Reward improvement: +0.356
-2025-06-01 10:31:47,335 [INFO]    🎯 Final diversity: 62.50%
-2025-06-01 10:31:47,336 [INFO]    ⏱️  Total time: 89.6s
-2025-06-01 10:31:47,337 [INFO] 🎉 TamGenRL optimization complete!
-2025-06-01 10:41:12,725 [INFO] TamGenRL initialized on device: cuda:0
-2025-06-01 10:41:12,726 [INFO] Detected latent dimension: 256
-2025-06-01 10:41:16,523 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 10:41:16,524 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 10:41:16,526 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 10:41:16,527 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 10:41:16,528 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 10:41:16,640 [INFO] 📦 Stored protein input: torch.Size([2, 57])
-2025-06-01 10:43:33,236 [INFO] 🚀 Starting TamGenRL feedback loop optimization
-2025-06-01 10:43:33,237 [INFO]    Target: 1000 molecules × 10 iterations
-2025-06-01 10:43:33,238 [INFO]    Device: cuda:0, Batch size: 4
-2025-06-01 10:43:33,240 [INFO] 
-🔄 Iteration 1/10 (α=0.400)
-2025-06-01 10:43:33,241 [INFO] 🌱 Generating initial molecules with TamGen...
-2025-06-01 10:43:51,382 [INFO]    ✓ Generated 40 initial molecules
-2025-06-01 10:43:51,383 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:43:51,384 [WARNING] Low diversity detected (30.00% < 70.00%)
-2025-06-01 10:43:51,385 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:43:53,323 [INFO]    ✓ Saved results for iteration 1
-2025-06-01 10:43:53,324 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:43:53,326 [INFO]    ✓ Diversity: 12/40 (30.00%)
-2025-06-01 10:43:53,327 [INFO]    ✓ Reward: μ=2.478, σ=0.217, max=2.990
-2025-06-01 10:43:53,328 [INFO]    ✓ Time: 20.1s
-2025-06-01 10:43:53,331 [INFO] 
-🔄 Iteration 2/10 (α=0.369)
-2025-06-01 10:43:53,332 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:03,146 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:03,149 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:04,358 [INFO]    ✓ Saved results for iteration 2
-2025-06-01 10:44:04,359 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:04,359 [INFO]    ✓ Diversity: 9/40 (22.50%)
-2025-06-01 10:44:04,360 [INFO]    ✓ Reward: μ=2.557, σ=0.124, max=2.990
-2025-06-01 10:44:04,361 [INFO]    ✓ Time: 11.0s
-2025-06-01 10:44:04,362 [INFO] 
-🔄 Iteration 3/10 (α=0.338)
-2025-06-01 10:44:04,364 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:13,434 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:13,437 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:14,630 [INFO]    ✓ Saved results for iteration 3
-2025-06-01 10:44:14,632 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:14,633 [INFO]    ✓ Diversity: 8/40 (20.00%)
-2025-06-01 10:44:14,634 [INFO]    ✓ Reward: μ=2.533, σ=0.204, max=2.881
-2025-06-01 10:44:14,636 [INFO]    ✓ Time: 10.3s
-2025-06-01 10:44:14,637 [INFO] 
-🔄 Iteration 4/10 (α=0.307)
-2025-06-01 10:44:14,639 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:23,631 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:23,634 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:24,924 [INFO]    ✓ Saved results for iteration 4
-2025-06-01 10:44:24,925 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:24,927 [INFO]    ✓ Diversity: 8/40 (20.00%)
-2025-06-01 10:44:24,929 [INFO]    ✓ Reward: μ=2.633, σ=0.109, max=2.914
-2025-06-01 10:44:24,930 [INFO]    ✓ Time: 10.3s
-2025-06-01 10:44:24,932 [INFO] 
-🔄 Iteration 5/10 (α=0.276)
-2025-06-01 10:44:24,933 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:33,680 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:33,681 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:34,937 [INFO]    ✓ Saved results for iteration 5
-2025-06-01 10:44:34,938 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:34,939 [INFO]    ✓ Diversity: 17/40 (42.50%)
-2025-06-01 10:44:34,941 [INFO]    ✓ Reward: μ=2.619, σ=0.195, max=2.990
-2025-06-01 10:44:34,943 [INFO]    ✓ Time: 10.0s
-2025-06-01 10:44:34,945 [INFO] 
-🔄 Iteration 6/10 (α=0.244)
-2025-06-01 10:44:34,946 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:42,742 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:42,743 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:43,970 [INFO]    ✓ Saved results for iteration 6
-2025-06-01 10:44:43,971 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:43,972 [INFO]    ✓ Diversity: 16/40 (40.00%)
-2025-06-01 10:44:43,974 [INFO]    ✓ Reward: μ=2.641, σ=0.187, max=2.984
-2025-06-01 10:44:43,975 [INFO]    ✓ Time: 9.0s
-2025-06-01 10:44:43,977 [INFO] 
-🔄 Iteration 7/10 (α=0.213)
-2025-06-01 10:44:43,978 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:51,373 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:51,376 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:52,572 [INFO]    ✓ Saved results for iteration 7
-2025-06-01 10:44:52,573 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:52,574 [INFO]    ✓ Diversity: 22/40 (55.00%)
-2025-06-01 10:44:52,576 [INFO]    ✓ Reward: μ=2.600, σ=0.203, max=2.954
-2025-06-01 10:44:52,577 [INFO]    ✓ Time: 8.6s
-2025-06-01 10:44:52,578 [INFO] 
-🔄 Iteration 8/10 (α=0.182)
-2025-06-01 10:44:52,581 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:44:58,606 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:44:58,607 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:44:59,707 [INFO]    ✓ Saved results for iteration 8
-2025-06-01 10:44:59,708 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:44:59,710 [INFO]    ✓ Diversity: 24/40 (60.00%)
-2025-06-01 10:44:59,712 [INFO]    ✓ Reward: μ=2.693, σ=0.184, max=2.993
-2025-06-01 10:44:59,713 [INFO]    ✓ Time: 7.1s
-2025-06-01 10:44:59,715 [INFO] 
-🔄 Iteration 9/10 (α=0.151)
-2025-06-01 10:44:59,716 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:45:06,059 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:45:06,060 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:45:07,164 [INFO]    ✓ Saved results for iteration 9
-2025-06-01 10:45:07,166 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:45:07,167 [INFO]    ✓ Diversity: 23/40 (57.50%)
-2025-06-01 10:45:07,169 [INFO]    ✓ Reward: μ=2.677, σ=0.256, max=2.966
-2025-06-01 10:45:07,170 [INFO]    ✓ Time: 7.5s
-2025-06-01 10:45:07,172 [INFO] 
-🔄 Iteration 10/10 (α=0.120)
-2025-06-01 10:45:07,173 [INFO] 🔄 Generating from 40 latent vectors...
-2025-06-01 10:45:13,558 [INFO]    ✓ Generated 40/40 valid SMILES
-2025-06-01 10:45:13,561 [INFO] 📊 Optimizing latent space...
-2025-06-01 10:45:14,640 [INFO]    ✓ Saved results for iteration 10
-2025-06-01 10:45:14,641 [INFO]    ✓ Generated 40 molecules
-2025-06-01 10:45:14,643 [INFO]    ✓ Diversity: 21/40 (52.50%)
-2025-06-01 10:45:14,645 [INFO]    ✓ Reward: μ=2.685, σ=0.168, max=2.926
-2025-06-01 10:45:14,646 [INFO]    ✓ Time: 7.5s
-2025-06-01 10:45:14,648 [INFO] 
-📈 Final Optimization Summary:
-2025-06-01 10:45:14,650 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
-2025-06-01 10:45:14,653 [INFO]    ---------|-----------|--------|-------------|------------|-----
-2025-06-01 10:45:14,655 [INFO]           1 |        40 |     12 |       2.478 |      2.990 | 20.1s
-2025-06-01 10:45:14,656 [INFO]           2 |        40 |      9 |       2.557 |      2.990 | 11.0s
-2025-06-01 10:45:14,658 [INFO]           3 |        40 |      8 |       2.533 |      2.881 | 10.3s
-2025-06-01 10:45:14,659 [INFO]           4 |        40 |      8 |       2.633 |      2.914 | 10.3s
-2025-06-01 10:45:14,660 [INFO]           5 |        40 |     17 |       2.619 |      2.990 | 10.0s
-2025-06-01 10:45:14,662 [INFO]           6 |        40 |     16 |       2.641 |      2.984 |  9.0s
-2025-06-01 10:45:14,663 [INFO]           7 |        40 |     22 |       2.600 |      2.954 |  8.6s
-2025-06-01 10:45:14,664 [INFO]           8 |        40 |     24 |       2.693 |      2.993 |  7.1s
-2025-06-01 10:45:14,666 [INFO]           9 |        40 |     23 |       2.677 |      2.966 |  7.4s
-2025-06-01 10:45:14,667 [INFO]          10 |        40 |     21 |       2.685 |      2.926 |  7.5s
-2025-06-01 10:45:14,669 [INFO] 
-   💡 Reward improvement: +0.207
-2025-06-01 10:45:14,671 [INFO]    🎯 Final diversity: 52.50%
-2025-06-01 10:45:14,672 [INFO]    ⏱️  Total time: 101.3s
-2025-06-01 10:45:14,673 [INFO] 🎉 TamGenRL optimization complete!
+2025-06-22 19:28:24,975 [INFO]    Iteration | Molecules | Unique | Mean Reward | Max Reward | Time
+2025-06-22 19:28:24,976 [INFO]    ---------|-----------|--------|-------------|------------|-----
+2025-06-22 19:28:24,976 [INFO]           1 |        20 |      5 |       1.892 |      2.573 | 13.9s
+2025-06-22 19:28:24,976 [INFO]           2 |        20 |      5 |       2.467 |      3.027 |  2.0s
+2025-06-22 19:28:24,976 [INFO]           3 |        20 |      5 |       2.463 |      3.027 |  2.0s
+2025-06-22 19:28:24,976 [INFO]           4 |        20 |      5 |       2.660 |      3.027 |  7.2s
+2025-06-22 19:28:24,976 [INFO]           5 |        20 |      3 |       2.618 |      3.090 |  2.1s
+2025-06-22 19:28:24,976 [INFO]           6 |        20 |      3 |       2.783 |      3.127 |  2.0s
+2025-06-22 19:28:24,976 [INFO]           7 |        20 |      2 |       2.913 |      3.127 |  7.8s
+2025-06-22 19:28:24,976 [INFO]           8 |        20 |      3 |       2.950 |      3.027 |  1.8s
+2025-06-22 19:28:24,977 [INFO]           9 |        20 |      9 |       2.869 |      3.448 |  1.7s
+2025-06-22 19:28:24,977 [INFO]          10 |        20 |     15 |       2.500 |      3.396 |  7.1s
+2025-06-22 19:28:24,977 [INFO] 
+   💡 Reward improvement: +0.608
+2025-06-22 19:28:24,977 [INFO]    🎯 Final diversity: 75.00%
+2025-06-22 19:28:24,977 [INFO]    ⏱️  Total time: 47.7s
+2025-06-22 19:28:24,977 [INFO] 🎉 TamGenRL optimization complete!

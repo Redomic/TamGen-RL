@@ -138,7 +138,7 @@ def load_checkpoint_to_cpu(path, arg_overrides=None):
     """Loads a checkpoint to CPU (with upgrading for backward compatibility)."""
     print(path)
     state = torch.load(
-        path, map_location=lambda s, l: default_restore_location(s, 'cpu'),
+        path, map_location=lambda s, l: default_restore_location(s, 'cpu'), weights_only=False,
     )
     args = state['args']
     if arg_overrides is not None:

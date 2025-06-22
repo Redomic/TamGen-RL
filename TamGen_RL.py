@@ -19,6 +19,8 @@ from fairseq import progress_bar, utils
 # Import our fixed optimization components
 from feedback.centroid_optimizer import centroid_shift_optimize, adaptive_shift_schedule
 
+from utils import InjectionMonitor, quick_monitor
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +48,8 @@ class TamGenRL(TamGenDemo):
         self.stored_protein_inputs = []
         self.device = next(self.models[0].parameters()).device
         self.latent_dim = self._detect_latent_dim()
+
+        self.injection_monitor = InjectionMonitor(self)
         
         logging.info(f"TamGenRL initialized on device: {self.device}")
         logging.info(f"Detected latent dimension: {self.latent_dim}")
@@ -165,7 +169,11 @@ class TamGenRL(TamGenDemo):
                     lambda_mw=lambda_mw,
                     iteration=iteration
                 )
-                
+
+                self.injection_monitor.monitor_injection_quality(
+                    iteration, z_vectors, smiles_list, rewards
+                )
+
                 # Store results
                 iteration_result = {
                     'iteration': iteration + 1,
@@ -403,9 +411,17 @@ class TamGenRL(TamGenDemo):
                                             protein_input: Dict[str, torch.Tensor],
                                             use_cuda: bool) -> List[str]:
         """Generate molecules with proper latent injection."""
+
+        torch.manual_seed(42)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(42)
         
         model = self.models[0]
         model.eval()
+
+        for module in model.modules():
+            if isinstance(module, torch.nn.Dropout):
+                module.p = 0.0
         
         batch_size = len(z_batch)
         z_tensor = torch.tensor(z_batch, dtype=torch.float32, device=self.device)

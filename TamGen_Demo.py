@@ -5,9 +5,9 @@ import torch
 import os
 from glob import glob
 import argparse
-from torch.serialization import safe_globals
 from fairseq.meters import AverageMeter, StopwatchMeter, TimeMeter
 from fairseq.data import Dictionary
+import torch.serialization
 
 from fairseq import bleu, checkpoint_utils, options, progress_bar, tasks, utils
 from fairseq.meters import StopwatchMeter, TimeMeter
@@ -131,18 +131,20 @@ class TamGenDemo:
 
         # Load ensemble (wrapped with safe unpickling)
         print('| loading model(s) from {}'.format(args.path))
-        with safe_globals([
+        
+        torch.serialization.add_safe_globals([
             argparse.Namespace,
             AverageMeter,
             StopwatchMeter,
             TimeMeter,
             Dictionary,
-        ]):
-            self.models, _model_args = checkpoint_utils.load_model_ensemble(
-                args.path.split(':'),
-                arg_overrides=overrides,
-                task=self.task,
-            )
+        ])
+
+        self.models, _model_args = checkpoint_utils.load_model_ensemble(
+            args.path.split(':'),
+            arg_overrides=overrides,
+            task=self.task,
+        )
 
         for model in self.models:
             model.make_generation_fast_(

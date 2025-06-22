@@ -179,6 +179,7 @@ fairseq/molecule_utils/basic/fasta_utils.py
 fairseq/molecule_utils/basic/lipinski.py
 fairseq/molecule_utils/basic/mol_scores.py
 fairseq/molecule_utils/basic/run_docking.py
+fairseq/molecule_utils/basic/run_gnina_docking.py
 fairseq/molecule_utils/basic/smiles_utils.py
 fairseq/molecule_utils/coordinate_utils/__init__.py
 fairseq/molecule_utils/coordinate_utils/atom_positions.py
@@ -198,6 +199,7 @@ fairseq/molecule_utils/external/fairseq_dataset_build_utils.py
 fairseq/molecule_utils/external/sbdd_protein_ligand.py
 fairseq/molecule_utils/external_tools/__init__.py
 fairseq/molecule_utils/external_tools/autodock_smina.py
+fairseq/molecule_utils/external_tools/gnina.py
 fairseq/molecule_utils/external_tools/mmseqs2.py
 fairseq/optim/__init__.py
 fairseq/optim/adadelta.py
