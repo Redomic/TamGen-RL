@@ -57,7 +57,7 @@ class LatentRewardModel:
             ValueError: If insufficient data for training
             RuntimeError: If training fails
         """
-        min_samples_required = 20  # Increased minimum for reliable training
+        min_samples_required = 11 
         if len(self.z_list) < min_samples_required:
             raise ValueError(f"Insufficient data for training: {len(self.z_list)} samples, need at least {min_samples_required}")
 

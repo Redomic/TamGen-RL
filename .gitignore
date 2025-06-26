@@ -32,3 +32,5 @@ AutoGrid/
 openbabel/
 output.log
 feedback.log
+
+/tamgen_rl.log
