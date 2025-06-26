@@ -1,6 +1,6 @@
 """
-Fixed TamGenRL implementation with proper latent space optimization and GNINA binding affinity.
-Addresses critical issues in latent injection and memory management.
+Simplified TamGenRL implementation with 3-criteria optimization: QED, SAS, Binding Affinity.
+Focuses on core functionality with the streamlined optimization pipeline.
 """
 
 import os
@@ -16,10 +16,10 @@ from tqdm import tqdm
 from TamGen_Demo import TamGenDemo
 from fairseq import progress_bar, utils
 
-# Import our fixed optimization components
-from feedback.centroid_optimizer import centroid_shift_optimize, adaptive_shift_schedule
+# Import our simplified optimization components
+from feedback.centroid_optimizer import centroid_shift_optimize
 
-from utils import InjectionMonitor, quick_monitor
+from utils import InjectionMonitor
 
 # Setup logging
 logging.basicConfig(
@@ -34,14 +34,14 @@ logging.basicConfig(
 
 class TamGenRL(TamGenDemo):
     """
-    Enhanced TamGenRL with fixed latent space optimization and GNINA binding affinity.
+    Simplified TamGenRL with 3-criteria optimization: QED, SAS, Binding Affinity.
     
-    Key improvements:
-    - Fixed latent injection method that works with TamGen's architecture
-    - Proper memory management to prevent OOM errors
-    - Better batch processing for large-scale generation
-    - Adaptive optimization parameters
-    - GNINA binding affinity as primary optimization criterion
+    Key features:
+    - Fixed latent injection method
+    - 3-criteria optimization (QED, SAS, Binding Affinity)
+    - Binding affinity prioritized with 3x weight
+    - Simple centroid shift optimization
+    - Better memory management
     """
     
     def __init__(self, *args, **kwargs):
@@ -66,8 +66,7 @@ class TamGenRL(TamGenDemo):
                     return vae_encoder.out_proj.out_features // 2  # Divide by 2 for mean/logstd
             
             # Fallback: assume standard dimension
-            encoder_dim = self.args.encoder_embed_dim
-            return encoder_dim
+            return 256
             
         except Exception as e:
             logging.warning(f"Could not detect latent dimension: {e}. Using default 256.")
@@ -78,37 +77,29 @@ class TamGenRL(TamGenDemo):
                num_iter: int = 5,
                alpha: float = 0.5,
                top_k: int = 50,
-               lambda_sas: float = 0.3,
-               lambda_logp: float = 0.1,
-               lambda_mw: float = 0.1,
                maxseed: int = 20,
                use_cuda: bool = True,
                batch_size: int = 4,
-               adaptive_alpha: bool = True,
                save_intermediates: bool = True,
-               diversity_target: float = 0.7,
                pdb_id: Optional[str] = None,
                use_binding_affinity: bool = True,
+               weights: Optional[Dict[str, float]] = None,
                **kwargs) -> List[str]:
         """
-        Enhanced sampling with fixed optimization pipeline and binding affinity support.
+        Simplified sampling with 3-criteria optimization.
         
         Args:
             m_sample: Number of molecules to generate per iteration
             num_iter: Number of optimization iterations
-            alpha: Base shift magnitude (will be adaptive if adaptive_alpha=True)
+            alpha: Shift magnitude (will decrease over iterations)
             top_k: Number of top molecules for centroid computation
-            lambda_sas: Weight for SAS penalty
-            lambda_logp: Weight for LogP penalty
-            lambda_mw: Weight for MW penalty
             maxseed: Maximum number of seeds for initial generation
             use_cuda: Whether to use CUDA
             batch_size: Batch size for generation
-            adaptive_alpha: Whether to use adaptive alpha scheduling
             save_intermediates: Whether to save intermediate results
-            diversity_target: Target diversity ratio (unique/total SMILES)
             pdb_id: PDB ID for GNINA docking (e.g., "1HSG" for HIV protease)
             use_binding_affinity: Whether to compute binding affinity using GNINA
+            weights: Optional weights for the three criteria (QED, SAS, Binding Affinity)
             **kwargs: Additional arguments
             
         Returns:
@@ -118,16 +109,25 @@ class TamGenRL(TamGenDemo):
         # Create output directory
         os.makedirs("latent_logs", exist_ok=True)
         
-        logging.info("🚀 Starting TamGenRL feedback loop optimization")
+        # Set default weights with binding affinity prioritized
+        if weights is None:
+            weights = {
+                'qed': 1.0,
+                'sas': 1.0,
+                'binding_affinity': 3.0  # Higher weight for binding affinity
+            }
+        
+        logging.info("🚀 Starting simplified TamGenRL optimization")
         logging.info(f"   Target: {m_sample} molecules × {num_iter} iterations")
         logging.info(f"   Device: {self.device}, Batch size: {batch_size}")
+        logging.info(f"   Weights: QED={weights['qed']}, SAS={weights['sas']}, Binding={weights['binding_affinity']}")
         
         if use_binding_affinity and pdb_id:
             logging.info(f"   🧬 Binding affinity optimization enabled for PDB: {pdb_id}")
         elif use_binding_affinity:
             logging.info("   📋 Using pre-computed docking scores for binding affinity")
         else:
-            logging.info("   ⚗️  Drug-likeness optimization only")
+            logging.info("   ⚗️  Using QED and SAS only")
         
         # Initialize variables
         z_vectors = None
@@ -137,13 +137,8 @@ class TamGenRL(TamGenDemo):
         for iteration in range(num_iter):
             iter_start_time = time.time()
             
-            # Adaptive alpha scheduling
-            if adaptive_alpha:
-                current_alpha = adaptive_shift_schedule(
-                    iteration, num_iter, initial_alpha=alpha, final_alpha=alpha*0.3
-                )
-            else:
-                current_alpha = alpha
+            # Simple alpha decay over iterations
+            current_alpha = alpha * (0.8 ** iteration)  # Decrease by 20% each iteration
             
             logging.info(f"\n🔄 Iteration {iteration + 1}/{num_iter} (α={current_alpha:.3f})")
             
@@ -153,35 +148,35 @@ class TamGenRL(TamGenDemo):
                     z_vectors, smiles_list = self._initial_generation(
                         m_sample=m_sample,
                         maxseed=maxseed,
-                        use_cuda=use_cuda,
-                        diversity_target=diversity_target
+                        use_cuda=use_cuda
                     )
                 else:
                     # Generate from optimized latent vectors
-                    smiles_list = self._generate_from_latents(
-                        z_vectors=z_vectors,
-                        batch_size=batch_size,
-                        use_cuda=use_cuda
-                    )
-                    
-                    # Update z_vectors to match successful generations
-                    z_vectors = z_vectors[:len(smiles_list)]
+                    if z_vectors is not None:
+                        smiles_list = self._generate_from_latents(
+                            z_vectors=z_vectors,
+                            batch_size=batch_size,
+                            use_cuda=use_cuda
+                        )
+                        
+                        # Update z_vectors to match successful generations
+                        z_vectors = z_vectors[:len(smiles_list)]
+                    else:
+                        raise RuntimeError("No latent vectors available for generation")
                 
                 if len(smiles_list) == 0:
                     raise RuntimeError(f"No valid molecules generated in iteration {iteration + 1}")
                 
-                # Optimize latent space with binding affinity
+                # Optimize latent space with 3 criteria
                 z_vectors, rewards, metrics = self._optimize_latent_space(
                     z_vectors=z_vectors,
                     smiles_list=smiles_list,
                     shift_alpha=current_alpha,
                     top_k=min(top_k, len(smiles_list)),
-                    lambda_sas=lambda_sas,
-                    lambda_logp=lambda_logp,
-                    lambda_mw=lambda_mw,
                     iteration=iteration,
                     pdb_id=pdb_id,
-                    use_binding_affinity=use_binding_affinity
+                    use_binding_affinity=use_binding_affinity,
+                    weights=weights
                 )
 
                 self.injection_monitor.monitor_injection_quality(
@@ -203,12 +198,14 @@ class TamGenRL(TamGenDemo):
                 }
                 
                 # Add binding affinity statistics if available
-                binding_affinities = [m.get('binding_affinity') for m in metrics if m.get('binding_affinity') is not None]
+                binding_affinities = [m.get('binding_affinity') for m in metrics 
+                                    if m.get('binding_affinity') is not None]
                 if binding_affinities:
+                    binding_values = [float(x) for x in binding_affinities if x is not None]  # Ensure float values
                     iteration_result.update({
-                        'binding_affinity_success_rate': len(binding_affinities) / len(metrics),
-                        'best_binding_affinity': min(binding_affinities),
-                        'mean_binding_affinity': np.mean(binding_affinities)
+                        'binding_affinity_success_rate': len(binding_values) / len(metrics),
+                        'best_binding_affinity': min(binding_values),
+                        'mean_binding_affinity': np.mean(binding_values)
                     })
                 
                 iteration_results.append(iteration_result)
@@ -225,9 +222,10 @@ class TamGenRL(TamGenDemo):
                 
                 # Log binding affinity results
                 if binding_affinities:
-                    success_rate = len(binding_affinities) / len(metrics)
-                    best_affinity = min(binding_affinities)
-                    logging.info(f"   🧬 Binding affinity: {len(binding_affinities)}/{len(metrics)} successful ({success_rate:.1%})")
+                    binding_values = [float(x) for x in binding_affinities if x is not None]
+                    success_rate = len(binding_values) / len(metrics)
+                    best_affinity = min(binding_values) if binding_values else 0.0
+                    logging.info(f"   🧬 Binding affinity: {len(binding_values)}/{len(metrics)} successful ({success_rate:.1%})")
                     logging.info(f"   🏆 Best binding: {best_affinity:.2f} kcal/mol")
                 
                 logging.info(f"   ✓ Time: {time.time() - iter_start_time:.1f}s")
@@ -252,8 +250,7 @@ class TamGenRL(TamGenDemo):
     def _initial_generation(self, 
                           m_sample: int,
                           maxseed: int,
-                          use_cuda: bool,
-                          diversity_target: float) -> Tuple[np.ndarray, List[str]]:
+                          use_cuda: bool) -> Tuple[np.ndarray, List[str]]:
         """Generate initial molecules using TamGen and extract latent vectors."""
         
         logging.info("🌱 Generating initial molecules with TamGen...")
@@ -315,9 +312,6 @@ class TamGenRL(TamGenDemo):
         logging.info(f"   ✓ Generated {len(smiles_list)} initial molecules")
         logging.info(f"   ✓ Diversity: {unique_count}/{len(smiles_list)} ({diversity_ratio:.2%})")
         
-        if diversity_ratio < diversity_target:
-            logging.warning(f"Low diversity detected ({diversity_ratio:.2%} < {diversity_target:.2%})")
-        
         return z_vectors, smiles_list
 
     def _extract_protein_input(self, sample: Dict[str, Any]) -> Dict[str, torch.Tensor]:
@@ -369,7 +363,8 @@ class TamGenRL(TamGenDemo):
                             # Get best hypothesis
                             best_hypo = hypos[i][0]
                             hypo_tokens = best_hypo["tokens"].int().cpu()
-                            hypo_str = self.tgt_dict.string(hypo_tokens, self.args.remove_bpe)
+                            # Simple string processing without args.remove_bpe
+                            hypo_str = self.tgt_dict.string(hypo_tokens, None)
                             smiles = hypo_str.strip().replace(" ", "")
                             
                             # Validate SMILES
@@ -477,7 +472,7 @@ class TamGenRL(TamGenDemo):
             "id": torch.arange(batch_size, device=self.device),
         }
         
-        # Method 1: Direct encoder output modification (more reliable)
+        # Direct encoder output modification
         try:
             # Get normal encoder output
             encoder_out = model.encoder.forward(
@@ -488,16 +483,9 @@ class TamGenRL(TamGenDemo):
                 tgt_coord=None
             )
             
-            # Inject our latent vectors
-            if hasattr(self.args, 'concat') and self.args.concat:
-                # If model concatenates latents with encoder output
-                main_features = encoder_out['encoder_out'][..., :-self.latent_dim]
-                z_expanded = z_tensor.unsqueeze(0).expand(main_features.size(0), -1, -1)
-                encoder_out['encoder_out'] = torch.cat([main_features, z_expanded], dim=-1)
-            else:
-                # If model adds latents to encoder output  
-                z_expanded = z_tensor.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
-                encoder_out['encoder_out'] = encoder_out['encoder_out'] + z_expanded
+            # Inject our latent vectors - simple addition method
+            z_expanded = z_tensor.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
+            encoder_out['encoder_out'] = encoder_out['encoder_out'] + z_expanded
             
             # Override encoder output in sample
             sample["encoder_outs_override"] = [encoder_out]
@@ -507,9 +495,7 @@ class TamGenRL(TamGenDemo):
             hypos = self.task.inference_step(self.generator, self.models, sample, prefix_tokens)
             
         except Exception as e:
-            logging.error(f"Latent injection failed: {e}")
-            # Fallback to normal generation
-            hypos = self.task.inference_step(self.generator, self.models, sample, None)
+            raise RuntimeError(f"Latent injection failed: {e}")
         
         # Process results
         results = []
@@ -517,16 +503,16 @@ class TamGenRL(TamGenDemo):
             if len(hypos_i) > 0:
                 best_hypo = hypos_i[0]
                 hypo_tokens = best_hypo["tokens"].int().cpu()
-                hypo_str = self.tgt_dict.string(hypo_tokens, self.args.remove_bpe).strip().replace(" ", "")
+                # Simple string processing
+                hypo_str = self.tgt_dict.string(hypo_tokens, None).strip().replace(" ", "")
                 
-                # Validate SMILES
+                # Validate SMILES - no fallbacks allowed
                 mol = Chem.MolFromSmiles(hypo_str)
-                if mol is not None:
-                    results.append(hypo_str)
-                else:
-                    results.append("")
+                if mol is None:
+                    raise RuntimeError(f"Invalid SMILES generated: {hypo_str}")
+                results.append(hypo_str)
             else:
-                results.append("")
+                raise RuntimeError(f"No hypotheses generated for sample {i}")
         
         return results
 
@@ -535,20 +521,18 @@ class TamGenRL(TamGenDemo):
                              smiles_list: List[str],
                              shift_alpha: float,
                              top_k: int,
-                             lambda_sas: float,
-                             lambda_logp: float,
-                             lambda_mw: float,
                              iteration: int,
                              pdb_id: Optional[str] = None,
-                             use_binding_affinity: bool = True) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
-        """Optimize latent space using centroid shift with optional binding affinity."""
+                             use_binding_affinity: bool = True,
+                             weights: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
+        """Optimize latent space using simplified 3-criteria optimization."""
         
-        logging.info("📊 Optimizing latent space...")
+        logging.info("📊 Optimizing latent space with 3 criteria...")
         
         # Placeholder docking scores (replace with real docking if available)
-        docking_scores = [None] * len(smiles_list)
+        docking_scores: List[Optional[float]] = [None] * len(smiles_list)
         
-        # Apply centroid shift optimization
+        # Apply simplified centroid shift optimization
         z_shifted, rewards, metrics = centroid_shift_optimize(
             z_vectors=z_vectors,
             smiles_list=smiles_list,
@@ -556,16 +540,12 @@ class TamGenRL(TamGenDemo):
             latent_dim=self.latent_dim,
             top_k=top_k,
             shift_alpha=shift_alpha,
-            lambda_sas=lambda_sas,
-            lambda_logp=lambda_logp,
-            lambda_mw=lambda_mw,
-            noise_sigma=0.05 + 0.02 * iteration,  # Increase noise over iterations
-            use_gradient_optimization=True,
+            noise_sigma=0.05 + 0.01 * iteration,  # Slight noise increase over iterations
             device="auto",
-            reward_model_epochs=min(100, 50 + iteration * 10),  # More training in later iterations
-            diversity_weight=0.2,
+            epochs=50,  # Fixed epochs
             pdb_id=pdb_id,
-            use_binding_affinity=use_binding_affinity
+            use_binding_affinity=use_binding_affinity,
+            weights=weights
         )
         
         return np.array(z_shifted), rewards, metrics
@@ -580,14 +560,12 @@ class TamGenRL(TamGenDemo):
         
         # Save SMILES and rewards
         with open(f"latent_logs/results_iter_{iteration}.tsv", "w") as f:
-            f.write("SMILES\tReward\tQED\tSAS\tMW\tLogP\tBinding_Affinity\n")
+            f.write("SMILES\tReward\tQED\tSAS\tBinding_Affinity\n")
             for smi, reward, metric in zip(smiles_list, rewards, metrics):
-                qed = metric.get('qed', 0)
-                sas = metric.get('sas', 10)
-                mw = metric.get('mw', 0)
-                logp = metric.get('logp', 0)
+                qed = metric.get('qed', '')
+                sas = metric.get('sas', '')
                 binding_affinity = metric.get('binding_affinity', '')
-                f.write(f"{smi}\t{reward:.4f}\t{qed:.3f}\t{sas:.3f}\t{mw:.1f}\t{logp:.2f}\t{binding_affinity}\n")
+                f.write(f"{smi}\t{reward:.4f}\t{qed}\t{sas}\t{binding_affinity}\n")
         
         # Save latent vectors
         np.savetxt(f"latent_logs/latents_iter_{iteration}.tsv", z_vectors, fmt="%.6f")
@@ -651,7 +629,7 @@ def run_tamgen_rl_optimization(checkpoint_path: str,
                               use_binding_affinity: bool = True,
                               **optimization_kwargs) -> Dict[str, Any]:
     """
-    Convenience function to run TamGenRL optimization with binding affinity.
+    Convenience function to run simplified TamGenRL optimization.
     
     Args:
         checkpoint_path: Path to TamGen checkpoint
@@ -667,7 +645,7 @@ def run_tamgen_rl_optimization(checkpoint_path: str,
     
     os.makedirs(output_dir, exist_ok=True)
     
-    logging.info(f"🚀 Starting TamGenRL optimization")
+    logging.info(f"🚀 Starting simplified TamGenRL optimization")
     logging.info(f"   Output directory: {output_dir}")
     if use_binding_affinity and pdb_id:
         logging.info(f"   Target PDB: {pdb_id}")

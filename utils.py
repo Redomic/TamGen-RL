@@ -10,7 +10,7 @@ from rdkit import Chem
 from rdkit.Chem.Fingerprints import FingerprintMols
 from rdkit.Chem import DataStructs
 
-from feedback.reward_utils import compute_advanced_reward
+from feedback.reward_utils import compute_three_criterion_reward
 
 
 def prepare_pdb_data(pdb_id, ligand_inchi=None, DemoDataFolder="TamGen_Demo_Data", thr=10):
@@ -575,7 +575,7 @@ def test_reward_direction(tamgen_instance, sample_z: np.ndarray, sample_rewards:
         if improved_smiles and improved_smiles[0]:
             mol = Chem.MolFromSmiles(improved_smiles[0])
             if mol:
-                improved_reward, _ = compute_advanced_reward(mol)
+                improved_reward, _ = compute_three_criterion_reward(mol)
                 original_reward = sample_rewards[worst_idx]
                 
                 if improved_reward > original_reward + 0.1:
