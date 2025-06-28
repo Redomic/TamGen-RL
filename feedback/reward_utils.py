@@ -68,11 +68,17 @@ def compute_sas(mol: Chem.Mol) -> float:
         raise RuntimeError(f"SAS calculation failed: {e}")
 
 
+def sigmoid_scaling(x: float, slope: float, inflection: float) -> float:
+    """Scales a value using a sigmoid function, where lower x gives higher output."""
+    return 1 / (1 + np.exp(slope * (x - inflection)))
+
+
 def compute_three_criterion_reward(mol: Chem.Mol, 
                                  docking_score: Optional[float] = None,
                                  pdb_id: Optional[str] = None,
                                  weights: Optional[Dict[str, float]] = None,
-                                 use_binding_affinity: bool = True) -> Tuple[float, Dict[str, Any]]:
+                                 use_binding_affinity: bool = True,
+                                 affinity_config: Optional[Dict[str, float]] = None) -> Tuple[float, Dict[str, Any]]:
     """
     Compute reward based on three criteria: QED, SAS, and Binding Affinity.
     Binding affinity gets highest weight as primary optimization criterion.
@@ -85,6 +91,8 @@ def compute_three_criterion_reward(mol: Chem.Mol,
         pdb_id: PDB ID for GNINA docking
         weights: Optional weights for the three criteria
         use_binding_affinity: Whether to use binding affinity
+        affinity_config: Configuration for sigmoid scaling of binding affinity.
+                         Example: {'slope': 1.0, 'inflection': -9.0}
         
     Returns:
         Tuple of (reward, metrics_dict)
@@ -106,6 +114,9 @@ def compute_three_criterion_reward(mol: Chem.Mol,
     if weights is not None:
         default_weights.update(weights)
     w = default_weights
+    
+    # Configuration for binding affinity normalization
+    affinity_conf = affinity_config or {'slope': 1.0, 'inflection': -9.0}
     
     # Get SMILES for docking
     smiles = Chem.MolToSmiles(mol)
@@ -142,9 +153,13 @@ def compute_three_criterion_reward(mol: Chem.Mol,
         else:
             raise ValueError("Binding affinity requested but no docking_score or pdb_id provided")
         
-        # Convert binding affinity to 0-1 scale
-        # Scale: -12 kcal/mol -> 1.0, -6 kcal/mol -> 0.5, 0 kcal/mol -> 0.0
-        binding_normalized = max(0.0, min(1.0, (-binding_affinity) / 12.0))
+        # Convert binding affinity to 0-1 scale using a sigmoid function
+        # This provides a non-linear reward, strongly incentivizing values below the inflection point
+        binding_normalized = sigmoid_scaling(
+            binding_affinity, 
+            slope=affinity_conf['slope'], 
+            inflection=affinity_conf['inflection']
+        )
         binding_component = binding_normalized * w['binding_affinity']
         components['binding_affinity'] = binding_component
         reward += binding_component
@@ -168,6 +183,7 @@ def compute_three_criterion_reward(mol: Chem.Mol,
         'sas': sas_score_val,
         'sas_normalized': sas_normalized,
         'binding_affinity': binding_affinity,
+        'binding_affinity_normalized': binding_normalized if binding_affinity is not None else None,
         'qed_component': components.get('qed', 0.0),
         'sas_component': components.get('sas', 0.0),
         'binding_component': components.get('binding_affinity', 0.0),
@@ -204,15 +220,17 @@ def compute_reward(mol: Chem.Mol,
         ValueError: If molecule is invalid
         RuntimeError: If any criterion calculation fails
     """
-    # Extract weights from kwargs if provided
+    # Extract weights and affinity_config from kwargs if provided
     weights = kwargs.get('weights', None)
+    affinity_config = kwargs.get('affinity_config', None)
     
     return compute_three_criterion_reward(
         mol=mol,
         docking_score=docking_score,
         pdb_id=pdb_id,
         weights=weights,
-        use_binding_affinity=use_binding_affinity
+        use_binding_affinity=use_binding_affinity,
+        affinity_config=affinity_config
     )
 
 

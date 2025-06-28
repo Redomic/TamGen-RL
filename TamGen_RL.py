@@ -102,6 +102,7 @@ class TamGenRL(TamGenDemo):
                pdb_id: Optional[str] = None,
                use_binding_affinity: bool = True,
                weights: Optional[Dict[str, float]] = None,
+               affinity_config: Optional[Dict[str, float]] = None,
                **kwargs) -> List[str]:
         """
         Optimized sampling with 3-criteria optimization.
@@ -158,7 +159,7 @@ class TamGenRL(TamGenDemo):
                 # Optimize latent space (now with unique molecules only)
                 z_vectors, rewards, metrics = self._optimize_latent_space_simple(
                     z_vectors, smiles_list, current_alpha, min(top_k, len(smiles_list)),
-                    iteration, pdb_id, use_binding_affinity, weights
+                    iteration, pdb_id, use_binding_affinity, weights, affinity_config
                 )
 
                 self.injection_monitor.monitor_injection_quality(iteration, z_vectors, smiles_list, rewards)
@@ -494,7 +495,8 @@ class TamGenRL(TamGenDemo):
     def _optimize_latent_space_simple(self, z_vectors: np.ndarray, smiles_list: List[str], shift_alpha: float,
                              top_k: int, iteration: int, pdb_id: Optional[str] = None,
                              use_binding_affinity: bool = True, 
-                             weights: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
+                             weights: Optional[Dict[str, float]] = None,
+                             affinity_config: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
         """Simplified latent space optimization - no deduplication needed since it's done upfront."""
         
         logging.info("📊 Optimizing latent space with 3 criteria...")
@@ -514,7 +516,8 @@ class TamGenRL(TamGenDemo):
             epochs=50,
             pdb_id=pdb_id,
             use_binding_affinity=use_binding_affinity,
-            weights=weights
+            weights=weights,
+            affinity_config=affinity_config
         )
         
         return z_shifted, rewards, metrics
@@ -621,6 +624,10 @@ def run_tamgen_rl_optimization(checkpoint_path: str,
         'pdb_id': pdb_id,
         'use_binding_affinity': use_binding_affinity
     })
+    
+    # This function seems to be a stub/incomplete, so I won't modify its call logic
+    # In a real implementation, you would instantiate and run TamGenRL here
+    # e.g. tamgen_rl.sample(**optimization_kwargs)
     
     return {
         "status": "success",

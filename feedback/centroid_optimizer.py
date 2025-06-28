@@ -82,7 +82,8 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
                           epochs: int = 50,
                           pdb_id: Optional[str] = None,
                           use_binding_affinity: bool = True,
-                          weights: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
+                          weights: Optional[Dict[str, float]] = None,
+                          affinity_config: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, List[float], List[Dict[str, Any]]]:
     """
     Simplified centroid shift optimization for 3 criteria: QED, SAS, Binding Affinity.
     
@@ -101,6 +102,7 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
         pdb_id: PDB ID for GNINA docking (e.g., "1HSG" for HIV protease)
         use_binding_affinity: Whether to compute binding affinity using GNINA
         weights: Optional weights for the three criteria
+        affinity_config: Configuration for sigmoid scaling of binding affinity.
         
     Returns:
         Tuple of (shifted_z_vectors, rewards, metrics_list)
@@ -163,7 +165,8 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
                     docking_score=dock_score,
                     pdb_id=pdb_id if use_binding_affinity else None,
                     weights=weights,
-                    use_binding_affinity=use_binding_affinity
+                    use_binding_affinity=use_binding_affinity,
+                    affinity_config=affinity_config
                 )
             except Exception as e:
                 raise RuntimeError(f"Failed to compute reward for molecule {i} (SMILES: {smi}): {e}")
@@ -233,7 +236,8 @@ def centroid_shift_optimize(z_vectors: np.ndarray,
                 docking_score=dock_score,
                 pdb_id=pdb_id if use_binding_affinity else None,
                 weights=weights,
-                use_binding_affinity=use_binding_affinity
+                use_binding_affinity=use_binding_affinity,
+                affinity_config=affinity_config
             )
         except Exception as e:
             raise RuntimeError(f"Failed to compute reward for molecule {i} (SMILES: {smi}): {e}")
