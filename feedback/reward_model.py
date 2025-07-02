@@ -7,9 +7,10 @@ from typing import List, Optional, Tuple
 
 class LatentRewardModel:
     """
-    Simplified LatentRewardModel for 3-criteria molecular optimization (QED, SAS, Binding Affinity).
+    A neural network model that learns to predict a molecule's reward from its latent representation.
     
-    NO FALLBACKS - ALL OPERATIONS MUST SUCCEED OR THE MODEL WILL RAISE AN EXCEPTION.
+    This model is designed for 3-criteria optimization and expects all underlying
+    operations to succeed, raising an exception upon failure.
     """
     
     def __init__(self, latent_dim: int, hidden_dim: int = 256, device: str = "cpu"):
@@ -18,7 +19,6 @@ class LatentRewardModel:
         self.latent_dim = latent_dim
         self.device = torch.device(device if device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu"))
         
-        # Simple neural network architecture
         self.model = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.ReLU(),
@@ -34,7 +34,7 @@ class LatentRewardModel:
         print(f"[INFO] LatentRewardModel initialized on device: {self.device}")
 
     def add(self, z: np.ndarray, reward: float):
-        """Add a latent vector and its corresponding reward."""
+        """Stores a latent vector and its corresponding reward."""
         if z is None:
             raise ValueError("Latent vector cannot be None")
         if not isinstance(reward, (int, float)) or np.isnan(reward) or np.isinf(reward):
@@ -45,51 +45,46 @@ class LatentRewardModel:
 
     def train(self, epochs: int = 50) -> dict:
         """
-        Train the reward model with simplified training loop.
+        Trains the model on the collected latent vectors and their associated rewards.
         
         Args:
-            epochs: Number of training epochs
+            epochs: The number of training epochs.
             
         Returns:
-            dict: Training metrics
+            A dictionary containing training metrics.
             
         Raises:
-            ValueError: If insufficient data for training
-            RuntimeError: If training fails
+            ValueError: If there is insufficient data for training.
+            RuntimeError: If the training process encounters a critical error.
         """
         min_samples_required = 11 
         if len(self.z_list) < min_samples_required:
             raise ValueError(f"Insufficient data for training: {len(self.z_list)} samples, need at least {min_samples_required}")
 
-        # Prepare data
         try:
             z_array = np.stack(self.z_list)
             r_array = np.array(self.r_list, dtype=np.float32)
         except Exception as e:
             raise RuntimeError(f"Failed to prepare training data: {e}")
         
-        # Validate data
         if np.any(np.isnan(z_array)) or np.any(np.isinf(z_array)):
             raise ValueError("Invalid latent vectors contain NaN or Inf values")
         
         if np.any(np.isnan(r_array)) or np.any(np.isinf(r_array)):
             raise ValueError("Invalid rewards contain NaN or Inf values")
         
-        # Normalize rewards for better training
         r_mean, r_std = r_array.mean(), r_array.std()
         if r_std < 1e-6:
             raise ValueError(f"Reward standard deviation too small: {r_std}. Cannot train with constant rewards.")
         
         r_normalized = (r_array - r_mean) / r_std
         
-        # Convert to tensors
         try:
             z_tensor = torch.tensor(z_array, dtype=torch.float32, device=self.device)
             r_tensor = torch.tensor(r_normalized, dtype=torch.float32, device=self.device).unsqueeze(-1)
         except Exception as e:
             raise RuntimeError(f"Failed to convert data to tensors: {e}")
         
-        # Training loop
         self.model.train()
         initial_loss = None
         
@@ -105,21 +100,18 @@ class LatentRewardModel:
                 loss.backward()
                 self.optimizer.step()
                 
-                # Check for training instability
                 if torch.isnan(loss) or torch.isinf(loss):
                     raise RuntimeError(f"Training became unstable at epoch {epoch}: loss={loss.item()}")
                 
             except Exception as e:
                 raise RuntimeError(f"Training failed at epoch {epoch}: {e}")
         
-        # Store normalization parameters
         self.r_mean = r_mean
         self.r_std = r_std
         
         final_loss = loss.item()
         
-        # Validate training success
-        if final_loss > initial_loss * 2:  # Loss should not increase significantly
+        if initial_loss is not None and final_loss > initial_loss * 2:
             raise RuntimeError(f"Training failed: loss increased from {initial_loss:.4f} to {final_loss:.4f}")
         
         print(f"[INFO] Training complete. Final loss: {final_loss:.4f}")
@@ -134,17 +126,17 @@ class LatentRewardModel:
 
     def predict(self, z: np.ndarray) -> np.ndarray:
         """
-        Predict reward for given latent vectors.
+        Predicts rewards for a given array of latent vectors.
         
         Args:
-            z: Latent vectors to predict rewards for
+            z: An array of latent vectors for which to predict rewards.
             
         Returns:
-            Predicted rewards (denormalized)
+            An array of predicted rewards (denormalized).
             
         Raises:
-            ValueError: If input is invalid
-            RuntimeError: If prediction fails
+            ValueError: If the input is invalid.
+            RuntimeError: If the model has not been trained or if prediction fails.
         """
         if z is None:
             raise ValueError("Input latent vectors cannot be None")
@@ -161,11 +153,9 @@ class LatentRewardModel:
                 
                 pred_normalized = self.model(z_tensor).squeeze()
                 
-                # Check for prediction instability
                 if torch.any(torch.isnan(pred_normalized)) or torch.any(torch.isinf(pred_normalized)):
                     raise RuntimeError("Model predictions contain NaN or Inf values")
                 
-                # Denormalize predictions
                 pred = pred_normalized * self.r_std + self.r_mean
                 
                 return pred.cpu().numpy()
@@ -174,48 +164,49 @@ class LatentRewardModel:
 
     def get_top_k_z(self, k: int = 50) -> List[np.ndarray]:
         """
-        Get top-k latent vectors based on predicted rewards.
+        Retrieves the top-k latent vectors based on their predicted rewards.
         
         Args:
-            k: Number of top vectors to return
+            k: The number of top vectors to return.
             
         Returns:
-            List of top-k latent vectors
+            A list of the top-k latent vectors.
             
         Raises:
-            ValueError: If no latents are available
-            RuntimeError: If prediction fails
+            ValueError: If no latent vectors are available.
+            RuntimeError: If reward prediction fails.
         """
         if len(self.z_list) == 0:
             raise ValueError("No latents available for top_k selection")
         
-        # Predict rewards for all stored latents
         z_array = np.stack(self.z_list)
         try:
             preds = self.predict(z_array)
         except Exception as e:
             raise RuntimeError(f"Failed to predict rewards for top_k selection: {e}")
         
-        # Get top-k indices
         available = len(self.z_list)
         k = min(k, available)
-        top_indices = np.argsort(preds)[-k:][::-1]  # Descending order
+        top_indices = np.argsort(preds)[-k:][::-1]
         
         return [self.z_list[i] for i in top_indices]
 
     def get_centroid_shift(self, top_k: int = 50) -> np.ndarray:
         """
-        Get centroid shift direction for latent space optimization.
+        Calculates the centroid shift direction for latent space optimization.
+        
+        This is determined by the difference between the centroid of the top-k
+        best latent vectors and the centroid of all latent vectors.
         
         Args:
-            top_k: Number of top samples to use
+            top_k: The number of top-performing samples to use for the target centroid.
             
         Returns:
-            Shift direction vector
+            A vector representing the direction of the centroid shift.
             
         Raises:
-            ValueError: If no latents are available
-            RuntimeError: If centroid computation fails
+            ValueError: If no latent vectors are available.
+            RuntimeError: If the centroid calculation fails.
         """
         try:
             top_z_list = self.get_top_k_z(top_k)
@@ -226,12 +217,10 @@ class LatentRewardModel:
             raise ValueError("No top latents available for centroid shift")
         
         try:
-            # Simple centroid shift
             top_z = np.stack(top_z_list)
             all_z = np.stack(self.z_list)
             centroid_shift = np.mean(top_z, axis=0) - np.mean(all_z, axis=0)
             
-            # Validate shift direction
             if np.any(np.isnan(centroid_shift)) or np.any(np.isinf(centroid_shift)):
                 raise RuntimeError("Centroid shift contains NaN or Inf values")
             
@@ -240,13 +229,13 @@ class LatentRewardModel:
             raise RuntimeError(f"Failed to compute centroid shift: {e}")
 
     def clear_data(self):
-        """Clear stored data to free memory."""
+        """Clears the stored latent vectors and rewards to free up memory."""
         self.z_list.clear()
         self.r_list.clear()
         print("[INFO] Cleared stored latent vectors and rewards.")
 
     def save_model(self, path: str):
-        """Save the trained model."""
+        """Saves the trained model's state and normalization parameters to a file."""
         if not hasattr(self, 'r_mean') or not hasattr(self, 'r_std'):
             raise RuntimeError("Model must be trained before saving")
         
@@ -262,7 +251,7 @@ class LatentRewardModel:
             raise RuntimeError(f"Failed to save model: {e}")
 
     def load_model(self, path: str):
-        """Load a trained model."""
+        """Loads a trained model's state and normalization parameters from a file."""
         try:
             checkpoint = torch.load(path, map_location=self.device)
             self.model.load_state_dict(checkpoint['model_state_dict'])

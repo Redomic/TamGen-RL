@@ -32,35 +32,40 @@ def docking(
     cnn_scoring: str = "rescore",
     scoring: str = "vina",
 ) -> Optional[float]:
-    """Docking for one PDB-ID and ligand SMILES using GNINA.
+    """
+    Performs molecular docking of a ligand to a target protein using GNINA.
+
+    This function takes a PDB ID and a ligand SMILES string, prepares the necessary
+    input files, runs the GNINA docking tool, and returns the best binding affinity
+    score. It includes logic for caching results and automatically determining
+    the docking box unless one is explicitly provided.
     
     Args:
-        pdb_id: PDB identifier for the target protein.
-        ligand_smiles: SMILES string of the ligand to dock.
-        pdb_path: (Optional) user provided PDB file instead of PDB ID.
-        output_complex_path: (Optional) output receptor-ligand complex path.
-        gnina_bin_path: Path to GNINA binary.
-        split_cache_path: Path to split PDB cache directory.
-        pdb_cache_path: Path to PDB cache directory.
-        ccd_cache_path: Path to CCD cache directory.
-        docking_result_cache: Cache for storing docking results.
-        box_center: Center coordinates (x, y, z) for docking box.
-        box_size: Box dimensions (x, y, z) in Angstroms.
-        exhaustiveness: GNINA exhaustiveness parameter (higher = more thorough).
-        num_modes: Number of binding modes to generate.
-        device: GPU device ID for GNINA.
-        cnn_scoring: CNN scoring mode (none, rescore, refinement, all).
-        scoring: Scoring function (ad4_scoring, dkoes_fast, vina, vinardo).
+        pdb_id: The PDB identifier for the target protein.
+        ligand_smiles: The SMILES string of the ligand to be docked.
+        pdb_path: Optional path to a user-provided PDB file.
+        output_complex_path: Optional path to save the output receptor-ligand complex.
+        gnina_bin_path: Path to the GNINA executable.
+        split_cache_path: Path to the directory for caching split PDB files.
+        pdb_cache_path: Path to the directory for caching PDB files.
+        ccd_cache_path: Path to the directory for caching CCD files.
+        docking_result_cache: A mutable mapping to be used as a cache for docking results.
+        box_center: The explicit center coordinates (x, y, z) for the docking box.
+        box_size: The dimensions (x, y, z) of the docking box in Angstroms.
+        exhaustiveness: The exhaustiveness level for the GNINA search.
+        num_modes: The number of binding modes to generate.
+        device: The ID of the GPU device to use for GNINA.
+        cnn_scoring: The CNN scoring mode to use (e.g., 'rescore', 'refinement').
+        scoring: The scoring function to use (e.g., 'vina', 'vinardo').
         
     Returns:
-        Best binding energy in kcal/mol, or None if docking failed.
+        The best binding energy in kcal/mol, or None if docking fails.
     """
     pdb_id = pdb_id.lower()
     if pdb_path is not None:
         docking_result_cache = None
         raise NotImplementedError('pdb_path is not implemented now.')
 
-    # Check cache first
     if docking_result_cache is not None:
         affinity = docking_result_cache.get((pdb_id, ligand_smiles), _DOCKING_CACHE_SENTINEL)
         if affinity is _DOCKING_CACHE_SENTINEL:
@@ -69,7 +74,6 @@ def docking(
             logging.info('📦 Retrieved GNINA docking result from cache')
             return affinity
 
-    # Initialize GNINA
     try:
         gnina = GNINA(
             binary_path=gnina_bin_path,
@@ -86,7 +90,6 @@ def docking(
     if not gnina.check_binary():
         raise RuntimeError('Cannot find GNINA executable.')
 
-    # Set default cache paths
     if split_cache_path is None:
         split_cache_path = config.split_pdb_cache_path()
     if pdb_cache_path is None:
@@ -94,7 +97,6 @@ def docking(
     if ccd_cache_path is None:
         ccd_cache_path = config.pdb_ccd_path()
 
-    # Split PDB complex to get receptor and ligands
     try:
         split_result = split_pdb_complex_paths(
             pdb_id, split_cache_path=split_cache_path,
@@ -109,14 +111,12 @@ def docking(
         logging.warning(f"⚠️ Cannot find target file of {pdb_id}, skipping.")
         return None
 
-    # Convert SMILES to PDB
     try:
         ligand_pdb_str = smi2pdb(ligand_smiles, compute_coord=True, optimize='UFF')
     except ValueError as e:
         logging.warning(f"⚠️ Ligand conversion failed: {e}")
         return None
 
-    # Save ligand PDB to temporary file
     ligand_dir = Path("debug_docking_failures")
     ligand_dir.mkdir(parents=True, exist_ok=True)
     ligand_path = ligand_dir / f"{pdb_id}_{uuid.uuid4().hex[:8]}.pdb"
@@ -125,7 +125,6 @@ def docking(
 
     candidate_affinities = []
 
-    # Run docking with specified box center
     if box_center is not None:
         if box_size is None:
             box_size = (20., 20., 20.)
@@ -145,7 +144,6 @@ def docking(
         except GNINAError as e:
             logging.warning(f"❌ GNINA failed for box center {box_center}: {e}")
     else:
-        # Run docking with autobox ligands
         autobox_filenames = split_result.ligand_filenames.copy()
         if not autobox_filenames:
             logging.warning("⚠️ No autobox ligands found. Using receptor for autobox.")
@@ -167,7 +165,6 @@ def docking(
                 logging.warning(f"❌ GNINA failed for autobox {autobox_filename}: {e}")
                 continue
 
-    # Select best affinity (most negative for binding energy)
     if not candidate_affinities:
         logging.warning(f"⚠️ No successful GNINA docking scores for {pdb_id}")
         return None
@@ -175,7 +172,6 @@ def docking(
     affinity = min(candidate_affinities)
     logging.info(f'🏆 Best GNINA affinity for {pdb_id}: {affinity} kcal/mol')
 
-    # Cache result
     if docking_result_cache is not None:
         docking_result_cache[(pdb_id, ligand_smiles, box_center)] = affinity
 

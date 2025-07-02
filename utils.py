@@ -14,6 +14,7 @@ from feedback.reward_utils import compute_three_criterion_reward
 
 
 def prepare_pdb_data(pdb_id, ligand_inchi=None, DemoDataFolder="TamGen_Demo_Data", thr=10):
+    """Prepares the necessary PDB data and directory structure for a given PDB ID."""
     out_split = pdb_id.lower()
     FF = glob(f"{DemoDataFolder}/*")
     for ff in FF:
@@ -35,7 +36,8 @@ def prepare_pdb_data(pdb_id, ligand_inchi=None, DemoDataFolder="TamGen_Demo_Data
     os.system(r"rm tmp_pdb.csv")
 
 
-def prepare_pdb_data_center(pdb_id, scaffold_file=None, DemoDataFolder="TamGen_Demo_Data", thr=10):
+def prepare_pdb_data_center(pdb_id, ligand_inchi=None, scaffold_file=None, DemoDataFolder="TamGen_Demo_Data", thr=10):
+    """Prepares PDB data, seemingly for a specific centering or scaffolding task."""
     out_split = pdb_id.lower()
     FF = glob(f"{DemoDataFolder}/*")
     for ff in FF:
@@ -51,7 +53,17 @@ def prepare_pdb_data_center(pdb_id, scaffold_file=None, DemoDataFolder="TamGen_D
     os.system(r"rm tmp_pdb.csv")
 
 
-def filter_generated_cmpd(smi):
+def filter_generated_compound(smi: str) -> Optional[Tuple[str, Chem.Mol]]:
+    """
+    Filters a generated SMILES string based on a set of simple chemical rules.
+    
+    Args:
+        smi: The input SMILES string.
+        
+    Returns:
+        A tuple containing the canonical SMILES and RDKit molecule object if it passes
+        the filters, otherwise None.
+    """
     m = Chem.MolFromSmiles(smi)
     if m is None:
         return None
@@ -72,21 +84,17 @@ class InjectionMonitor:
         self.tamgen = tamgen_instance
     
     def monitor_injection_quality(self, iteration, z_vectors, generated_smiles, rewards=None):
-        """Enhanced monitoring of injection quality during training."""
-        
-        if iteration % 3 == 0:  # Every 3rd iteration
+        """Monitors the quality of latent space injection at regular intervals during training."""
+        if iteration % 3 == 0:
             logging.info(f"🔍 Injection quality check - Iteration {iteration}")
             
-            # Run debug tests if injection seems broken
-            if iteration == 0:  # Run comprehensive debug on first iteration
+            if iteration == 0:
                 self.run_comprehensive_debug()
             
-            # Test 1: Basic perturbation test
             sample_size = min(5, len(z_vectors))
             sample_z = z_vectors[:sample_size]
             sample_smiles = generated_smiles[:sample_size]
             
-            # Small perturbation test
             perturbed_z = sample_z + np.random.normal(0, 0.05, sample_z.shape)
             perturbed_smiles = generate_from_latents(
                 self.tamgen, perturbed_z, batch_size=2, use_cuda=True
@@ -94,7 +102,6 @@ class InjectionMonitor:
             
             basic_similarities = compute_tanimoto_similarities(sample_smiles, perturbed_smiles)
             
-            # Test 2: Large perturbation test (should be more different)
             large_perturbed_z = sample_z + np.random.normal(0, 0.2, sample_z.shape)
             large_perturbed_smiles = generate_from_latents(
                 self.tamgen, large_perturbed_z, batch_size=2, use_cuda=True
@@ -102,16 +109,13 @@ class InjectionMonitor:
             
             large_similarities = compute_tanimoto_similarities(sample_smiles, large_perturbed_smiles)
             
-            # Test 3: Zero perturbation (should be identical or very similar)
             identical_smiles = generate_from_latents(
                 self.tamgen, sample_z, batch_size=2, use_cuda=True
             )
             identity_similarities = compute_tanimoto_similarities(sample_smiles, identical_smiles)
             
-            # Test 4: Protein context preservation
             protein_preservation_score = test_protein_context_preservation(self.tamgen, sample_z)
             
-            # Analyze results
             results = {
                 'small_pert_similarity': np.mean(basic_similarities) if basic_similarities else 0,
                 'large_pert_similarity': np.mean(large_similarities) if large_similarities else 0,
@@ -120,26 +124,22 @@ class InjectionMonitor:
                 'valid_molecules_ratio': len([s for s in perturbed_smiles if s]) / max(len(perturbed_smiles), 1)
             }
             
-            # Log detailed results
             logging.info(f"   Small perturbation similarity: {results['small_pert_similarity']:.3f}")
             logging.info(f"   Large perturbation similarity: {results['large_pert_similarity']:.3f}")
             logging.info(f"   Identity similarity: {results['identity_similarity']:.3f}")
             logging.info(f"   Protein preservation score: {results['protein_preservation']:.3f}")
             logging.info(f"   Valid molecules ratio: {results['valid_molecules_ratio']:.3f}")
             
-            # Comprehensive health check
             health_status = assess_injection_health(results)
             
             if health_status != "healthy":
                 logging.warning(f"⚠️ Injection health issue detected: {health_status}")
                 
-                # Run specific debug if issues detected
                 if "poor_reproducibility" in health_status:
                     self.debug_injection_identity()
                 if "perturbation_scaling_broken" in health_status:
                     self.debug_perturbation_scaling(sample_z)
                 
-            # Test 5: Reward direction validation (if rewards available)
             if rewards is not None and len(rewards) >= 3:
                 direction_test = test_reward_direction(
                     self.tamgen, sample_z, rewards[:sample_size]
@@ -149,14 +149,13 @@ class InjectionMonitor:
             return results
     
     def run_comprehensive_debug(self):
-        """Run all debug tests on first iteration."""
+        """Runs a full suite of debugging tests on the injection mechanism."""
         logging.info("🔧 Running comprehensive injection debug...")
         
         try:
             self.debug_architecture_assumptions()
             self.debug_injection_identity()
             
-            # Create a dummy sample for encoder tests
             if self.tamgen.stored_protein_inputs:
                 sample = self._create_dummy_sample()
                 self.debug_encoder_override(sample)
@@ -167,7 +166,7 @@ class InjectionMonitor:
             logging.error(f"Debug failed: {e}")
     
     def debug_injection_identity(self):
-        """Debug if latent injection is actually working."""
+        """Tests whether latent injection is deterministic by generating from the same latent vector multiple times."""
         logging.info("🔍 Testing injection identity...")
         
         try:
@@ -175,19 +174,16 @@ class InjectionMonitor:
                 logging.warning("No stored protein inputs for identity test")
                 return False
             
-            # Get some reference latents
             z_vectors, smiles_list = self.tamgen._initial_generation(
-                m_sample=3, maxseed=3, use_cuda=True, diversity_target=0.5
+                m_sample=3, maxseed=3, use_cuda=True
             )
             
             if len(z_vectors) < 2:
                 logging.warning("Not enough samples for identity test")
                 return False
             
-            # Use same latent 5 times
-            same_z = z_vectors[0:1]  # Take first latent
+            same_z = z_vectors[0:1]
             
-            # Generate 5 times with identical latents
             identical_results = []
             for i in range(5):
                 result = generate_from_latents(self.tamgen, same_z, batch_size=1, use_cuda=True)
@@ -197,7 +193,6 @@ class InjectionMonitor:
                 else:
                     logging.warning(f"   Generation {i+1}: FAILED")
             
-            # Check if all are identical
             unique_molecules = set(identical_results)
             if len(unique_molecules) == 1:
                 logging.info("   ✅ PERFECT: All generations identical - injection working!")
@@ -212,17 +207,15 @@ class InjectionMonitor:
             return False
     
     def debug_encoder_override(self, sample):
-        """Debug if encoder_outs_override is being used."""
+        """Verifies that the `encoder_outs_override` mechanism correctly bypasses the standard encoder output."""
         logging.info("🔍 Testing encoder override mechanism...")
         
         try:
-            # Generate normally
             normal_hypos = self.tamgen.task.inference_step(self.tamgen.generator, self.tamgen.models, sample, None)
             normal_smiles = self.tamgen.tgt_dict.string(
                 normal_hypos[0][0]['tokens'], self.tamgen.args.remove_bpe
             ).strip().replace(" ", "") if normal_hypos[0] else "FAILED"
             
-            # Create dummy override (all zeros)
             normal_encoder_out = self.tamgen.models[0].encoder.forward(
                 sample['net_input']['src_tokens'],
                 sample['net_input']['src_lengths'],
@@ -234,11 +227,9 @@ class InjectionMonitor:
                 'encoder_padding_mask': normal_encoder_out.get('encoder_padding_mask', None),
             }
             
-            # Override with dummy
             override_sample = sample.copy()
             override_sample["encoder_outs_override"] = [dummy_encoder_out]
             
-            # Generate with override
             override_hypos = self.tamgen.task.inference_step(self.tamgen.generator, self.tamgen.models, override_sample, None)
             override_smiles = self.tamgen.tgt_dict.string(
                 override_hypos[0][0]['tokens'], self.tamgen.args.remove_bpe
@@ -259,7 +250,7 @@ class InjectionMonitor:
             return False
     
     def debug_architecture_assumptions(self):
-        """Debug TamGen architecture assumptions."""
+        """Checks key architectural assumptions about the TamGen model, such as VAE presence and encoder dimensions."""
         logging.info("🔍 Checking architecture assumptions...")
         
         try:
@@ -270,7 +261,6 @@ class InjectionMonitor:
             sample = self._create_dummy_sample()
             model = self.tamgen.models[0]
             
-            # Get encoder output structure
             encoder_out = model.encoder.forward(
                 sample['net_input']['src_tokens'],
                 sample['net_input']['src_lengths'],
@@ -283,7 +273,6 @@ class InjectionMonitor:
             logging.info(f"   Detected latent dim: {self.tamgen.latent_dim}")
             logging.info(f"   Expected encoder dim: {getattr(self.tamgen.args, 'encoder_embed_dim', 'NOT_SET')}")
             
-            # Check if VAE is active
             if hasattr(model.encoder, 'vae_encoder'):
                 logging.info("   ✅ VAE encoder found")
                 if hasattr(model.encoder, 'latent_mean'):
@@ -293,11 +282,9 @@ class InjectionMonitor:
             else:
                 logging.warning("   ❌ No VAE encoder found")
             
-            # Check gen_vae setting
             gen_vae = getattr(self.tamgen.args, 'gen_vae', False)
             logging.info(f"   gen_vae setting: {gen_vae}")
             
-            # Check if model is in conditional mode
             if hasattr(model.encoder, 'gen_vae'):
                 logging.info(f"   Model gen_vae: {model.encoder.gen_vae}")
             
@@ -305,17 +292,15 @@ class InjectionMonitor:
             logging.error(f"Architecture check failed: {e}")
     
     def debug_perturbation_scaling(self, sample_z):
-        """Debug why perturbation scaling is broken."""
+        """Investigates whether molecular similarity scales inversely with latent space perturbation magnitude."""
         logging.info("🔍 Debugging perturbation scaling...")
         
         try:
-            base_z = sample_z[0:1]  # Take first sample
+            base_z = sample_z[0:1]
             
-            # Test different perturbation magnitudes
             scales = [0.0, 0.01, 0.05, 0.1, 0.2, 0.5]
             results = []
             
-            # Generate base molecule
             base_smiles = generate_from_latents(self.tamgen, base_z, batch_size=1, use_cuda=True)
             if not base_smiles or not base_smiles[0]:
                 logging.error("   Failed to generate base molecule")
@@ -331,13 +316,11 @@ class InjectionMonitor:
             logging.info(f"   Base molecule: {base_smiles[0]}")
             
             for scale in scales:
-                # Apply perturbation
                 if scale == 0.0:
                     perturbed_z = base_z.copy()
                 else:
                     perturbed_z = base_z + np.random.normal(0, scale, base_z.shape)
                 
-                # Generate perturbed molecule
                 perturbed_smiles = generate_from_latents(self.tamgen, perturbed_z, batch_size=1, use_cuda=True)
                 
                 if perturbed_smiles and perturbed_smiles[0]:
@@ -352,10 +335,9 @@ class InjectionMonitor:
                 else:
                     logging.warning(f"   Scale {scale:4.2f}: Generation failed")
             
-            # Check if similarity decreases with scale
             similarities = [r[1] for r in results]
             if len(similarities) >= 3:
-                if similarities[-1] < similarities[1]:  # Last should be less similar than small perturbation
+                if similarities[-1] < similarities[1]:
                     logging.info("   ✅ Perturbation scaling working correctly")
                 else:
                     logging.error("   ❌ Perturbation scaling broken - larger perturbations not less similar")
@@ -364,7 +346,7 @@ class InjectionMonitor:
             logging.error(f"Perturbation scaling debug failed: {e}")
     
     def _create_dummy_sample(self):
-        """Create a dummy sample for testing."""
+        """Creates a dummy sample dictionary for testing purposes."""
         if self.tamgen.stored_protein_inputs:
             protein_input = self.tamgen.stored_protein_inputs[0]
             return {
@@ -375,14 +357,13 @@ class InjectionMonitor:
             raise RuntimeError("No stored protein inputs available for dummy sample")
     
     def debug_latent_injection_step_by_step(self, test_z):
-        """Step-by-step debug of the injection process."""
+        """Performs a step-by-step diagnosis of the latent injection process to pinpoint failures."""
         logging.info("🔍 Step-by-step latent injection debug...")
         
         try:
             protein_input = self.tamgen.stored_protein_inputs[0]
             model = self.tamgen.models[0]
             
-            # Step 1: Prepare inputs
             batch_size = len(test_z)
             z_tensor = torch.tensor(test_z, dtype=torch.float32, device=self.tamgen.device)
             
@@ -397,7 +378,6 @@ class InjectionMonitor:
             logging.info(f"   - z_tensor shape: {z_tensor.shape}")
             logging.info(f"   - src_tokens shape: {src_tokens.shape}")
             
-            # Step 2: Get normal encoder output
             model.eval()
             encoder_out = model.encoder.forward(src_tokens, src_lengths, src_coord=src_coord)
             
@@ -405,7 +385,6 @@ class InjectionMonitor:
             logging.info(f"   - Encoder out shape: {encoder_out['encoder_out'].shape}")
             logging.info(f"   - Keys: {list(encoder_out.keys())}")
             
-            # Step 3: Try injection
             original_encoder_out = encoder_out['encoder_out'].clone()
             
             if hasattr(self.tamgen.args, 'concat') and self.tamgen.args.concat:
@@ -423,7 +402,6 @@ class InjectionMonitor:
                 logging.info(f"   - z_expanded shape: {z_expanded.shape}")
                 logging.info(f"   - Final shape: {encoder_out['encoder_out'].shape}")
             
-            # Check if modification actually happened
             modification_magnitude = torch.norm(encoder_out['encoder_out'] - original_encoder_out).item()
             logging.info(f"   - Modification magnitude: {modification_magnitude:.6f}")
             
@@ -442,10 +420,12 @@ def generate_from_latents(tamgen_instance,
                          z_vectors: np.ndarray,
                          batch_size: int = 4,
                          use_cuda: bool = True) -> List[str]:
-    """Generate SMILES from latent vectors using stored protein input."""
-    
-    if len(tamgen_instance.stored_protein_inputs) == 0:
-        raise RuntimeError("No stored protein inputs available")
+    """
+    A helper function to generate SMILES from latent vectors using a TamGen instance.
+    This is often used for debugging and analysis.
+    """
+    if not tamgen_instance.stored_protein_inputs:
+        raise RuntimeError("No stored protein inputs available for generation.")
     
     logging.debug(f"🔄 Generating from {len(z_vectors)} latent vectors...")
     
@@ -453,7 +433,6 @@ def generate_from_latents(tamgen_instance,
     total_samples = len(z_vectors)
     all_results = []
     
-    # Process in batches to avoid OOM
     for start_idx in range(0, total_samples, batch_size):
         end_idx = min(start_idx + batch_size, total_samples)
         batch_z = z_vectors[start_idx:end_idx]
@@ -467,7 +446,6 @@ def generate_from_latents(tamgen_instance,
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
                 logging.warning(f"OOM in batch {start_idx//batch_size + 1}, reducing batch size")
-                # Try smaller batches
                 smaller_batch_size = max(1, batch_size // 2)
                 for sub_start in range(start_idx, end_idx, smaller_batch_size):
                     sub_end = min(sub_start + smaller_batch_size, end_idx)
@@ -483,11 +461,9 @@ def generate_from_latents(tamgen_instance,
             else:
                 raise e
         
-        # Memory cleanup between batches
         if use_cuda and torch.cuda.is_available():
             torch.cuda.empty_cache()
     
-    # Filter out empty results
     valid_results = [s for s in all_results if s and Chem.MolFromSmiles(s) is not None]
     
     logging.debug(f"   ✓ Generated {len(valid_results)}/{len(z_vectors)} valid SMILES")
@@ -496,7 +472,7 @@ def generate_from_latents(tamgen_instance,
 
 
 def compute_tanimoto_similarities(smiles1: List[str], smiles2: List[str]) -> List[float]:
-    """Compute Tanimoto similarities between two SMILES lists."""
+    """Computes Tanimoto similarities between two lists of SMILES strings."""
     similarities = []
     for i in range(min(len(smiles1), len(smiles2))):
         if smiles1[i] and smiles2[i]:
@@ -511,35 +487,28 @@ def compute_tanimoto_similarities(smiles1: List[str], smiles2: List[str]) -> Lis
 
 
 def assess_injection_health(results: Dict[str, float]) -> str:
-    """Assess overall injection health based on test results."""
-    
-    # Expected ranges for healthy injection
-    small_pert_range = (0.4, 0.8)    # Should be moderately similar
-    large_pert_range = (0.1, 0.6)    # Should be less similar
-    identity_range = (0.8, 1.0)      # Should be very similar
+    """Assesses the overall health of the injection mechanism based on a dictionary of test results."""
+    small_pert_range = (0.4, 0.8)
+    large_pert_range = (0.1, 0.6)
+    identity_range = (0.8, 1.0)
     
     issues = []
     
-    # Check identity similarity
     if results['identity_similarity'] < identity_range[0]:
         issues.append("poor_reproducibility")
     
-    # Check perturbation response
     if not (small_pert_range[0] <= results['small_pert_similarity'] <= small_pert_range[1]):
         if results['small_pert_similarity'] < small_pert_range[0]:
             issues.append("excessive_sensitivity")
         else:
             issues.append("insufficient_sensitivity")
     
-    # Check that large perturbations are more different than small ones
     if results['large_pert_similarity'] >= results['small_pert_similarity']:
         issues.append("perturbation_scaling_broken")
     
-    # Check molecule validity
     if results['valid_molecules_ratio'] < 0.7:
         issues.append("low_validity")
     
-    # Check protein preservation
     if results['protein_preservation'] < 0.3:
         issues.append("protein_context_lost")
     
@@ -550,25 +519,22 @@ def assess_injection_health(results: Dict[str, float]) -> str:
 
 
 def test_reward_direction(tamgen_instance, sample_z: np.ndarray, sample_rewards: List[float]) -> str:
-    """Test if latent perturbations in reward direction improve rewards."""
+    """Tests if perturbing a latent vector in the direction of higher reward actually improves the reward."""
     try:
         if len(sample_rewards) < 2:
             return "insufficient_data"
         
-        # Find best and worst samples
         best_idx = np.argmax(sample_rewards)
         worst_idx = np.argmin(sample_rewards)
         
-        # Compute direction from worst to best
         direction = sample_z[best_idx] - sample_z[worst_idx]
         direction_norm = np.linalg.norm(direction)
         
         if direction_norm < 1e-6:
             return "no_gradient"
         
-        direction = direction / direction_norm  # Normalize
+        direction = direction / direction_norm
         
-        # Move worst sample towards best
         improved_z = sample_z[worst_idx:worst_idx+1] + 0.1 * direction.reshape(1, -1)
         improved_smiles = generate_from_latents(tamgen_instance, improved_z, batch_size=1, use_cuda=True)
         
@@ -593,17 +559,14 @@ def test_reward_direction(tamgen_instance, sample_z: np.ndarray, sample_rewards:
 
 
 def test_protein_context_preservation(tamgen_instance, sample_z: np.ndarray) -> float:
-    """Test if protein context is preserved during injection."""
+    """Tests if the protein context is consistently applied during generation."""
     try:
         if not tamgen_instance.stored_protein_inputs:
             return 0.0
         
-        # Generate with same latents twice to test reproducibility
         batch1 = generate_from_latents(tamgen_instance, sample_z[:2], batch_size=1, use_cuda=True)
         batch2 = generate_from_latents(tamgen_instance, sample_z[:2], batch_size=1, use_cuda=True)
         
-        # If completely deterministic, should be identical
-        # If stochastic but controlled, should be similar
         if len(batch1) >= 1 and len(batch2) >= 1 and batch1[0] and batch2[0]:
             mol1 = Chem.MolFromSmiles(batch1[0])
             mol2 = Chem.MolFromSmiles(batch2[0])
@@ -612,16 +575,15 @@ def test_protein_context_preservation(tamgen_instance, sample_z: np.ndarray) -> 
                 fp2 = FingerprintMols.FingerprintMol(mol2)
                 return DataStructs.TanimotoSimilarity(fp1, fp2)
         
-        return 0.5  # Default if can't compute
+        return 0.5
         
     except Exception as e:
         logging.warning(f"Protein context test failed: {e}")
         return 0.0
 
 
-# Convenience function for quick monitoring
 def quick_monitor(tamgen_instance, iteration: int, z_vectors: np.ndarray, 
-                  generated_smiles: List[str], rewards: Optional[List[float]] = None) -> Dict[str, Any]:
-    """Quick monitoring function - convenience wrapper."""
+                  generated_smiles: List[str], rewards: Optional[List[float]] = None) -> Optional[Dict[str, Any]]:
+    """A convenience wrapper for quickly running an injection quality check."""
     monitor = InjectionMonitor(tamgen_instance)
     return monitor.monitor_injection_quality(iteration, z_vectors, generated_smiles, rewards)

@@ -11,11 +11,15 @@ from rdkit import Chem
 
 
 def compute_binding_affinity(pdb_id: str, smiles: str, max_retries: int = 3) -> float:
-    """Compute binding affinity using GNINA docking. Raises exception on failure."""
+    """
+    Computes binding affinity for a given SMILES string and PDB ID using GNINA docking.
+    
+    This function will attempt to dock the molecule multiple times and raises an
+    exception if all attempts fail.
+    """
     if not smiles or not pdb_id:
         raise ValueError(f"Invalid input: pdb_id='{pdb_id}', smiles='{smiles}'")
     
-    # Validate SMILES first
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         raise ValueError(f"Invalid SMILES: {smiles}")
@@ -24,9 +28,7 @@ def compute_binding_affinity(pdb_id: str, smiles: str, max_retries: int = 3) -> 
         try:
             affinity = docking(pdb_id=pdb_id, ligand_smiles=smiles)
             
-            # Validate the result
             if affinity is not None and isinstance(affinity, (int, float)):
-                # Reasonable range check for binding affinity (-20 to +5 kcal/mol)
                 if -20.0 <= affinity <= 5.0:
                     return float(affinity)
             
@@ -38,15 +40,17 @@ def compute_binding_affinity(pdb_id: str, smiles: str, max_retries: int = 3) -> 
                 continue
             else:
                 raise RuntimeError(f"All {max_retries} docking attempts failed for {smiles}: {e}")
+    
+    raise RuntimeError(f"Docking failed to produce a result after {max_retries} attempts.")
 
 
 def compute_qed(mol: Chem.Mol) -> float:
-    """Compute QED (Quantitative Estimate of Drug-likeness) score. Raises exception on failure."""
+    """Calculates the Quantitative Estimate of Drug-likeness (QED) for a molecule."""
     if mol is None:
         raise ValueError("Invalid molecule: None")
     
     try:
-        qed_result = qed_score(mol)  # Use existing function from mol_scores.py
+        qed_result = qed_score(mol)
         if qed_result is None or not isinstance(qed_result, (int, float)):
             raise RuntimeError(f"Invalid QED result: {qed_result}")
         return float(qed_result)
@@ -55,12 +59,12 @@ def compute_qed(mol: Chem.Mol) -> float:
 
 
 def compute_sas(mol: Chem.Mol) -> float:
-    """Compute SAS (Synthetic Accessibility Score). Raises exception on failure."""
+    """Calculates the Synthetic Accessibility Score (SAS) for a molecule."""
     if mol is None:
         raise ValueError("Invalid molecule: None")
     
     try:
-        sas_result = calculate_sa_score(mol)  # Use existing function from mol_scores.py
+        sas_result = calculate_sa_score(mol)
         if sas_result is None or not isinstance(sas_result, (int, float)):
             raise RuntimeError(f"Invalid SAS result: {sas_result}")
         return float(sas_result)
@@ -69,7 +73,7 @@ def compute_sas(mol: Chem.Mol) -> float:
 
 
 def sigmoid_scaling(x: float, slope: float, inflection: float) -> float:
-    """Scales a value using a sigmoid function, where lower x gives higher output."""
+    """Applies a sigmoid scaling function, mapping lower input values to higher output values."""
     return 1 / (1 + np.exp(slope * (x - inflection)))
 
 
@@ -80,81 +84,68 @@ def compute_three_criterion_reward(mol: Chem.Mol,
                                  use_binding_affinity: bool = True,
                                  affinity_config: Optional[Dict[str, float]] = None) -> Tuple[float, Dict[str, Any]]:
     """
-    Compute reward based on three criteria: QED, SAS, and Binding Affinity.
-    Binding affinity gets highest weight as primary optimization criterion.
+    Calculates a composite reward based on QED, SAS, and Binding Affinity.
     
-    ALL THREE CRITERIA MUST SUCCEED OR THE FUNCTION WILL RAISE AN EXCEPTION.
+    This function requires all three metrics to be successfully computed and gives
+    binding affinity the highest weight by default. It will raise an exception if any
+    of the underlying calculations fail.
     
     Args:
-        mol: RDKit molecule object
-        docking_score: Optional pre-computed docking score
-        pdb_id: PDB ID for GNINA docking
-        weights: Optional weights for the three criteria
-        use_binding_affinity: Whether to use binding affinity
-        affinity_config: Configuration for sigmoid scaling of binding affinity.
-                         Example: {'slope': 1.0, 'inflection': -9.0}
+        mol: The RDKit molecule object.
+        docking_score: An optional pre-computed docking score.
+        pdb_id: The PDB ID of the target for GNINA docking.
+        weights: Optional weights for the three criteria.
+        use_binding_affinity: If True, enables binding affinity as an optimization criterion.
+        affinity_config: Configuration for the sigmoid scaling of binding affinity,
+                         e.g., {'slope': 1.0, 'inflection': -9.0}.
         
     Returns:
-        Tuple of (reward, metrics_dict)
-        
-    Raises:
-        ValueError: If molecule is invalid
-        RuntimeError: If any criterion calculation fails
+        A tuple containing the final reward and a dictionary of detailed metrics.
     """
     if mol is None:
         raise ValueError("Invalid molecule: None")
     
-    # Default weights - binding affinity is primary criterion
     default_weights = {
         'qed': 1.0,
         'sas': 1.0,
-        'binding_affinity': 3.0  # Higher weight for binding affinity
+        'binding_affinity': 3.0
     }
     
     if weights is not None:
         default_weights.update(weights)
     w = default_weights
     
-    # Configuration for binding affinity normalization
     affinity_conf = affinity_config or {'slope': 1.0, 'inflection': -9.0}
     
-    # Get SMILES for docking
     smiles = Chem.MolToSmiles(mol)
     
-    # Initialize components
     components = {}
     total_weight = 0
     reward = 0.0
     
-    # 1. Compute QED (0-1, higher is better) - REQUIRED
     qed_score_val = compute_qed(mol)
     qed_component = qed_score_val * w['qed']
     components['qed'] = qed_component
     reward += qed_component
     total_weight += w['qed']
     
-    # 2. Compute SAS (1-10, lower is better, so invert to 0-1 scale) - REQUIRED
     sas_score_val = compute_sas(mol)
-    sas_normalized = max(0, (10 - sas_score_val) / 9)  # Invert: 1->1, 10->0
+    sas_normalized = max(0, (10 - sas_score_val) / 9)
     sas_component = sas_normalized * w['sas']
     components['sas'] = sas_component
     reward += sas_component
     total_weight += w['sas']
     
-    # 3. Compute binding affinity (more negative is better) - REQUIRED if use_binding_affinity
     binding_affinity = None
+    binding_normalized = None
     if use_binding_affinity:
         if docking_score is not None:
-            # Use pre-computed docking score
             binding_affinity = docking_score
         elif pdb_id is not None:
-            # Compute binding affinity using GNINA
             binding_affinity = compute_binding_affinity(pdb_id, smiles)
         else:
             raise ValueError("Binding affinity requested but no docking_score or pdb_id provided")
         
-        # Convert binding affinity to 0-1 scale using a sigmoid function
-        # This provides a non-linear reward, strongly incentivizing values below the inflection point
         binding_normalized = sigmoid_scaling(
             binding_affinity, 
             slope=affinity_conf['slope'], 
@@ -165,25 +156,22 @@ def compute_three_criterion_reward(mol: Chem.Mol,
         reward += binding_component
         total_weight += w['binding_affinity']
     
-    # Normalize reward by total weight
     if total_weight > 0:
         reward = reward / total_weight
     else:
-        raise RuntimeError("No valid criteria computed")
+        raise RuntimeError("No valid criteria were computed, so total weight is zero.")
     
-    # Determine which criteria were successfully computed
     criteria_used = ['qed', 'sas']
     if binding_affinity is not None:
         criteria_used.append('binding_affinity')
     
-    # Compile metrics
     metrics = {
         'smiles': smiles,
         'qed': qed_score_val,
         'sas': sas_score_val,
         'sas_normalized': sas_normalized,
         'binding_affinity': binding_affinity,
-        'binding_affinity_normalized': binding_normalized if binding_affinity is not None else None,
+        'binding_affinity_normalized': binding_normalized,
         'qed_component': components.get('qed', 0.0),
         'sas_component': components.get('sas', 0.0),
         'binding_component': components.get('binding_affinity', 0.0),
@@ -201,26 +189,21 @@ def compute_reward(mol: Chem.Mol,
                   use_binding_affinity: bool = True,
                   **kwargs) -> Tuple[float, Dict[str, Any]]:
     """
-    Simplified reward function with only 3 criteria: QED, SAS, Binding Affinity.
-    Binding affinity is the primary optimization criterion.
+    A wrapper for `compute_three_criterion_reward` to calculate a composite score.
     
-    ALL THREE CRITERIA MUST SUCCEED OR THE FUNCTION WILL RAISE AN EXCEPTION.
+    This function requires QED, SAS, and optionally binding affinity to be successfully
+    computed, otherwise it will raise an exception.
     
     Args:
-        mol: RDKit molecule object
-        docking_score: Optional pre-computed docking score
-        pdb_id: PDB ID for GNINA docking
-        use_binding_affinity: Whether to use binding affinity
-        **kwargs: Additional arguments (for backward compatibility)
+        mol: The RDKit molecule object.
+        docking_score: An optional pre-computed docking score.
+        pdb_id: The PDB ID for GNINA docking.
+        use_binding_affinity: If True, enables binding affinity as an optimization criterion.
+        **kwargs: Additional arguments for backward compatibility (e.g., weights).
         
     Returns:
-        Tuple of (reward, metrics_dict)
-        
-    Raises:
-        ValueError: If molecule is invalid
-        RuntimeError: If any criterion calculation fails
+        A tuple containing the final reward and a dictionary of detailed metrics.
     """
-    # Extract weights and affinity_config from kwargs if provided
     weights = kwargs.get('weights', None)
     affinity_config = kwargs.get('affinity_config', None)
     
@@ -240,28 +223,24 @@ def batch_compute_rewards(mols: List[Chem.Mol],
                          use_binding_affinity: bool = True,
                          **kwargs) -> Tuple[List[float], List[Dict[str, Any]]]:
     """
-    Compute rewards for a batch of molecules using 3 criteria.
+    Computes rewards for a batch of molecules.
     
-    ALL THREE CRITERIA MUST SUCCEED FOR EACH MOLECULE OR THE FUNCTION WILL RAISE AN EXCEPTION.
+    This function requires successful calculation of all specified criteria for
+    every molecule in the batch, otherwise it will raise an exception.
     
     Args:
-        mols: List of RDKit molecule objects
-        pdb_id: PDB ID for GNINA docking
-        docking_scores: Optional list of pre-computed docking scores
-        use_binding_affinity: Whether to compute binding affinity
-        **kwargs: Additional arguments for reward computation
+        mols: A list of RDKit molecule objects.
+        pdb_id: The PDB ID for GNINA docking.
+        docking_scores: An optional list of pre-computed docking scores.
+        use_binding_affinity: If True, enables binding affinity as an optimization criterion.
+        **kwargs: Additional arguments for the reward computation.
         
     Returns:
-        Tuple of (rewards_list, metrics_list)
-        
-    Raises:
-        ValueError: If any molecule is invalid
-        RuntimeError: If any criterion calculation fails
+        A tuple containing a list of rewards and a list of metric dictionaries.
     """
     rewards = []
     metrics_list = []
     
-    # Show progress for large batches
     if len(mols) > 10:
         logging.info(f"Computing rewards for {len(mols)} molecules with binding affinity: {use_binding_affinity}")
     
@@ -280,7 +259,6 @@ def batch_compute_rewards(mols: List[Chem.Mol],
             rewards.append(reward)
             metrics_list.append(metrics)
             
-            # Log progress for docking
             if use_binding_affinity and metrics.get('binding_affinity') is not None:
                 if i % 10 == 0 and len(mols) > 10:
                     logging.info(f"Processed {i+1}/{len(mols)} molecules with docking")
@@ -294,17 +272,18 @@ def batch_compute_rewards(mols: List[Chem.Mol],
 def analyze_reward_distribution(rewards: List[float], 
                                metrics_list: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Analyze the distribution of rewards and their three components.
+    Analyzes the statistical distribution of rewards and their underlying components
+    (e.g., QED, SAS, and binding affinity).
     
     Args:
-        rewards: List of reward values
-        metrics_list: List of metrics dictionaries
+        rewards: A list of reward values.
+        metrics_list: A list of metrics dictionaries from the reward computation.
         
     Returns:
-        Analysis dictionary
+        A dictionary containing the statistical analysis.
         
     Raises:
-        ValueError: If input data is invalid
+        ValueError: If the input lists are empty or have mismatched lengths.
     """
     if not rewards or not metrics_list:
         raise ValueError("Empty rewards or metrics list provided")
@@ -314,8 +293,7 @@ def analyze_reward_distribution(rewards: List[float],
     
     rewards_array = np.array(rewards)
     
-    # Basic statistics
-    analysis = {
+    analysis: Dict[str, Any] = {
         'reward_stats': {
             'mean': float(np.mean(rewards_array)),
             'std': float(np.std(rewards_array)),
@@ -325,7 +303,6 @@ def analyze_reward_distribution(rewards: List[float],
         }
     }
     
-    # Component statistics for the three criteria
     components = ['qed', 'sas', 'binding_affinity']
     for comp in components:
         comp_values = [m[comp] for m in metrics_list if comp in m and m[comp] is not None]
@@ -337,7 +314,6 @@ def analyze_reward_distribution(rewards: List[float],
                 'max': float(np.max(comp_values))
             }
     
-    # Binding affinity specific statistics
     binding_affinities = [m.get('binding_affinity') for m in metrics_list]
     binding_affinities = [x for x in binding_affinities if x is not None]
     
@@ -350,11 +326,10 @@ def analyze_reward_distribution(rewards: List[float],
                 'min': float(np.min(binding_affinities)),
                 'max': float(np.max(binding_affinities))
             }
-        analysis['binding_affinity_stats']['best_binding'] = float(np.min(binding_affinities))  # Most negative = best
+        analysis['binding_affinity_stats']['best_binding'] = float(np.min(binding_affinities))
     else:
         analysis['binding_affinity_success_rate'] = 0.0
     
-    # Criteria availability statistics
     criteria_counts = {'qed': 0, 'sas': 0, 'binding_affinity': 0}
     for metrics in metrics_list:
         criteria_used = metrics.get('criteria_used', [])
@@ -367,7 +342,6 @@ def analyze_reward_distribution(rewards: List[float],
         for criterion, count in criteria_counts.items()
     }
     
-    # Correlation analysis
     if len(rewards) > 5:
         qed_values = [m.get('qed', 0) for m in metrics_list if m.get('qed') is not None]
         sas_values = [m.get('sas', 0) for m in metrics_list if m.get('sas') is not None]
@@ -385,7 +359,6 @@ def analyze_reward_distribution(rewards: List[float],
                 analysis['correlations']['reward_sas'] = float(np.corrcoef(sas_rewards, sas_values)[0, 1])
         
         if binding_affinities and len(binding_affinities) > 5:
-            # Only compute correlation for molecules with binding affinity
             binding_indices = [i for i, m in enumerate(metrics_list) if m.get('binding_affinity') is not None]
             binding_rewards = [rewards[i] for i in binding_indices]
             
