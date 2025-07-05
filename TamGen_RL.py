@@ -1,16 +1,19 @@
 """
 A refined implementation of TamGenRL for 3-criteria optimization (QED, SAS, and Binding Affinity),
-streamlined for performance and memory efficiency.
+enhanced with TamGen paper's diversity strategies.
 """
 
 import os
 import time
 import numpy as np
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Set
 from rdkit import Chem
 import torch
 from tqdm import tqdm
+import random
+import regex
+import re
 
 from TamGen_Demo import TamGenDemo
 from fairseq import progress_bar, utils
@@ -30,22 +33,31 @@ logging.basicConfig(
 
 class TamGenRL(TamGenDemo):
     """
-    Implements a reinforcement learning loop for TamGen, focusing on optimizing generated
-    molecules against three criteria: QED, SAS, and binding affinity.
+    Implements a reinforcement learning loop for TamGen, enhanced with multi-configuration
+    generation strategies from the original paper for improved diversity.
 
     Key Features:
-    - Uses a fixed latent injection method for generation.
-    - Optimizes for QED, SAS, and binding affinity, with a higher weight on the latter.
-    - Employs a simple centroid shift algorithm for latent space exploration.
-    - Manages memory carefully to handle large-scale generation.
+    - Multiple pocket definitions with different distance thresholds
+    - Varied beta parameters for VAE sampling
+    - Both conditional and unconditional generation
+    - Scaffold augmentation for seeded generation
+    - Multi-seed generation for diversity
     """
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.stored_protein_inputs = []
+        self.stored_protein_inputs = {}  # Store multiple configs
         self.device = next(self.models[0].parameters()).device
         self.latent_dim = self._detect_latent_dim()
         self.injection_monitor = InjectionMonitor(self)
+        
+        # Configuration parameters from the paper
+        self.pocket_thresholds = [8, 10, 12, 15]  # Multiple pocket sizes
+        self.beta_values = [0.1, 0.5, 1.0]  # VAE beta parameters
+        self.use_conditional_modes = [True, False]  # Both VAE and non-VAE
+        self.augmentation_rounds = 20  # For scaffold augmentation
+        
+        # Now log initialization after attributes are defined
         self._log_initialization()
     
     def _detect_latent_dim(self) -> int:
@@ -64,44 +76,211 @@ class TamGenRL(TamGenDemo):
         """Logs initial configuration details."""
         logging.info(f"TamGenRL initialized on device: {self.device}")
         logging.info(f"Detected latent dimension: {self.latent_dim}")
+        logging.info(f"Pocket thresholds: {self.pocket_thresholds}")
+        logging.info(f"Beta values: {self.beta_values}")
 
-    def _log_iteration_progress(self, iteration: int, smiles_list: List[str], rewards: List[float], 
-                                binding_affinities: List[Optional[float]], metrics: List[Dict], 
-                                current_alpha: float, iter_time: float):
-        """Logs a summary of progress for the current iteration."""
+    def augment_scaffold(self, smiles: str, num_augmentations: int = 20) -> Set[str]:
+        """
+        Augments a SMILES string by creating multiple equivalent representations.
+        This is directly from the paper's approach to increase diversity.
+        """
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return {smiles}
+        
+        smi_can = Chem.MolToSmiles(mol)
+        augmented_smiles = {smi_can, smiles}
+        
+        remapping = list(range(mol.GetNumAtoms()))
+        for i in range(num_augmentations):
+            random.shuffle(remapping)
+            new_mol = Chem.RenumberAtoms(mol, remapping)
+            new_smiles = Chem.MolToSmiles(new_mol, isomericSmiles=True, canonical=False)
+            m = Chem.MolFromSmiles(new_smiles)
+            if m is not None:
+                x2 = Chem.MolToSmiles(m)
+                if smi_can == x2:
+                    augmented_smiles.add(new_smiles)
+        
+        return augmented_smiles
+
+    def prepare_multi_config_data(self, pdb_id: str, scaffold_smiles: Optional[List[str]] = None):
+        """
+        Prepares multiple data configurations with different pocket thresholds.
+        This mimics the paper's approach of using multiple pocket definitions.
+        """
+        logging.info(f"Preparing multi-configuration data for {pdb_id}")
+        
+        configurations = []
+        for thr in self.pocket_thresholds:
+            subset_name = f"gen_{pdb_id.lower()}_t{thr}"
+            try:
+                # Try to load the data subset
+                self.reload_data(subset=subset_name)
+                configurations.append({
+                    'threshold': thr,
+                    'subset': subset_name,
+                    'scaffolds': scaffold_smiles
+                })
+                logging.info(f"   ✓ Loaded configuration with threshold {thr}Å")
+            except Exception as e:
+                logging.warning(f"   ✗ Could not load threshold {thr}Å: {e}")
+        
+        if not configurations:
+            # Fallback to single configuration
+            logging.warning("No multi-threshold data available, using single configuration")
+            subset_name = f"gen_{pdb_id.lower()}"
+            self.reload_data(subset=subset_name)
+            configurations.append({
+                'threshold': 10,
+                'subset': subset_name,
+                'scaffolds': scaffold_smiles
+            })
+        
+        return configurations
+
+    def _generate_with_config(self, config: Dict, beta: float, use_conditional: bool, 
+                             num_samples: int, maxseed: int, use_cuda: bool) -> Tuple[List[str], List[np.ndarray]]:
+        """
+        Generates molecules with a specific configuration (pocket size, beta, conditional mode).
+        """
+        # Override model settings for this configuration
+        overrides = {
+            'sample_beta': beta,
+            'gen_vae': use_conditional
+        }
+        
+        # Temporarily update model configuration
+        for model in self.models:
+            for key, value in overrides.items():
+                if hasattr(model, key):
+                    setattr(model, key, value)
+        
+        self.args.sample_beta = beta
+        self.args.gen_vae = use_conditional
+        
+        # Reload data for this configuration
+        self.reload_data(subset=config['subset'])
+        
+        smiles_list = []
+        z_vectors_list = []
+        
+        # Multi-seed generation like in the paper
+        seed_list = list(range(1, min(50, maxseed))) + [3407]  # 3407 is a "good" seed from papers
+        
+        for seed in tqdm(seed_list, desc=f"Config: thr={config['threshold']}, β={beta}, VAE={use_conditional}"):
+            if len(smiles_list) >= num_samples:
+                break
+                
+            self._set_seed(seed, use_cuda)
+            
+            try:
+                with progress_bar.build_progress_bar(self.args, self.itr) as t:
+                    for sample in t:
+                        if len(smiles_list) >= num_samples:
+                            break
+                            
+                        sample = utils.move_to_cuda(sample) if use_cuda else sample
+                        if 'net_input' not in sample:
+                            continue
+                        
+                        # Generate and extract
+                        batch_results = self._generate_and_extract_latents(sample, use_cuda)
+                        
+                        for smiles, z in batch_results:
+                            if len(smiles_list) < num_samples:
+                                smiles_list.append(smiles)
+                                z_vectors_list.append(z)
+                        
+            except Exception as e:
+                logging.warning(f"Error with seed {seed}: {e}")
+                continue
+        
+        return smiles_list, z_vectors_list
+
+    def _generate_initial_population_multi_config(self, num_samples: int, maxseed: int, 
+                                                 use_cuda: bool, pdb_id: str,
+                                                 scaffold_smiles: Optional[List[str]] = None) -> Tuple[np.ndarray, List[str]]:
+        """
+        Generates initial population using multiple configurations for maximum diversity.
+        """
+        logging.info("🌱 Generating diverse initial population with multiple configurations...")
+        
+        # Prepare configurations
+        configurations = self.prepare_multi_config_data(pdb_id, scaffold_smiles)
+        
+        # Augment scaffolds if provided
+        augmented_scaffolds = set()
+        if scaffold_smiles:
+            for scaffold in scaffold_smiles:
+                augmented = self.augment_scaffold(scaffold, self.augmentation_rounds)
+                augmented_scaffolds.update(augmented)
+            logging.info(f"   📐 Augmented {len(scaffold_smiles)} scaffolds to {len(augmented_scaffolds)} variants")
+        
+        all_smiles = []
+        all_z_vectors = []
+        
+        # Calculate samples per configuration
+        total_configs = len(configurations) * len(self.beta_values) * len(self.use_conditional_modes)
+        samples_per_config = max(10, num_samples // total_configs)
+        
+        # Generate with all combinations
+        config_count = 0
+        for config in configurations:
+            for beta in self.beta_values:
+                for use_conditional in self.use_conditional_modes:
+                    config_count += 1
+                    logging.info(f"\n🔧 Configuration {config_count}/{total_configs}:")
+                    logging.info(f"   Threshold: {config['threshold']}Å, Beta: {beta}, Conditional: {use_conditional}")
+                    
+                    smiles_batch, z_batch = self._generate_with_config(
+                        config, beta, use_conditional, 
+                        samples_per_config, maxseed, use_cuda
+                    )
+                    
+                    all_smiles.extend(smiles_batch)
+                    all_z_vectors.extend(z_batch)
+                    
+                    logging.info(f"   Generated {len(smiles_batch)} molecules")
+        
+        # Convert to arrays
+        if all_z_vectors:
+            z_vectors = np.stack(all_z_vectors[:num_samples])
+            smiles_list = all_smiles[:num_samples]
+        else:
+            raise RuntimeError("Failed to generate any molecules with multi-configuration approach")
+        
+        # Report diversity
         unique_count = len(set(smiles_list))
         diversity_ratio = unique_count / len(smiles_list)
+        logging.info(f"\n✅ Multi-config generation complete:")
+        logging.info(f"   Total molecules: {len(smiles_list)}")
+        logging.info(f"   Unique molecules: {unique_count} ({diversity_ratio:.2%})")
         
-        logging.info(f"   ✓ Generated {len(smiles_list)} molecules")
-        logging.info(f"   ✓ Diversity: {unique_count}/{len(smiles_list)} ({diversity_ratio:.2%})")
-        logging.info(f"   ✓ Reward: μ={np.mean(rewards):.3f}, σ={np.std(rewards):.3f}, max={np.max(rewards):.3f}")
-        
-        if binding_affinities:
-            binding_values = [float(x) for x in binding_affinities if x is not None]
-            if binding_values:
-                success_rate = len(binding_values) / len(metrics)
-                best_affinity = min(binding_values)
-                logging.info(f"   🧬 Binding affinity: {len(binding_values)}/{len(metrics)} successful ({success_rate:.1%})")
-                logging.info(f"   🏆 Best binding: {best_affinity:.2f} kcal/mol")
-        
-        logging.info(f"   ✓ Time: {iter_time:.1f}s")
+        return z_vectors, smiles_list
 
     def sample(self,
-               num_samples: int = 100,
+               num_samples: int = 1000,  # Increased default
                num_iter: int = 5,
                alpha: float = 0.5,
-               top_k: int = 50,
-               maxseed: int = 20,
+               top_k: int = 100,  # Increased default
+               maxseed: int = 50,  # Increased default
                use_cuda: bool = True,
-               batch_size: int = 4,
+               batch_size: int = 8,  # Increased default
                save_intermediates: bool = True,
                pdb_id: Optional[str] = None,
                use_binding_affinity: bool = True,
                weights: Optional[Dict[str, float]] = None,
                affinity_config: Optional[Dict[str, float]] = None,
+               scaffold_smiles: Optional[List[str]] = None,
+               use_multi_config: bool = True,  # New parameter
                **kwargs) -> List[str]:
         """
-        Generates and optimizes molecules over several iterations using 3-criteria optimization.
+        Generates and optimizes molecules with enhanced diversity strategies.
+        
+        Args:
+            use_multi_config: If True, uses multiple pocket/beta/conditional configurations
+            scaffold_smiles: Optional list of scaffold SMILES for seeded generation
         """
         os.makedirs("latent_logs", exist_ok=True)
         
@@ -119,17 +298,36 @@ class TamGenRL(TamGenDemo):
             
             try:
                 if iteration == 0:
-                    z_vectors, smiles_list = self._generate_initial_population(num_samples, maxseed, use_cuda)
+                    if use_multi_config and pdb_id:
+                        # Use multi-configuration generation
+                        z_vectors, smiles_list = self._generate_initial_population_multi_config(
+                            num_samples, maxseed, use_cuda, pdb_id, scaffold_smiles
+                        )
+                    else:
+                        # Fallback to original single-config generation
+                        z_vectors, smiles_list = self._generate_initial_population(
+                            num_samples, maxseed, use_cuda
+                        )
                 else:
+                    # Subsequent iterations still use latent space optimization
                     if z_vectors is not None:
-                        smiles_list = self._decode_latents_to_smiles(z_vectors, batch_size, use_cuda)
-                        z_vectors = z_vectors[:len(smiles_list)]
+                        # For diversity, add some random sampling alongside latent decoding
+                        latent_smiles = self._decode_latents_to_smiles(z_vectors[:len(z_vectors)//2], batch_size, use_cuda)
+                        
+                        # Add fresh random samples for diversity
+                        fresh_z, fresh_smiles = self._generate_initial_population(
+                            len(z_vectors)//2, maxseed//2, use_cuda
+                        )
+                        
+                        smiles_list = latent_smiles + fresh_smiles
+                        z_vectors = np.vstack([z_vectors[:len(latent_smiles)], fresh_z])
                     else:
                         raise RuntimeError("No latent vectors available for generation")
                 
                 if not smiles_list:
                     raise RuntimeError(f"No valid molecules generated in iteration {iteration + 1}")
                 
+                # Remove duplicates
                 seen_smiles = set()
                 unique_smiles_list = []
                 unique_indices = []
@@ -147,6 +345,7 @@ class TamGenRL(TamGenDemo):
                 if duplicates_removed > 0:
                     logging.info(f"   🗑️  Removed {duplicates_removed} duplicates before reward calculation")
                 
+                # Continue with optimization
                 z_vectors, rewards, metrics = self._optimize_latent_space(
                     z_vectors, smiles_list, current_alpha, min(top_k, len(smiles_list)),
                     iteration, pdb_id, use_binding_affinity, weights, affinity_config
@@ -180,13 +379,16 @@ class TamGenRL(TamGenDemo):
         logging.info("🎉 TamGenRL optimization complete!")
         return smiles_list if smiles_list else []
 
+    # Keep all other methods from the original implementation unchanged
     def _log_optimization_start(self, num_samples: int, num_iter: int, batch_size: int, 
                                 weights: Dict[str, float], pdb_id: Optional[str], use_binding_affinity: bool):
         """Logs the configuration and parameters at the start of the optimization process."""
-        logging.info("🚀 Starting TamGenRL optimization")
+        logging.info("🚀 Starting TamGenRL optimization with enhanced diversity")
         logging.info(f"   Target: {num_samples} molecules × {num_iter} iterations")
         logging.info(f"   Device: {self.device}, Batch size: {batch_size}")
         logging.info(f"   Weights: QED={weights['qed']}, SAS={weights['sas']}, Binding={weights['binding_affinity']}")
+        logging.info(f"   Multi-config diversity enhancement: ENABLED")
+        logging.info(f"   Configurations: {len(self.pocket_thresholds)} thresholds × {len(self.beta_values)} betas × 2 modes")
         
         if use_binding_affinity and pdb_id:
             logging.info(f"   🧬 Binding affinity optimization enabled for PDB: {pdb_id}")
@@ -194,6 +396,27 @@ class TamGenRL(TamGenDemo):
             logging.info("   📋 Using pre-computed docking scores for binding affinity")
         else:
             logging.info("   ⚗️  Using QED and SAS only")
+
+    def _log_iteration_progress(self, iteration: int, smiles_list: List[str], rewards: List[float], 
+                                binding_affinities: List[Optional[float]], metrics: List[Dict], 
+                                current_alpha: float, iter_time: float):
+        """Logs a summary of progress for the current iteration."""
+        unique_count = len(set(smiles_list))
+        diversity_ratio = unique_count / len(smiles_list)
+        
+        logging.info(f"   ✓ Generated {len(smiles_list)} molecules")
+        logging.info(f"   ✓ Diversity: {unique_count}/{len(smiles_list)} ({diversity_ratio:.2%})")
+        logging.info(f"   ✓ Reward: μ={np.mean(rewards):.3f}, σ={np.std(rewards):.3f}, max={np.max(rewards):.3f}")
+        
+        if binding_affinities:
+            binding_values = [float(x) for x in binding_affinities if x is not None]
+            if binding_values:
+                success_rate = len(binding_values) / len(metrics)
+                best_affinity = min(binding_values)
+                logging.info(f"   🧬 Binding affinity: {len(binding_values)}/{len(metrics)} successful ({success_rate:.1%})")
+                logging.info(f"   🏆 Best binding: {best_affinity:.2f} kcal/mol")
+        
+        logging.info(f"   ✓ Time: {iter_time:.1f}s")
 
     def _record_iteration_metrics(self, iteration: int, smiles_list: List[str], rewards: List[float],
                                   metrics: List[Dict], current_alpha: float, iter_time: float,
@@ -279,18 +502,21 @@ class TamGenRL(TamGenDemo):
     def _set_seed(self, seed: int, use_cuda: bool):
         """Sets random seeds for reproducibility."""
         torch.manual_seed(seed)
+        np.random.seed(seed)
+        random.seed(seed)
         if use_cuda and torch.cuda.is_available():
             torch.cuda.manual_seed(seed)
 
     def _store_protein_input(self, sample: Dict[str, Any]):
         """Stores the protein context from a sample for reuse in subsequent generations."""
+        config_key = f"default"  # Could be extended to store per-config
         protein_input = {
             'src_tokens': sample['net_input']['src_tokens'].clone(),
             'src_lengths': sample['net_input']['src_lengths'].clone(),
             'src_coord': sample['net_input'].get('src_coord', None).clone() 
                         if sample['net_input'].get('src_coord') is not None else None,
         }
-        self.stored_protein_inputs.append(protein_input)
+        self.stored_protein_inputs[config_key] = protein_input
         logging.info(f"📦 Stored protein context for generation: {protein_input['src_tokens'].shape}")
 
     def _generate_and_extract_latents(self, sample: Dict[str, Any], use_cuda: bool) -> List[Tuple[str, np.ndarray]]:
@@ -339,7 +565,8 @@ class TamGenRL(TamGenDemo):
         
         logging.info(f"🔄 Generating from {len(z_vectors)} latent vectors...")
         
-        protein_input = self.stored_protein_inputs[0]
+        # Use the first stored protein input
+        protein_input = list(self.stored_protein_inputs.values())[0]
         all_results = []
         
         for start_idx in range(0, len(z_vectors), batch_size):
@@ -387,16 +614,19 @@ class TamGenRL(TamGenDemo):
                                               protein_input: Dict[str, torch.Tensor], 
                                               use_cuda: bool) -> List[str]:
         """Generates a batch of molecules by injecting latent vectors into the encoder output."""
-        torch.manual_seed(42)
+        # Use random seed for diversity
+        seed = random.randint(1, 10000)
+        torch.manual_seed(seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(42)
+            torch.cuda.manual_seed(seed)
         
         model = self.models[0]
         model.eval()
 
+        # Keep some dropout for diversity
         for module in model.modules():
             if isinstance(module, torch.nn.Dropout):
-                module.p = 0.0
+                module.p = 0.1  # Small dropout for diversity
         
         batch_size = len(z_batch)
         z_tensor = torch.tensor(z_batch, dtype=torch.float32, device=self.device)  
@@ -412,7 +642,10 @@ class TamGenRL(TamGenDemo):
                 tgt_coord=None
             )
             
-            z_expanded = z_tensor.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
+            # More sophisticated latent injection with noise
+            noise = torch.randn_like(z_tensor) * 0.1  # Add noise for diversity
+            z_noisy = z_tensor + noise
+            z_expanded = z_noisy.unsqueeze(0).expand(encoder_out['encoder_out'].size(0), -1, -1)
             encoder_out['encoder_out'] = encoder_out['encoder_out'] + z_expanded
             
             sample["encoder_outs_override"] = [encoder_out]
@@ -424,15 +657,18 @@ class TamGenRL(TamGenDemo):
         results = []
         for i, hypos_i in enumerate(hypos):
             if not hypos_i:
-                raise RuntimeError(f"Generation failed for sample {i}: no hypotheses produced.")
+                results.append("")  # Don't fail, just skip
+                continue
             
             best_hypo = hypos_i[0]
             hypo_tokens = best_hypo["tokens"].int().cpu()
             smiles = self.tgt_dict.string(hypo_tokens, None).strip().replace(" ", "")
             
+            # Don't raise error on invalid SMILES, just skip
             if Chem.MolFromSmiles(smiles) is None:
-                raise RuntimeError(f"Invalid SMILES generated: {smiles}")
-            results.append(smiles)
+                results.append("")
+            else:
+                results.append(smiles)
         
         return results
 
@@ -541,47 +777,3 @@ class TamGenRL(TamGenDemo):
             logging.info(f"   🧬 Best binding affinity: {final_result['best_binding_affinity']:.2f} kcal/mol")
             if final_result.get('binding_affinity_success_rate'):
                 logging.info(f"   📊 Final docking success rate: {final_result['binding_affinity_success_rate']:.1%}")
-
-
-def run_tamgen_rl_optimization(checkpoint_path: str,
-                              data_path: str,
-                              output_dir: str = "tamgen_rl_results",
-                              pdb_id: Optional[str] = None,
-                              use_binding_affinity: bool = True,
-                              **optimization_kwargs) -> Dict[str, Any]:
-    """
-    A convenience function to set up and run the TamGenRL optimization pipeline.
-    
-    Args:
-        checkpoint_path: Path to the TamGen model checkpoint.
-        data_path: Path to the input data for the model.
-        output_dir: Directory to save optimization results.
-        pdb_id: The PDB ID of the target for GNINA docking (e.g., "1HSG").
-        use_binding_affinity: If True, enables binding affinity as an optimization criterion.
-        **optimization_kwargs: Additional arguments for the optimization process.
-        
-    Returns:
-        A dictionary containing a summary of the optimization run.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-    
-    logging.info("🚀 Starting TamGenRL optimization process")
-    logging.info(f"   Output directory: {output_dir}")
-    if use_binding_affinity and pdb_id:
-        logging.info(f"   Target PDB: {pdb_id}")
-    
-    optimization_kwargs.update({
-        'pdb_id': pdb_id,
-        'use_binding_affinity': use_binding_affinity
-    })
-    
-    # In a complete implementation, this is where the TamGenRL class would be
-    # instantiated and the `sample` method would be called.
-    
-    return {
-        "status": "success",
-        "output_dir": output_dir,
-        "pdb_id": pdb_id,
-        "use_binding_affinity": use_binding_affinity,
-        "n_final_molecules": 0, # Placeholder
-    }
